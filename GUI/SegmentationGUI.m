@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 08-Sep-2015 11:39:38
+% Last Modified by GUIDE v2.5 10-Sep-2015 13:48:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -259,6 +259,7 @@ function goStep1_Callback(hObject, eventdata, handles)
 handles.state.invertColor=get(handles.invertColor,'Value');
 handles.state.initSeg=get(handles.initSeg,'Value');
 handles.state.diffMaxMin=get(handles.diffMaxMin,'Value');
+handles.state.threshold=get(handles.threshold,'Value');
 handles.data.Step2_seg=step1(handles.data.Step1,handles.state);
 
 axes(handles.plotseg)
@@ -339,6 +340,19 @@ guidata(hObject, handles);
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
+
+% --- Executes on slider movement.
+function threshold_Callback(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
+tmp=bwmorph(tmp,'fill'); %imshow(tmp)
+
+imshow(imfuse(handles.data.Step1,tmp))
 
 
 
@@ -650,3 +664,17 @@ function text20_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to text20 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function threshold_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end

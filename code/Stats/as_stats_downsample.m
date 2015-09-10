@@ -30,6 +30,21 @@ for x=1:length(Xcoords)
 end
 sFields{end+1}='Number_axons';
 sFields{end+1}='MeanDiameterOver3mu';
+stats_downsample(isnan(stats_downsample))=0;
+
+% create mask
+figure
+sc(stats_downsample(:,:,7))
+msgbox({'Use the slider to generate mask' 'Press any key when are done..'})
+hsl = uicontrol('Style','slider','Min',0,'Max',1000,...
+                'SliderStep',[1 1]./50,'Value',100,...
+                'Position',[20 20 200 20]);
+set(hsl,'Callback',@(hObject,eventdata) sc(stats_downsample(:,:,7),'r',stats_downsample(:,:,7)>get(hObject,'Value')))
+pause
+
+mask=stats_downsample(:,:,7)>get(hsl,'Value');
+close
+stats_downsample(~repmat(mask,[1 1 size(stats_downsample,3)]))=0;
 
 
         
