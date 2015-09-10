@@ -626,7 +626,7 @@ handles.stats = struct2table(handles.stats);
 writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
-AxCaliberLabelled=as_display_labelgRatio(Axonlist,get(handles.PixelSize,'value'),'axonEquivDiameter',size(handles.data.img));
+AxCaliberLabelled=as_display_label(Axonlist,size(handles.data.img),'axonEquivDiameter');
 imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled.jpg']);
 
 guidata(hObject, handles);
