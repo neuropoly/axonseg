@@ -298,6 +298,8 @@ function initSeg_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
+tmp=imfill(tmp,'holes'); %imshow(initialBW)
+
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,tmp))
 guidata(hObject, handles);
@@ -350,7 +352,7 @@ function threshold_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
-tmp=bwmorph(tmp,'fill'); %imshow(tmp)
+tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
 
 imshow(imfuse(handles.data.Step1,tmp))
 

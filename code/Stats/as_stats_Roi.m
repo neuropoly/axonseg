@@ -1,6 +1,7 @@
-function [axonlistInRoi, Stats]=as_stats_Roi(axonlist, img, mask )
-% [axonlistInRoi, Stats] = as_stats_Roi(axonlist, img)
-% [axonlistInRoi, Stats] = as_stats_Roi(axonlist, [], mask)
+function [Index, Stats]=as_stats_Roi(axonlist, img, mask )
+% [Index, Stats] = as_stats_Roi(axonlist, img)
+% [Index, Stats] = as_stats_Roi(axonlist, [], mask)
+% axonlist_ROI= axonlist(Index)
 
 if isempty(img)
     P=mask2poly(mask);
@@ -17,10 +18,11 @@ Py=P(:,1);
 
 in=inpolygon(Centroidx,Centroidy,Px,Py);
 
-Id= in==1;
+Index= in==1;
 
-axonlistInRoi=axonlist(Id);
+
 if nargout>1
+    axonlistInRoi=axonlist(Index);
     gRatio=cat(1,axonlistInRoi.gRatio);
     myelinArea=cat(1,axonlistInRoi.myelinArea);
     axonArea=cat(1,axonlistInRoi.axonArea);

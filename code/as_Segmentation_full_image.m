@@ -51,8 +51,10 @@ gRatio_map=as_display_label(axonlist, size(img),'gRatio');
 axonEquivDiameter_map=as_display_label(axonlist, size(img),'axonEquivDiameter');
 RGB = ind2rgb8(gRatio_map,hot(100));
 imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'gRatio_0_1.jpg'])
-RGB = ind2rgb8(axonEquivDiameter_map,hot(80));
-imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_0µm_8µm.jpg'])
+
+maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
+RGB = ind2rgb8(axonEquivDiameter_map,hot(maxdiam*10));
+imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_0µm_' num2str(maxdiam) 'µm.jpg'])
 copyfile(which('colorbarhot.png'),output)
 
 
