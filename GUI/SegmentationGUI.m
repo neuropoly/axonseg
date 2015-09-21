@@ -614,6 +614,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
 [handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
+handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
 
 handles.data.Step3_seg = as_myelinseg_to_axonseg(handles.data.seg);
 
@@ -634,7 +635,7 @@ mkdir(savedir);
 Axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
 PixelSize = handles.PixelSize;
 img=handles.data.img;
-save([savedir, 'Axonlist.mat'], 'Axonlist', 'img', 'PixelSize','-v7.3')
+save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 
 % excel
 handles.stats = as_stats(handles.data.seg,get(handles.PixelSize,'Value'));

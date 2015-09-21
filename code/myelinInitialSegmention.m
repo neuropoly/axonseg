@@ -3,14 +3,10 @@ function [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, ve
 % exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, backBW,1,0);
 if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
-if nargin<5, snake = false; end;
+if nargin<5, snake = true; end;
 maxi=max(max(max(im)));
 im=double(im);
 
-
-flagAssetsForFigures = 0;%[4:17];
-saveAssets = false;
-assetsBaseName = '/Users/stevebegin/Documents/PhD/Publication/begin-2014/figures/figure_myelinSeg/1-initialSeg/roi7-120f-med-myelin';
 
 [axonLabel, numAxon] = bwlabel(axonBW);
 axonProp = regionprops(axonLabel, 'EquivDiameter');
@@ -25,8 +21,6 @@ radialProfileMinLength = 10; % pixels
 
 if ~exist('radialProfileMaxLength','var'),  radialProfileMaxLength= 2/3; end% fraction of axon EquivDiameter to probe
 if ~exist('khomo_off','var'),  khomo_off= 0; end % homogeneous thickness
-
-oversamplingFact = 1;
 
 %%
 % Meshgrid for computing the radial profiles
@@ -63,10 +57,6 @@ for currentAxonLabel = 1:numAxon
     yCoord = zeros(radialProfileNumPix, numAnglesRadialProfile);
     imRadialProfile = zeros(numAnglesRadialProfile, radialProfileNumPix, 'uint8');
     maskRadialProfile = false(numAnglesRadialProfile, radialProfileNumPix);
-    if saveAssets
-        axonRadialProfile = false(numAnglesRadialProfile, radialProfileNumPix);
-        backRadialProfile = false(numAnglesRadialProfile, radialProfileNumPix);
-    end
     
     %% Compute radial profiles start and end points from axon boundary
     [currentAxonBoundary,~] = bwboundaries(currentAxonBW,'noholes');
@@ -82,10 +72,6 @@ for currentAxonLabel = 1:numAxon
         yCoord(:, i) = linspace(radialProfileStartpoint(i, 2),radialProfileEndpoint(i, 2), radialProfileNumPix)';
         imRadialProfile(i, :) = qinterp2(X,Y,im,xCoord(:, i)',yCoord(:, i)', 2);
         maskRadialProfile(i, :) = qinterp2(X,Y,(allOtherAxonBW),xCoord(:, i)',yCoord(:, i)', 0);
-        if saveAssets
-            axonRadialProfile(i, :) = qinterp2(X,Y,allOtherAxonBW,xCoord(:, i)',yCoord(:, i)', 0);
-            backRadialProfile(i, :) = qinterp2(X,Y,double(backBW),xCoord(:, i)',yCoord(:, i)', 0);
-        end
     end
     for thick_times=1:3
         maskRadialProfile=bwmorph(maskRadialProfile,'thicken');
@@ -217,102 +203,18 @@ for currentAxonLabel = 1:numAxon
     if cc.NumObjects > nObjToKeep || sum(sum(currentAxonBW & currentMyelinBW)) > 0
         throwIdx(currentAxonLabel) = true;
     end
+
     
-    if ~saveAssets && max(flagAssetsForFigures == currentAxonLabel)
-        
-        linewidth = 2;
-        figure;
-        set(gcf,'Position',get(0,'ScreenSize'))
-        subplot(1, 2, 1)
-        pr1 = sc(imRadialProfile) + sc(maskRadialProfile, 'r', maskRadialProfile, 'b', maskRadialProfile)*0.3;
-        pr2 = sc(imRadialProfileGrad) + sc((maskRadialProfile==1), 'r', (maskRadialProfile==1), 'b', logical(maskRadialProfile))*0.3;
-        pr3 = sc(imRadialProfileGrad) + sc((imRadialProfileGradMod == 1), 'r', (imRadialProfileGradMod == 1))*0.3;
-        sc([pr1 pr2 pr3])
-        hold on
-        plot(x2,sr,'g', 'LineWidth',linewidth);
-        plot(x2+radialProfileNumPix,sr,'g', 'LineWidth',linewidth);
-        plot(x2+radialProfileNumPix*2,sr,'g', 'LineWidth',linewidth);
-        
-        %         figure;
-        subplot(1, 2, 2)
-        im1 = sc(im) + sc(axonBW,'b', axonBW, 'g', currentAxonBW, 'r', backBW)*0.5 + sc(currentMyelinBW, 'c', currentMyelinBW)*0.4;
-        sc(im1)
-        %         hold on;
-        %         plot(yypp(:, 1), yypp(:, 2), 'b', 'LineWidth',linewidth)
-        
-        %         figure;
-        %         currentMyelinBW2 = imfill(poly2mask(pathCoord(:, 1), pathCoord(:, 2), size(im, 1), size(im, 2)), 'holes');
-        %         im2 = sc(im) + sc(axonBW,'b', axonBW, 'g', currentAxonBW, 'r', backBW)*0.5 + sc(currentMyelinBW2, 'c', currentMyelinBW2)*0.4;
-        %         hold on;
-        %         plot(pathCoord(:, 1), pathCoord(:, 2), 'g', 'LineWidth',linewidth)
-        %         sc([im1 im2])
-    end
-    
-    if saveAssets && flagAssetsForFigures == currentAxonLabel
-        baseName = [assetsBaseName num2str(currentAxonLabel)];
-        %%
-        figure;
-        sc(sc(im) + sc(currentAxonBW, 'g', currentAxonBW)*0.5);
-        if saveAssets, export_fig([baseName '-axonMask.png']); close gcf; end
-        %%
-        figure;
-        sc(sc(im) + sc(axonBW,'b', axonBW, 'g', currentAxonBW, 'r', backBW)*0.5)
-        %         sc(sc(im) + sc(axonBW,'b', axonBW, 'g', currentAxonBW)*0.5)
-        hold on;
-        linewidth = 1.2;
-        for i=1:2:numAnglesRadialProfile
-            plot([radialProfileStartpoint(i, 1),radialProfileEndpoint(i, 1)], [radialProfileStartpoint(i, 2),radialProfileEndpoint(i, 2)],'Color','k', 'LineWidth',linewidth)
-        end
-        if saveAssets, export_fig([baseName '-axonMaskRadialLines.pdf']); close gcf; end
-        
-        %%
-        figure;
-        % Radial Profile
-        sc(sc(imRadialProfile) + sc(maskRadialProfile, 'r', backRadialProfile, 'b', axonRadialProfile)*0.5)
-        if saveAssets, export_fig([baseName '-radialProfile.png']); end
-        hold on;
-        linewidth = 4;
-        plot(allPathIdx(:, idxMaxStraight),sr,'g', 'LineWidth',linewidth);
-        hold off;
-        if saveAssets, export_fig([baseName '-radialProfilePath.png']); close gcf; end
-        % Gradient of radial Profile
-        figure;
-        sc(imRadialProfileGrad)
-        if saveAssets, export_fig([baseName '-radialProfileGrad.png']); close gcf; end
-        % Gradient of radial Profile with axons and back paint
-        figure;
-        sc(sc(imRadialProfileGrad) + sc((maskRadialProfile==1), 'r', backRadialProfile, 'b', axonRadialProfile)*0.5)
-        if saveAssets, export_fig([baseName '-radialProfileGradMod.png']); end
-        hold on
-        linewidth = 4;
-        plot(allPathIdx(:, idxMaxStraight),sr,'g', 'LineWidth',linewidth);
-        if saveAssets, export_fig([baseName '-radialProfileGradModPath.png']); close gcf; end
-        % Gradient of radial Profile with axons and back paint median
-        figure;
-        sc(sc(imRadialProfileGrad) + sc((imRadialProfileGradMod == 1), 'r', (imRadialProfileGradMod == 1))*0.5)
-        if saveAssets, export_fig([baseName '-radialProfileGradModMedian.png']); end
-        % Same with myelin boundary paths
-        hold on
-        linewidth = 4;
-        plot(allPathIdx(:, idxMaxStraight),sr,'g', 'LineWidth',linewidth);
-        %         plot(allPathIdx(:, 2),sr,'--b', 'LineWidth',linewidth);
-        %         plot(allPathIdx(:, 3),sr,'-.r', 'LineWidth',linewidth);
-        if saveAssets, export_fig([baseName '-radialProfileMinPath.png']); close gcf; end
-        
-        %%
-        figure;
-        % Unfolded myelin border
-        sc(sc(im) + sc(currentMyelinBW, 'c', currentMyelinBW)*0.5);
-        %         hold on;
-        %         plot(yypp(:, 1), yypp(:, 2), 'b', 'LineWidth',linewidth)
-        if saveAssets, export_fig([baseName '-unfoldSegmentedMyelin.png']); close gcf; end
-    end
 end
 
 j_progress('elapsed')
 %initialArray(:, :, throwIdx) = [];
 axonBW = logical(axonLabel);
 end
+
+
+
+
 
 function [startPoint, endPoint] = computeProfileEndpoint(radialProfileStartpoint, radialProfileLength, numAngles)
 %% Find the profile endpoints from the boundary normal vectors

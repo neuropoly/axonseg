@@ -19,14 +19,16 @@ axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(lo
 
 % remove axons that have been segmented twice
 centroids=cat(1,axonlist.Centroid);
-[~,~,axonlistcell]=as_stats_downsample(axonlist,[max(centroids(:,1)) max(centroids(:,2))],1,1000, 0);
-rm=false(length(axonlist),1);
-for x=1:size(axonlistcell,1)
-    for y=1:size(axonlistcell,2)
-        rm(axonlistcell{x,y})=as_axonlist_distance_closerthandiameter(axonlist(axonlistcell{x,y}),0.5);
+if ~isempty(centroids)
+    [~,~,axonlistcell]=as_stats_downsample(axonlist,[max(centroids(:,1)) max(centroids(:,2))],1,1000, 0);
+    rm=false(length(axonlist),1);
+    for x=1:size(axonlistcell,1)
+        for y=1:size(axonlistcell,2)
+            rm(axonlistcell{x,y})=as_axonlist_distance_closerthandiameter(axonlist(axonlistcell{x,y}),0.5);
+        end
     end
+    axonlist(rm)=[]; % if axons have been segmented twice.. careful
 end
-axonlist(rm)=[]; % if axons have been segmented twice.. careful
 
 
 end

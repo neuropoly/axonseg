@@ -1,5 +1,11 @@
 function as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output)
-% as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output)
+% as_Segmentation_full_image(im_fname,SegParameters,blocksize (# of pixels),overlap,output)
+% as_Segmentation_full_image('Control_2.tif', 'SegParameters.mat',5000,100,'Control_2_results')
+%
+% im_fname: input image (filename)
+% SegParameters: output of SegmentationGUI
+% blocksize: input image is divided in smaller pieces in order to limit memory usage..
+% See also: SegmentationGUI
 
 %% INPUTS
 if ~exist('im_fname','var') || isempty(im_fname)
@@ -19,7 +25,8 @@ if ~exist('overlap','var') || isempty(overlap)
     overlap=200;
 end
 if ~exist('output','var') || isempty(output)
-    output=['.' filesep];
+    [~,name]=fileparts(im_fname);
+    output=[name '_Segmentation'];
 end
 
 if ~exist(output,'dir'), mkdir(output); end
@@ -80,5 +87,5 @@ AxSeg=step2(AxSeg,state);
 
 %Myelin Segmentation
 AxSeg_rb=RemoveBorder(AxSeg);
-backBW=AxSeg & ~AxSeg_rb;
+backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
 [im_out] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1);

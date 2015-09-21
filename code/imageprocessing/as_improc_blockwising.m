@@ -9,7 +9,7 @@ n_blockj=length(1:(blocksize-overlap):n);
 disp(['loop over blocks of ' num2str(blocksize) ' pixels (' num2str(n_blocki*n_blockj) ' blocks in total) :'])
 im_array_sparse=cell(n_blockj,n_blocki);
 
-if isdeployed && license('checkout','Distrib_Computing_Toolbox')
+if isdeployed && license('checkout','Distrib_Computing_Toolbox') && n_blocki*n_blockj>10
     parpool
 end
 
