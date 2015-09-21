@@ -1,7 +1,7 @@
 # axon_segmentation
 Segment axon and myelin from microscopy data. Written in Matlab.
 
-## Tutorial
+## Tutorials
   * SegmentationGUI: Segment using Graphical interface --> https://drive.google.com/open?id=0B2Xe6kvfjHHnLVE1N2lMYktWMGM
   * as_Segmentation_full_image: Segment using Segmentation parameters (file SegParameters.mat) --> https://drive.google.com/open?id=0B2Xe6kvfjHHnS245Smp1aHlfOXc
   * myelinInitialSegmention : Segment myelin using axon segmentation as input -->  https://drive.google.com/open?id=0B2Xe6kvfjHHncWVRMG5mS3JZQUE
