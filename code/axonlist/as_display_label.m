@@ -1,13 +1,16 @@
-function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype)
-%[im_out,AxStats]=labelgRatio(axonlist, matrixsize, metric, displaytype)
-% metric = 'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'
-% displaytype = 'axon' | 'myelin'
+function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg)
+%[im_out,AxStats]=labelgRatio(axonlist, matrixsize, metric);
+%[im_out,AxStats]=labelgRatio(axonlist, matrixsize, metric, displaytype, writeimg?);
+% metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
+% displaytype {'axon' | 'myelin'} = 'myelin'
+% writeimg {img,0} = 0
 %
 % EXAMPLE:
 % bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
 % sc(sc(bw_axonseg,'hot')+sc(img))
 dbstop error 
 if nargin<4; displaytype='myelin';end
+if ~exist('writeimg','var'), writeimg=0; end
 
 im_out=zeros(matrixsize,'uint8');
 
@@ -45,3 +48,9 @@ for i=Naxon:-1:1
 end
 disp('done')
 toc
+
+if writeimg
+    maxval=ceil(prctile(im_out(im_out>0),99));
+    RGB = ind2rgb8(im_out,hot(maxval));
+    imwrite(0.5*RGB(1:2:end,1:2:end,:)+0.5*repmat(writeimg(1:2:end,1:2:end),[1 1 3]),[metric '_0_' num2str(maxval) '.jpg'])
+end

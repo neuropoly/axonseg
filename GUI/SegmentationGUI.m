@@ -563,11 +563,7 @@ function ellipse_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-hellipse=imellipse;
-
-wait(hellipse);
-manualBW = createMask(hellipse);
-hellipse.delete;
+manualBW=as_axonSeg_manual_ellipse
 handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
 imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
@@ -632,7 +628,7 @@ end
 savedir=[handles.outputdir 'results_croped' filesep];
 mkdir(savedir);
 % axonlist structure
-Axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
+axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
 PixelSize = handles.PixelSize;
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
@@ -643,7 +639,7 @@ handles.stats = struct2table(handles.stats);
 writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
-AxCaliberLabelled=as_display_label(Axonlist,size(handles.data.img),'axonEquivDiameter');
+AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
 imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled.jpg']);
 
 guidata(hObject, handles);

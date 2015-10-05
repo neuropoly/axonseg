@@ -6,7 +6,7 @@ function as_reg_histo2mri3D(src, ref, iT, tform)
 %
 % See also as_stats_downsample_2nii
 
-if ~exist('isrc','var'), iT=1; end
+if ~exist('iT','var'), iT=1; end
 
 nii_ref=load_nii(ref);
 nii_src=load_nii(src);
