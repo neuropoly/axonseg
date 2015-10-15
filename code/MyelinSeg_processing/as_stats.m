@@ -9,15 +9,18 @@ statis=struct('myelinArea',0,'axonArea',0,'myelinEquivDiameter',0,'axonEquivDiam
 
 
 if ~isempty(prop)
+    % Area gives myelin area & FilledArea gives (myelin+axon) area
     area = [[prop.Area]' [prop.FilledArea]'-[prop.Area]'];
-    
+    % Calculate myelin area by using pixel size
     statis.myelinArea = single(area(:, 1).*pixelSize^2);
+    % Calculate axon area by using pixel size
     statis.axonArea = single(area(:, 2).*pixelSize^2);
-    
+    % Myelin equiv. diameter = sqrt(4*TotalArea/pi)
     statis.myelinEquivDiameter = single(sqrt(4*(statis.myelinArea + statis.axonArea)/pi));
+    % Axon equiv. diameter = sqrt(4*AxonArea/pi)
     statis.axonEquivDiameter = single(sqrt(4*statis.axonArea/pi));
-    
+    % Calculate gRatio
     statis.gRatio = single(statis.axonEquivDiameter ./ statis.myelinEquivDiameter);
-    
+    % Myelin thickness = (MyelinDiam - AxonDiam)/2
     statis.myelinThickness = single((statis.myelinEquivDiameter - statis.axonEquivDiameter) / 2);
 end
