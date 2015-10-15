@@ -35,6 +35,8 @@ AxonSeg_sensitivity = eval_sensitivity(imread(AxonSeg_img),imread(AxonSeg_cor_im
 save([PATHSTR filesep 'results_croped' filesep 'Sensitivity.mat'],'AxonSeg_sensitivity');
 
 
+[AxonSeg_sensitivity, les_stats]= eval_sensitivity_stats(imread(AxonSeg_img),imread(AxonSeg_cor_img));
+
 
 
 statis_avant=as_stats_axonSeg(imread(AxonSeg_img),1);
