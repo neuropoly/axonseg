@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 06-Oct-2015 09:59:38
+% Last Modified by GUIDE v2.5 16-Oct-2015 13:05:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -141,7 +141,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in invertColor.
-function invertColor_Callback(hObject, eventdata, handles)
+function handles=invertColor_Callback(hObject, eventdata, handles)
 % hObject    handle to invertColor (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -153,7 +153,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in histEq.
-function histEq_Callback(hObject, eventdata, handles)
+function handles=histEq_Callback(hObject, eventdata, handles)
 % hObject    handle to histEq (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -374,7 +374,6 @@ imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 SegParameters=handles.state; PixelSize=get(handles.PixelSize,'Value');
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
-guidata(hObject, handles);
 fprintf('Etape 2 Done \n');
 
 set(handles.uipanel3, 'Visible', 'on')
@@ -685,3 +684,65 @@ function text20_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to text20 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+
+% --- Executes on button press in LoadSegParam.
+function LoadSegParam_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadSegParam (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Select segmentation parameters file to load
+
+[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+segparam_filepath = [PathName FileName];
+load(segparam_filepath);
+
+% Get invertColor parameter
+set(handles.invertColor,'Value',SegParameters.invertColor);
+handles.state.invertColor = get(handles.invertColor,'Value');
+% 
+% handles.state.invertColor = get(SegParameters.invertColor,'Value');
+
+% 
+% % Get histEq parameter
+set(handles.histEq,'Value',SegParameters.histEq);
+handles.state.histEq = get(handles.histEq,'Value');
+% 
+% 
+% handles.state.histEq = get(SegParameters.histEq,'Value');
+handles=invertColor_Callback(hObject, eventdata, handles);
+handles=histEq_Callback(hObject, eventdata, handles);
+% 
+
+
+% Set Minsize, circularity & solidity
+
+set(handles.minSize,'Value',SegParameters.minSize);
+handles.state.minSize = get(handles.minSize,'Value');
+
+set(handles.Circularity,'Value',SegParameters.Circularity);
+handles.state.Circularity = get(handles.Circularity,'Value');
+
+set(handles.Solidity,'Value',SegParameters.Solidity);
+handles.state.Solidity = get(handles.Solidity,'Value');
+
+
+% 
+% 
+% % % Get Deconv parameter
+% set(handles.Deconv,'Value',SegParameters.Deconv);
+% % handles.state.histEq = get(handles.histEq,'Value');
+% % 
+% % 
+% % handles.state.histEq = get(SegParameters.histEq,'Value');
+% Deconv_Callback(hObject, eventdata, handles);
+
+% 
+
+
+
+
+% Update handles
+guidata(hObject,handles);
