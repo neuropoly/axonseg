@@ -1,6 +1,16 @@
 function sensitivity = eval_sensitivity(Auto_seg_img, Corrected_seg_img)
+% Description : This function calculates the sensitivity of the axon
+% segmentation performed by SegmentationGUI by comparing the result with
+% the image obtained by correcting the segmentation (by using
+% ManualCorrectionGUI).
+% Auto_seg_img : IN (BW Image obtained by SegmentationGUI)
+% Corrected_seg_img : IN (BW Image obtained by ManualCorrectionGUI)
+%
+% sensitivity : OUT (Scalar giving sensitivity between the 2 images)
+%
 % sensitivity = eval_sensitivity(Auto_seg_img, Corrected_seg_img)
-% Exemple: sensitivity = eval_sensitivity(axonseg, axonseg_corrected)
+% Example: sensitivity = eval_sensitivity(axonseg, axonseg_corrected)
+
 cc_auto = bwconncomp(Auto_seg_img, 4);
 cc_corrected = bwconncomp(Corrected_seg_img, 4);
 

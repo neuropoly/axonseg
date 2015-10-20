@@ -3,6 +3,7 @@ function [axonBW, axonRejectBW] = axonInitialSegmentation(im, h )
 if nargin < 2
     h = std(double(im(:)));
 end
+
 initialBW=imextendedmin(im,h,8);%bwmorph(bwmorph(bwmorph(watershed(imimposemin(im,imextendedmin(im,h,8)))~=0,'thin'),'thin'),'thin');
 % level = graythresh(im);
 % initialBW=im2bw(im,level);

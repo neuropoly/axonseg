@@ -1,14 +1,14 @@
 
-% Select image file to be segmented by the segmentation GUI
+%% Select image file to be segmented by the segmentation GUI---------------
 
 file_img = uigetimagefile;
 [PATHSTR,NAME,EXT] = fileparts(file_img);
 
-% Auto seg of the image by the SegmentationGUI
+%% Auto seg of the image by the SegmentationGUI----------------------------
 
 SegmentationGUI(file_img);
 
-% Get axonlist of the resulting segmentation
+%% Get axonlist of the resulting segmentation------------------------------
 
 axonlist_filepath = [PATHSTR filesep 'results_croped' filesep 'axonlist.mat'];
 load(axonlist_filepath);
@@ -23,11 +23,11 @@ AxonSeg_img = [PATHSTR filesep 'results_croped' filesep 'AxonSeg.tif'];
 imwrite(~~bw_axonseg,AxonSeg_img);
 imwrite(img,Original_img);
 
-% Correct auto_seg by using ManualCorrectionGUI
+%% Correct auto_seg by using ManualCorrectionGUI---------------------------
 
 ManualCorrectionGUI(Original_img,AxonSeg_img);
 
-% Evaluate sensitivity of automatic segmentation of axons
+%% Evaluate sensitivity of automatic segmentation of axons-----------------
 
 AxonSeg_cor_img = [PATHSTR filesep 'results_croped' filesep 'AxonSeg_cor.tif'];
 
@@ -35,13 +35,14 @@ AxonSeg_sensitivity = eval_sensitivity(imread(AxonSeg_img),imread(AxonSeg_cor_im
 save([PATHSTR filesep 'results_croped' filesep 'Sensitivity.mat'],'AxonSeg_sensitivity');
 
 
-[AxonSeg_sensitivity, les_stats]= eval_sensitivity_stats(imread(AxonSeg_img),imread(AxonSeg_cor_img));
+AxonSeg_sensitivity = eval_sensitivity(imread(AxonSeg_img),imread(AxonSeg_cor_img));
 
 
 
 statis_avant=as_stats_axonSeg(imread(AxonSeg_img),1);
 statis_apres=as_stats_axonSeg(imread(AxonSeg_cor_img),1);
 
+%%-------------------------------------------------------------------------
 
 
 % statis=as_stats(imread(AxonSeg_img),1);

@@ -22,7 +22,7 @@
 
 close all;
 clear all;
-Img=imread('test_axon2.bmp');
+Img=imread('test_axonseg.png');
 Img=double(Img(:,:,1));
 A=255;
 Img=A*normalize01(Img); % rescale the image intensities
