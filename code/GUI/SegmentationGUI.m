@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 19-Oct-2015 15:56:36
+% Last Modified by GUIDE v2.5 21-Oct-2015 12:46:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,8 +80,7 @@ handles.reducefactor=max(1,floor(size(handles.data.img,1)/1000));
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
 % set some default parameters
-handles.state.invertColor=0;
-set(handles.invertColor,'Value',0);
+set(handles.histEq,'Value',0);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -128,14 +127,14 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in cutImage.
-function cutImage_Callback(hObject, eventdata, handles)
-% hObject    handle to cutImage (see GCBO)
+% --- Executes on button press in cropImage.
+function cropImage_Callback(hObject, eventdata, handles)
+% hObject    handle to cropImage (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.data.img=as_improc_cutFromRect(handles.data.img, handles.reducefactor);
 axes(handles.plotseg);
-handles.reducefactor=max(1,floor(size(handles.data.img,1)/1000));
+handles.reducefactor=max(1,floor(size(handles.data.img,1)/1000));   % Max 1000 pixels size set for imshow
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 
@@ -145,10 +144,11 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % hObject    handle to invertColor (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
 handles.state.invertColor=get(handles.invertColor,'Value');
-handles.data.img=imcomplement(handles.data.img);
 axes(handles.plotseg);
-imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
 guidata(hObject, handles);
 
 
@@ -158,10 +158,10 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.state.histEq=get(handles.histEq,'Value');
-if handles.state.histEq, handles.tmp=histeq(handles.data.img,1); else handles.tmp=handles.data.img; end
+if handles.state.histEq, tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 
 axes(handles.plotseg)
-imshow(handles.tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of histEq
     
@@ -173,8 +173,8 @@ function Deconv_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.Deconv,'Value',round(get(handles.Deconv,'Value'))); % ensure int
-if ~isfield(handles,'tmp'), handles.tmp=handles.data.img; end
-tmp=Deconv(handles.tmp,get(handles.Deconv,'Value'));
+if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+tmp=Deconv(tmp,get(handles.Deconv,'Value'));
 axes(handles.plotseg)
 imshow(tmp)
 guidata(hObject, handles);
@@ -215,11 +215,25 @@ function GoStep0_Callback(hObject, eventdata, handles)
 % hObject    handle to GoStep0 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.state.Deconv=get(handles.Deconv,'Value');
-handles.data.Step1=Deconv(handles.data.img,handles.state.Deconv);
+handles.data.Step1=imcomplement(handles.data.img);
+handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
 handles.state.histEq=get(handles.histEq,'Value');
 if handles.state.histEq, handles.data.Step1=histeq(handles.data.Step1,handles.state.histEq); end
+imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end))
+
+%--------------------------------------------------------------------------
+
+if get(handles.LevelSet_check,'Value')==1
+    set(handles.initSeg, 'Visible', 'off');
+    set(handles.diffMaxMin, 'Visible', 'off');
+    set(handles.threshold, 'Visible', 'off');
+
+end
+
+
+%--------------------------------------------------------------------------
+
 
 
 set(handles.uipanel1, 'Visible', 'on')
@@ -263,8 +277,20 @@ handles.state.initSeg=get(handles.initSeg,'Value');
 handles.state.diffMaxMin=get(handles.diffMaxMin,'Value');
 handles.state.threshold=get(handles.threshold,'Value');
     
+%--------------------------------------------------------------------------
+if get(handles.LevelSet_check,'Value')==1
+%     test=double(handles.data.Step1);
+    handles.data.Step2_seg=script_test_axonseg(handles.data.Step1); 
+    handles.data.Step2_seg=uint8(handles.data.Step2_seg);
+    handles.data.Step2_seg=logical(handles.data.Step2_seg);
+    handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
+    
+else
+    
 handles.data.Step2_seg=step1(handles.data.Step1,handles.state);    
 
+end
+%--------------------------------------------------------------------------
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,handles.data.Step2_seg))
 guidata(hObject, handles);
@@ -284,6 +310,9 @@ function resetStep1_Callback(hObject, eventdata, handles)
 % hObject    handle to resetStep1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
+
 axes(handles.plotseg);
 imshow(handles.data.img);
 
@@ -300,9 +329,20 @@ function initSeg_Callback(hObject, eventdata, handles)
 % hObject    handle to initSeg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+%--------------------------------------------------------------------------
+
+
+    
+    
+    
 tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
+
+
+%--------------------------------------------------------------------------
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,tmp))
 guidata(hObject, handles);
@@ -658,7 +698,7 @@ mkdir(savedir);
 axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
 PixelSize = handles.PixelSize;
 img=handles.data.img;
-save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
 
 % excel
 handles.stats = as_stats(handles.data.seg,get(handles.PixelSize,'Value'));
@@ -774,31 +814,6 @@ set(handles.Solidity,'Value',SegParameters.Solidity);
 handles.state.Solidity = get(handles.Solidity,'Value');
 
 
-% 
-% 
-% handles.state.histEq = get(SegParameters.histEq,'Value');
-
-if (strcmp(get(handles.uipanel0, 'Visible'),'on'))
-    handles=invertColor_Callback(hObject, eventdata, handles);
-    handles=histEq_Callback(hObject, eventdata, handles);
-end
-% 
-
-
-% handles.state.histEq = get(handles.histEq,'Value');
-% 
-% 
-% % % Get Deconv parameter
-% set(handles.Deconv,'Value',SegParameters.Deconv);
-% % handles.state.histEq = get(handles.histEq,'Value');
-% % 
-% % 
-% % handles.state.histEq = get(SegParameters.histEq,'Value');
-% Deconv_Callback(hObject, eventdata, handles);
-% 
-
-
-
 
 % Update handles
 guidata(hObject,handles);
@@ -822,8 +837,11 @@ imshow(imfuse(handles.data.Step1,tmp))
 guidata(hObject, handles);
 
 
+% --- Executes on button press in LevelSet_check.
+function LevelSet_check_Callback(hObject, eventdata, handles)
+% hObject    handle to LevelSet_check (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-
-
-
-
+% Hint: get(hObject,'Value') returns toggle state of LevelSet_check
+guidata(hObject,handles);

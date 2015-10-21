@@ -8,7 +8,7 @@ A=255;
 Img=A*normalize01(Img); % normalize intensities from 0 to 254
 nu=0.001*A^2; % coefficient of arc length term
 
-sigma = 4; % scale parameter that specifies the size of the neighborhood
+sigma = 8; % scale parameter that specifies the size of the neighborhood
 iter_outer=30; 
 iter_inner=10;   % inner iteration for level set evolution
 
@@ -16,17 +16,30 @@ timestep=.1;
 mu=1;  % coefficient for distance regularization term (regularize the level set function)
 
 c0=1;
-% figure(1);
+figure(1);
 % imagesc(Img,[0, 255]); colormap(gray); axis off; axis equal
 
 % initialize level set function
+
+
 initialLSF = c0*ones(size(Img));  % a matrix of 1s with same size as Img
-initialLSF(30:90,50:90) = -c0; % Put square of (-1s) in the middle of initialLSF
+
+
+
+
+%initialLSF(30:90,50:90) = -c0; % Put square of (-1s) in the middle of initialLSF
+initialLSF(5:size(Img,1)-2,5:size(Img,2)-2) = -c0; % Put square of (-1s) in the middle of initialLSF
+
+% cercle = strel('disk',20);
+
+
 u=initialLSF; % Our u will be the initialLSF (has the initial contour)
 
-% hold on;
-% contour(u,[0 0],'r');
-% title('Initial contour');
+
+
+hold on;
+contour(u,[0 0],'r');
+title('Initial contour');
 
 % figure(2);
 % imagesc(Img,[0, 255]); colormap(gray); axis off; axis equal
@@ -49,8 +62,11 @@ N=row*col; % Number of pixels in image (product of x size x y size)
 
 for n=1:iter_outer
     
-    
+tic    
 [u, b, C]= lse_bfe(u,Img, b, K,KONE, nu,timestep,mu,epsilon, iter_inner);    
+toc
+disp(n);
+
 
 %     if mod(n,2)==0
 %         pause(0.001);
