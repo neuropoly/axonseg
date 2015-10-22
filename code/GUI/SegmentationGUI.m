@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 22-Oct-2015 14:12:58
+% Last Modified by GUIDE v2.5 22-Oct-2015 16:02:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -81,6 +81,7 @@ imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
 % set some default parameters
 set(handles.histEq,'Value',0);
+set(handles.ExtendedMin_check,'Value',1);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -176,11 +177,19 @@ function Deconv_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+
+fprintf('*** Warning *** : Computing deconvolution. This may take time. \n');
+
+tic;
 set(handles.Deconv,'Value',round(get(handles.Deconv,'Value'))); % ensure int
 if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 tmp=Deconv(tmp,get(handles.Deconv,'Value'));
 axes(handles.plotseg)
 imshow(tmp)
+
+toc;
+
 guidata(hObject, handles);
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -275,19 +284,6 @@ function goStep1_Callback(hObject, eventdata, handles)
 % hObject    handle to goStep1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 
-% Save parameters states 
-
-
-% handles.state.invertColor=get(handles.invertColor,'Value');
-
-% handles.state.initSeg=get(handles.initSeg,'Value');
-% handles.state.diffMaxMin=get(handles.diffMaxMin,'Value');
-% handles.state.threshold=get(handles.threshold,'Value');
-
-
-
-
-    
 %--------------------------------------------------------------------------
 if get(handles.LevelSet_check,'Value')==1
 %     test=double(handles.data.Step1);
@@ -940,3 +936,13 @@ function MajorAxis_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on button press in ExtendedMin_check.
+function ExtendedMin_check_Callback(hObject, eventdata, handles)
+% hObject    handle to ExtendedMin_check (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of ExtendedMin_check
+guidata(hObject,handles);

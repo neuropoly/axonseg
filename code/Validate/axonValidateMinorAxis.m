@@ -14,9 +14,8 @@ axonProp = regionprops(axonInitialBW, 'Area','Perimeter','Eccentricity','Solidit
 % Perimeter=[axonProp.Perimeter]';
 % circu=4*pi*Area./(Perimeter.^2);
 
-MajorAxis = [axonProp.MajorAxisLength]';
 MinorAxis = [axonProp.MinorAxisLength]';
-
+minor = MinorAxis;
 [a,b]=bwlabel(axonInitialBW);
 p=find(MinorAxis<ellipThrsh);
 axonInitialBW(ismember(a,p)==1)=0;

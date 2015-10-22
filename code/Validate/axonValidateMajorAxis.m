@@ -1,8 +1,7 @@
 function [axonInitialBW, major] = axonValidateMajorAxis(axonInitialBW, ellipThrsh)
-% Rejection rules:
-% 	- objects with normalized properties distance > distThrsh
-%       distThrsh = 11 keeps 95% as determined from ground truth
-%       distThrsh = 30 keeps 100% as determined from ground truth
+% Uses MajorAxisLength property to discriminate between objects in binary
+% image
+
 
 % Use normalised properties distance threshold
 
@@ -15,8 +14,7 @@ axonProp = regionprops(axonInitialBW, 'Area','Perimeter','Eccentricity','Solidit
 % circu=4*pi*Area./(Perimeter.^2);
 
 MajorAxis = [axonProp.MajorAxisLength]';
-MinorAxis = [axonProp.MinorAxisLength]';
-
+major = MajorAxis;
 [a,b]=bwlabel(axonInitialBW);
 p=find(MajorAxis<ellipThrsh);
 axonInitialBW(ismember(a,p)==1)=0;
