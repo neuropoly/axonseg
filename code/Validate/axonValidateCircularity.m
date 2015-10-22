@@ -7,7 +7,9 @@ function [axonInitialBW, circu] = axonValidateCircularity(axonInitialBW, cirThrs
 % Use normalised properties distance threshold
 
 
+% Obtain region properties for currently segmented axons
 axonProp = regionprops(axonInitialBW, 'Area','Perimeter','Eccentricity','Solidity');
+
 Area=[axonProp.Area]';
 Perimeter=[axonProp.Perimeter]';
 circu=4*pi*Area./(Perimeter.^2);

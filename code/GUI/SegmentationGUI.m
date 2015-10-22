@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 21-Oct-2015 12:46:09
+% Last Modified by GUIDE v2.5 22-Oct-2015 14:12:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -146,9 +146,10 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-handles.state.invertColor=get(handles.invertColor,'Value');
+% handles.state.invertColor=get(handles.invertColor,'Value');
 axes(handles.plotseg);
 imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+
 guidata(hObject, handles);
 
 
@@ -157,8 +158,10 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % hObject    handle to histEq (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.state.histEq=get(handles.histEq,'Value');
-if handles.state.histEq, tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+
+
+% handles.state.histEq=get(handles.histEq,'Value');
+if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 
 axes(handles.plotseg)
 imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
@@ -172,6 +175,7 @@ function Deconv_Callback(hObject, eventdata, handles)
 % hObject    handle to Deconv (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 set(handles.Deconv,'Value',round(get(handles.Deconv,'Value'))); % ensure int
 if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 tmp=Deconv(tmp,get(handles.Deconv,'Value'));
@@ -218,8 +222,8 @@ function GoStep0_Callback(hObject, eventdata, handles)
 handles.data.Step1=imcomplement(handles.data.img);
 handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
-handles.state.histEq=get(handles.histEq,'Value');
-if handles.state.histEq, handles.data.Step1=histeq(handles.data.Step1,handles.state.histEq); end
+% handles.state.histEq=get(handles.histEq,'Value');
+if get(handles.histEq,'Value'), handles.data.Step1=histeq(handles.data.Step1,get(handles.histEq,'Value')); end
 imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end))
 
 %--------------------------------------------------------------------------
@@ -272,10 +276,17 @@ function goStep1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 
 % Save parameters states 
-handles.state.invertColor=get(handles.invertColor,'Value');
-handles.state.initSeg=get(handles.initSeg,'Value');
-handles.state.diffMaxMin=get(handles.diffMaxMin,'Value');
-handles.state.threshold=get(handles.threshold,'Value');
+
+
+% handles.state.invertColor=get(handles.invertColor,'Value');
+
+% handles.state.initSeg=get(handles.initSeg,'Value');
+% handles.state.diffMaxMin=get(handles.diffMaxMin,'Value');
+% handles.state.threshold=get(handles.threshold,'Value');
+
+
+
+
     
 %--------------------------------------------------------------------------
 if get(handles.LevelSet_check,'Value')==1
@@ -287,7 +298,7 @@ if get(handles.LevelSet_check,'Value')==1
     
 else
     
-handles.data.Step2_seg=step1(handles.data.Step1,handles.state);    
+handles.data.Step2_seg=step1(handles.data.Step1,get(handles.initSeg,'Value'), get(handles.diffMaxMin,'Value'), get(handles.threshold,'Value'));    
 
 end
 %--------------------------------------------------------------------------
@@ -332,11 +343,6 @@ function initSeg_Callback(hObject, eventdata, handles)
 
 
 %--------------------------------------------------------------------------
-
-
-    
-    
-    
 tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
@@ -414,17 +420,39 @@ function goStep2_Callback(hObject, eventdata, handles)
 % hObject    handle to goStep2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.state.minSize=get(handles.minSize,'Value');
-handles.state.Circularity=get(handles.Circularity,'Value');
-handles.state.Solidity=get(handles.Solidity,'Value');
 
 
-handles.data.Step3_seg=step2(handles.data.Step2_seg,handles.state);
+% handles.state.minSize=get(handles.minSize,'Value');
+% handles.state.Circularity=get(handles.Circularity,'Value');
+% handles.state.Solidity=get(handles.Solidity,'Value');
+
+
+handles.data.Step3_seg=step2(handles.data.Step2_seg, get(handles.minSize,'Value'), get(handles.Circularity,'Value'), ...
+    get(handles.Solidity,'Value'), get(handles.ellipRatio,'Value'), get(handles.MinorAxis,'Value'), ...
+    get(handles.MajorAxis,'Value'));
 
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 
-SegParameters=handles.state; PixelSize=get(handles.PixelSize,'Value');
+% Segmentation parameters to save for future use (full image seg.)---------
+
+handles.segParam.invertColor=get(handles.invertColor,'Value');
+handles.segParam.histEq=get(handles.histEq,'Value');
+handles.segParam.Deconv=get(handles.Deconv,'Value');
+
+handles.segParam.initSeg=get(handles.initSeg,'Value');
+handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
+handles.segParam.threshold=get(handles.threshold,'Value');
+
+handles.segParam.minSize=get(handles.minSize,'Value');
+handles.segParam.Circularity=get(handles.Circularity,'Value');
+handles.segParam.Solidity=get(handles.Solidity,'Value');
+
+
+SegParameters=handles.segParam; 
+PixelSize=get(handles.PixelSize,'Value');
+
+
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
 fprintf('Step 2 Done \n');
@@ -540,7 +568,7 @@ tmp = axonValidateCircularity(handles.data.Step2_seg, get(handles.Circularity,'V
 axes(handles.plotseg)
 imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
-handles.state.Circularity = get(handles.Circularity,'Value'); % ajoutee
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
 
 guidata(hObject, handles);
 
@@ -568,7 +596,7 @@ function Solidity_Callback(hObject, eventdata, handles)
 
 tmp=solidityTest(handles.data.Step2_seg,get(handles.Solidity,'Value'));
 
-handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
+% handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
 
 axes(handles.plotseg)
 imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
@@ -599,7 +627,7 @@ function minSize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
 
-handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
+% handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
 
 
 axes(handles.plotseg)
@@ -767,53 +795,25 @@ function LoadSegParam_Callback(hObject, eventdata, handles)
 segparam_filepath = [PathName FileName];
 load(segparam_filepath);
 
-% Disable buttons in step 0 to keep only the segmentation parameters loaded
+% % Disable buttons in step 0 to keep only the segmentation parameters loaded
+% 
+% set(handles.invertColor,'Enable','off');
+% set(handles.histEq,'Enable','off');
+% set(handles.Deconv,'Enable','off');
 
-set(handles.invertColor,'Enable','off');
-set(handles.histEq,'Enable','off');
-set(handles.Deconv,'Enable','off');
 
-
-% Get invertColor parameter
+% Get parameters from a SegParameters file
 set(handles.invertColor,'Value',SegParameters.invertColor);
-handles.state.invertColor = get(handles.invertColor,'Value');
-% 
-% handles.state.invertColor = get(SegParameters.invertColor,'Value');
-
-% 
-% % Get histEq parameter
 set(handles.histEq,'Value',SegParameters.histEq);
-handles.state.histEq = get(handles.histEq,'Value');
-
-
-% Get Deconv parameter
 set(handles.Deconv,'Value',SegParameters.Deconv);
-handles.state.Deconv = get(handles.Deconv,'Value');
-
-% Set iniSeg, diffMaxMin & threshold
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
-handles.state.initSeg = get(handles.initSeg,'Value');
-
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
-handles.state.diffMaxMin = get(handles.diffMaxMin,'Value');
-
 set(handles.threshold,'Value',SegParameters.threshold);
-handles.state.threshold = get(handles.threshold,'Value');
-
-
-% Set Minsize, circularity & solidity
 
 set(handles.minSize,'Value',SegParameters.minSize);
-handles.state.minSize = get(handles.minSize,'Value');
-
 set(handles.Circularity,'Value',SegParameters.Circularity);
-handles.state.Circularity = get(handles.Circularity,'Value');
-
 set(handles.Solidity,'Value',SegParameters.Solidity);
-handles.state.Solidity = get(handles.Solidity,'Value');
-
-
 
 % Update handles
 guidata(hObject,handles);
@@ -824,12 +824,11 @@ function LevelSetSeg_Callback(hObject, eventdata, handles)
 % hObject    handle to LevelSetSeg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 tic
 tmp=script_test_axonseg(handles.data.Step1);
 toc
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
-
-handles.state.LevelSetSeg = get(handles.LevelSetSeg,'Value');
 
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,tmp))
@@ -845,3 +844,99 @@ function LevelSet_check_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of LevelSet_check
 guidata(hObject,handles);
+
+
+% --- Executes on slider movement.
+function ellipRatio_Callback(hObject, eventdata, handles)
+% hObject    handle to ellipRatio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Only select axons that validate the circularity criterion defined by user
+tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.ellipRatio,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+axes(handles.plotseg)
+imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function ellipRatio_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ellipRatio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function MinorAxis_Callback(hObject, eventdata, handles)
+% hObject    handle to MinorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Only select axons that validate the circularity criterion defined by user
+tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.MinorAxis,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+axes(handles.plotseg)
+imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function MinorAxis_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to MinorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function MajorAxis_Callback(hObject, eventdata, handles)
+% hObject    handle to MajorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+% Only select axons that validate the circularity criterion defined by user
+tmp = axonValidateMajorAxis(handles.data.Step2_seg, get(handles.MajorAxis,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+axes(handles.plotseg)
+imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function MajorAxis_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to MajorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
