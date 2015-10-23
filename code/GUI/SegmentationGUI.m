@@ -273,12 +273,6 @@ function resetStep0_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 SegmentationGUI_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
-
-
-
-
-
-
 % --- Executes on button press in goStep1.
 function goStep1_Callback(hObject, eventdata, handles)
 % hObject    handle to goStep1 (see GCBO)
@@ -732,6 +726,14 @@ writetable(handles.stats,[savedir 'Stats.csv'])
 % AxonDiameter Labelled
 AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
 imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled.jpg']);
+
+%--------------------------------------------------------------------------
+
+imwrite(handles.data.Step2_seg,[savedir 'AxonSeg_step2.jpg']);
+imwrite(handles.data.Step3_seg,[savedir 'AxonSeg_step3.jpg']);
+
+%--------------------------------------------------------------------------
+
 
 guidata(hObject, handles);
 
