@@ -729,6 +729,7 @@ imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_label
 
 %--------------------------------------------------------------------------
 
+imwrite(handles.data.Step1,[savedir 'AxonSeg_step1.jpg']);
 imwrite(handles.data.Step2_seg,[savedir 'AxonSeg_step2.jpg']);
 imwrite(handles.data.Step3_seg,[savedir 'AxonSeg_step3.jpg']);
 
