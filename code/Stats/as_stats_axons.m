@@ -31,19 +31,6 @@ Ratio=Minor./Major;
 
 Stats_struct = struct;
 
-
-% columnNames = {'Area in pixels', 'Perimeter in pixels', 'Circularity', 'Equivalent diameter', ...
-%     'Solidity', 'Major Axis in pixels', 'Minor Axis in pixels'};
-% 
-% 
-% Stats_matrix(1,1) = 'Area in pixels';
-% Stats_matrix(1,2) = 'Perimeter in pixels';
-% Stats_matrix(1,3) = 'Circularity';
-% Stats_matrix(1,4) = 'Diameter';
-% Stats_matrix(1,5) = 'Solidity';
-% Stats_matrix(1,6) = 'Major Axis';
-% Stats_matrix(1,7) = 'Minor Axis';
-
 Stats_struct.Area = Area;
 Stats_struct.Perimeter = Perimeter;
 Stats_struct.Circularity = Circularity;
