@@ -1,4 +1,4 @@
-function Stats_struct = as_stats_axons(AxonSeg_img)
+function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
 % Description : This function calculates the sensitivity of the axon
 % segmentation performed by SegmentationGUI by comparing the result with
 % the image obtained by correcting the segmentation (by using
@@ -40,6 +40,8 @@ Stats_struct.MajorAxisLength = cat(1,props.MajorAxisLength);
 Stats_struct.MinorAxisLength = cat(1,props.MinorAxisLength);
 Stats_struct.MinorMajorRatio = Ratio;
 Stats_struct.Eccentricity = cat(1,props.Eccentricity);
+
+var_names = fieldnames(Stats_struct);
 
 end
 

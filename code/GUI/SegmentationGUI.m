@@ -471,8 +471,10 @@ function PixelSize_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 PixelSize=as_improc_pixelsize/handles.reducefactor;
-set(handles.PixelSize,'String',PixelSize);
-set(handles.PixelSize,'Value',PixelSize);
+if PixelSize
+    set(handles.PixelSize,'String',PixelSize);
+    set(handles.PixelSize,'Value',PixelSize);
+end
 
 guidata(hObject, handles);
 
