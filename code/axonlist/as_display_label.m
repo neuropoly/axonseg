@@ -1,6 +1,6 @@
-function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg)
-%[im_out,AxStats]=labelgRatio(axonlist, matrixsize, metric);
-%[im_out,AxStats]=labelgRatio(axonlist, matrixsize, metric, displaytype, writeimg?);
+function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg, verbose)
+%[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric);
+%[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric, displaytype, writeimg?);
 % metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
 % displaytype {'axon' | 'myelin'} = 'myelin'
 % writeimg {img,0} = 0
@@ -11,6 +11,7 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 dbstop error 
 if nargin<4; displaytype='myelin';end
 if ~exist('writeimg','var'), writeimg=0; end
+if ~exist('verbose','var'), verbose=1; end
 
 im_out=zeros(matrixsize,'uint8');
 
@@ -18,11 +19,13 @@ im_out=zeros(matrixsize,'uint8');
 Naxon=length(axonlist);
 AxStats=axonlist;
 
-tic
-disp('Loop over axons...')
+if verbose
+    tic
+    disp('Loop over axons...')
+end
 for i=Naxon:-1:1
     if ~mod(i,1000), disp(i); end
-    index=axonlist(i).data; 
+    index=round(axonlist(i).data); 
 %     tmp=index(1)<matrixsize(:,1) | index(:,1)>matrixsize(1);
 %     index(find(tmp))=[];
 %     tmp=index(2)<matrixsize(:,2) | index(:,2)>matrixsize(2);
@@ -46,8 +49,10 @@ for i=Naxon:-1:1
         
     end
 end
-disp('done')
-toc
+if verbose
+    disp('done')
+    toc
+end
 
 if writeimg
     maxval=ceil(prctile(im_out(im_out>0),99));
