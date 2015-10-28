@@ -5,10 +5,12 @@ if ~exist('fig','var') || fig
     figure
     imshow(img(1:reduced:end,1:reduced:end))
 end
-P = impoly;
-Pos=P.getPosition.*reduced;
-P.delete
-close; drawnow;
+if nargout
+    P = impoly;
+    Pos=P.getPosition.*reduced;
+    P.delete
+    close; drawnow;
+end
 if nargout>1
     maskroi=poly2mask(Pos(:,1),Pos(:,2),size(img,1),size(img,2));
 end

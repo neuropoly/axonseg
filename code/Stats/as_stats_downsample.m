@@ -11,7 +11,7 @@ Centroids=cat(1,axonlist.Centroid);
 
 sFields=as_stats_fields;
 
-stats_downsample=zeros([length(Xcoords) length(Ycoords) length(sFields)+3]);
+stats_downsample=zeros([length(Xcoords) length(Ycoords) length(sFields)+5]);
 axonlistcell=cell(length(Xcoords),length(Ycoords));
 for x=1:length(Xcoords)
     for y=1:length(Ycoords)
@@ -22,16 +22,28 @@ for x=1:length(Xcoords)
             for istat=1:length(sFields)
                 stats_downsample(x,y,istat)=mean([axonlist(inpixel).(sFields{istat})]);
             end
-            stats_downsample(x,y,end-2)=nnz(inpixel); % number of axons in each pixel;
+            stats_downsample(x,y,end-4)=nnz(inpixel); % number of axons in each pixel;
             tmp=[axonlist(inpixel).axonEquivDiameter];
-            stats_downsample(x,y,end-1)=std(tmp);
-            stats_downsample(x,y,end)=sum(tmp.^3)./sum(tmp.^2);
+            stats_downsample(x,y,end-3)=std(tmp);
+            stats_downsample(x,y,end-2)=sum(tmp.^3)./sum(tmp.^2);
+            
+            if sum(inpixel)
+                cellsize=ceil([Xcoords(min(x+1,end))-Xcoords(x), Ycoords(min(y+1,end))-Ycoords(y)]);
+                myelinseg=~~as_display_label(as_axonlist_changeorigin(axonlist(inpixel),-[Xcoords(x) Ycoords(y)]),cellsize,'axonEquivDiameter','myelin',0,0);
+                MTV=sum(myelinseg(:))/(cellsize(1)*cellsize(2));
+                stats_downsample(x,y,end-1)=MTV;
+                axonseg=~~as_display_label(as_axonlist_changeorigin(axonlist(inpixel),-[Xcoords(x) Ycoords(y)]),cellsize,'axonEquivDiameter','axon',0,0);
+                fr=sum(axonseg(:))/(cellsize(1)*cellsize(2))/(1-MTV);
+                stats_downsample(x,y,end)=fr;
+            end
         end
     end
 end
 sFields{end+1}='Number_axons';
 sFields{end+1}='axonEquivDiameter_std';
 sFields{end+1}='axonEquivDiameter_axonvolumeCorrected';
+sFields{end+1}='MTV';
+sFields{end+1}='fr';
 
 if outputstats
     stats_downsample(isnan(stats_downsample))=0;
@@ -52,4 +64,3 @@ if outputstats
 end
 
 
-        
