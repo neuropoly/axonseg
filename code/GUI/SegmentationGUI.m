@@ -565,7 +565,7 @@ function ellipse_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-manualBW=as_axonSeg_manual_ellipse
+manualBW=as_axonSeg_manual;
 handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
 imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
