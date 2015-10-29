@@ -2,7 +2,7 @@ function [Pos, maskroi]=as_tools_getroi(img,type,reduced,fig)
 % maskroi=as_tools_getroi(img,type,reduced,fig)
 % type can be 'rect' or 'poly';
 % Example : [Pos, maskroi]=as_tools_getroi(img,'rect');
-% img_croped =
+% img_croped = img1(Pos(3):Pos(4),Pos(1):Pos(2),:);
 %
 % See Also: as_stats_Roi
 if ~exist('reduced','var'), reduced=max(1,floor(size(img,1)/1000)); end
@@ -13,6 +13,10 @@ if ~exist('fig','var') || fig
 end
 
 if nargout && strcmp(type,'rect')
+    
+% [Img_cropped,Pos] = as_improc_cutFromRect(img ,reduced);
+
+
     P = imrect;
     Pos=P.getPosition.*reduced;
     % maskroi=I(max(h(2),1):min(h(2)+h(4),end),max(h(1),1):min(h(1)+h(3),end));
@@ -25,6 +29,7 @@ if nargout && strcmp(type,'rect')
     X2 = round(X1 + Pos(3));
     Y2 = round(Y1 + Pos(4));
     
+    Pos = [X1 X2 Y1 Y2];
     if nargout>1
         maskroi=poly2mask([X1 X2 X2 X1],[Y1 Y1 Y2 Y2],size(img,1),size(img,2));
     end
