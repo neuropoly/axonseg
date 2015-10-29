@@ -1,12 +1,18 @@
 function [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off)
 % [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
-% exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, backBW,1,0);
+% exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
 if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
+if ~exist('backBW','var'), backBW=0; end
 maxi=max(max(max(im)));
 im=double(im);
 
+% Check inputs
+axonBW=im2bw(axonBW);
+axonBW=RemoveBorder(axonBW);
+backBW=im2bw(backBW);
+im=sum(im,3);
 
 [axonLabel, numAxon] = bwlabel(axonBW);
 axonProp = regionprops(axonLabel, 'EquivDiameter');
@@ -71,7 +77,7 @@ for currentAxonLabel = 1:numAxon
         xCoord(:, i) = linspace(radialProfileStartpoint(i, 1),radialProfileEndpoint(i, 1), radialProfileNumPix)';
         yCoord(:, i) = linspace(radialProfileStartpoint(i, 2),radialProfileEndpoint(i, 2), radialProfileNumPix)';
         imRadialProfile(i, :) = qinterp2(X,Y,im,xCoord(:, i)',yCoord(:, i)', 2);
-        maskRadialProfile(i, :) = qinterp2(X,Y,(allOtherAxonBW),xCoord(:, i)',yCoord(:, i)', 0);
+        maskRadialProfile(i, :) = qinterp2(X,Y,(allOtherAxonBW | backBW),xCoord(:, i)',yCoord(:, i)', 0);
     end
     for thick_times=1:3
         maskRadialProfile=bwmorph(maskRadialProfile,'thicken');
