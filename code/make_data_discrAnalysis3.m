@@ -1,4 +1,4 @@
-function [X,species] = make_data_discrAnalysis2(Stats_1, Stats_2)
+function [X,species] = make_data_discrAnalysis3(Stats_1)
 % Pre-processing before using Discrimination Analysis
 % [X,species] = make_data_discrAnalysis(Group1_Var1, Group1_Var2, Group2_Var1, Group2_Var2)
 
@@ -7,7 +7,7 @@ function [X,species] = make_data_discrAnalysis2(Stats_1, Stats_2)
 
 % Create a species vector to separate the datasets (#1 & #2)
 
-species = ones((size(Stats_1.Area,1)+size(Stats_2.Area,1)), 1);
+species = ones(size(Stats_1.Area,1), 1);
 species(1:size(Stats_1.Area,1))=1;
 species((size(Stats_1.Area,1)+1):end)=2;
 

@@ -1,23 +1,26 @@
 
-function [label,score, classifier] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix)
+function [classifier,species] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix, type)
 % Example of a good cost matrix for our case : [0, 1; 10, 1];
 
 
 % Convert data to desired format
 
-[X,species] = make_data_discrAnalysis2(Stats_1, Stats_2);
+
+
+[X,species] = make_data_discrAnalysis4(Stats_1, Stats_2);
+
 
 % Create the classifier
 
-classifier = fitcdiscr(X,species,'DiscrimType','linear');
-
-
-
-% use the classifier to predict data group
-
-[label,score,cost] = predict(classifier,X);
+classifier = fitcdiscr(X,species,'DiscrimType',type);
 
 classifier.Cost = Cost_matrix;
+
+% use the classifier to predict data group from initial image (Stats_3)
+
+
+
+
 
 
 % Confusion_matrix1 = confusionmat(classifier.Y,resubPredict(classifier));
