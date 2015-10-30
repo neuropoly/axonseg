@@ -12,9 +12,9 @@ function [classifier,species] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix, ty
 
 % Create the classifier
 
-classifier = fitcdiscr(X,species,'DiscrimType',type);
+classifier = fitcdiscr(X,species,'DiscrimType',type,'Cost',Cost_matrix);
 
-classifier.Cost = Cost_matrix;
+% classifier.Cost = Cost_matrix;
 
 % use the classifier to predict data group from initial image (Stats_3)
 
@@ -29,8 +29,8 @@ classifier.Cost = Cost_matrix;
 
 % Confusion_matrix2 = confusionmat(classifier.Y,resubPredict(classifier));
 
-K = classifier.Coeffs(1,2).Const; 
-L = classifier.Coeffs(1,2).Linear;
+% K = classifier.Coeffs(1,2).Const; 
+% L = classifier.Coeffs(1,2).Linear;
 
 
 % h1 = gscatter(X(:,1),X(:,2),species,'krb','ov^',[],'off');

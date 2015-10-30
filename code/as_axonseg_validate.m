@@ -1,8 +1,23 @@
-function [Rejected_axons_img, Accepted_axons_img,Class_table_final] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type)
-% Example : [Rejected_axons_img, Accepted_axons_img] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected,{'Circularity','EquivDiameter'},'linear');
+function [Rejected_axons_img, Accepted_axons_img,Class_table_final] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
+% OUTPUTS -----------------------------------------------------------------
+% Rejected_axons_img (OUT) : binary image of rejected axons
+% Accepted_axons_img (OUT) : binary image of accepted axons
+% Class_table_final (OUT) : matrix indicating the number of axons (true &
+% false) classified in each type
+% INPUTS ------------------------------------------------------------------
+% axonSeg_step1 (IN) : image of the initial axon segmentation (containing
+% both false & true axons)
+% axonSeg_segCorrected (IN) : image of the true axons only, obtained after
+% manual correction with the SegmentationGUI
+% parameters (IN) : cell array containing the names of the specified
+% parameters (up to 9 can be chosen)
+% type (IN) : string specifying the type of analysis ('linear' or
+% 'quadratic')
+%--------------------------------------------------------------------------
+% Example : [Rejected_axons_img, Accepted_axons_img, Classification] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected,{'Circularity','EquivDiameter'},'linear');
 
 %--------------------------------------------------------------------------
-
+% % 
 % img_path_1 = uigetimagefile;
 % axonSeg_step1 = imread(img_path_1);
 % 
@@ -19,15 +34,15 @@ AxonSeg_2_img = im2bw(axonSeg_segCorrected);
 % Find removed objects (axons) from initial seg. to corrected seg.
 
 False_axons_img = (AxonSeg_1_img-AxonSeg_2_img);
-False_axons_img = imfill(False_axons_img,'holes');
+% % False_axons_img = imfill(False_axons_img,'holes');
 
 % False_axons_img = find_removed_axons(AxonSeg_1_img, AxonSeg_2_img);
 
 True_axons_img = AxonSeg_2_img;
-True_axons_img = imfill(True_axons_img,'holes');
-
-
-AxonSeg_1_img = imfill(AxonSeg_1_img,'holes');
+% % True_axons_img = imfill(True_axons_img,'holes');
+% % 
+% % 
+% % AxonSeg_1_img = imfill(AxonSeg_1_img,'holes');
 
 % Compute stats (parameters of interest) for both groups
 
@@ -44,13 +59,15 @@ Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
 % Perform Discrimination Analysis once with default cost matrix
 
-[classifier_init,species] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 1, 0],type);
+% [classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 1, 0],type);
 
 
 % Find cost needed to have more than 99% of true axons accepted
 
-cost = find_cost(classifier_init,30);
-[classifier_final,species] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; cost, 0],type);
+% cost = find_cost(classifier_init,val);
+
+
+[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; val, 0],type);
 
 Stats_3_used = table2array(struct2table(Stats_3_used));
 [label,~,~] = predict(classifier_final,Stats_3_used);
@@ -58,7 +75,7 @@ Stats_3_used = table2array(struct2table(Stats_3_used));
 % Recalculate Discrimination Analysis using the newly found cost value
 
 
-Class_table_init = confusionmat(classifier_init.Y,resubPredict(classifier_init));
+% Class_table_init = confusionmat(classifier_init.Y,resubPredict(classifier_init));
 Class_table_final = confusionmat(classifier_final.Y,resubPredict(classifier_final));
 
 
@@ -99,80 +116,7 @@ subplot(224);
 imshow(True_axons_img);
 title('True axons');
 
-
-
-
-
-figure(2);
-
-
-K = classifier_final.Coeffs(2,1).Const; 
-L = classifier_final.Coeffs(2,1).Linear;
-
-if strcmp(type,'quadratic')
-Q = classifier_final.Coeffs(2,1).Quadratic;
-end
-
-
-% Const + Linear * x + x' * Quadratic * x = 0,
-% 
-% h1 = plot(Stats_1_used(:,1),Stats_1_used(:,2),'r+');
-% 
-% h1 = plot(Stats_2_used(:,1),value4(:,2),'g+');
-% % 
-% % 
-% hold on;
-
-value1 = getfield(Stats_1_used, parameters{1});
-value2 = getfield(Stats_1_used, parameters{2});
-
-value3 = getfield(Stats_2_used, parameters{1});
-value4 = getfield(Stats_2_used, parameters{2});
-
-
-h2 = plot(value1,value2,'r+');
-hold on;
-h3 = plot(value3,value4,'*');
-legend('false axons','true axons');
-hold on;
-
-% 
-% h3 = gscatter(value1, value2,ones(size(value1,1),1));
-% 
-% % h1(1).LineWidth = 2;
-% % h1(2).LineWidth = 2;
-% % legend('EquivDiameter','Circularity','Location','best')
-% hold on
-% hold on;
-% 
-% for i=1:size(var_names,1)
-%     ezplot(f, ax(1,1));
-%     xlabel(ax(9,i),var_names{i});
-%     ylabel(ax(i,1),var_names{i});
-% end
-
-% % Plot the curve K + [x,y]*L  = 0.
-
-if strcmp(type,'linear')
-
-f1 = @(x1,x2) K + L(1)*x1 + L(2)*x2;
-h4 = ezplot(f1,[0 1000 0 1000]);
-h4.Color = 'blue';
-h4.LineWidth = 2;
-hold off;
-
-
-elseif strcmp(type,'quadratic')
-
-% Plot the curve K + [x,y]*L  = 0.
-f2 = @(x1,x2) K + L(1)*x1 + L(2)*x2 + Q(1,1)*x1.^2 +(Q(1,2)+Q(2,1))*x1.*x2 + Q(2,2)*x2.^2;
-ezplot(f2,[0 10 0 1000]);
-% h5 = ezplot(f2,[0 1000 0 1000]);
-% h5.Color = 'blue';
-% h5.LineWidth = 2;
-hold off;
-    
-    
+plot_data_DiscrAnalysis(classifier_final, Stats_1_used, Stats_2_used, parameters, type);
     
 end
 

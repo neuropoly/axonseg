@@ -17,8 +17,11 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
 
 
 %---
-cc = bwconncomp(AxonSeg_img, 4);
-props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity'});
+cc = bwconncomp(AxonSeg_img,8);
+props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity',...
+    'BoundingBox','ConvexArea','ConvexHull','Orientation','Extent','Extrema','FilledArea'});
+
+
 
 Area=[props.Area]';
 Perimeter=[props.Perimeter]';
@@ -40,6 +43,17 @@ Stats_struct.MajorAxisLength = cat(1,props.MajorAxisLength);
 Stats_struct.MinorAxisLength = cat(1,props.MinorAxisLength);
 Stats_struct.MinorMajorRatio = Ratio;
 Stats_struct.Eccentricity = cat(1,props.Eccentricity);
+
+Stats_struct.BoundingBox = cat(1,props.BoundingBox);
+Stats_struct.ConvexArea = cat(1,props.ConvexArea);
+Stats_struct.ConvexHull = cat(1,props.ConvexHull);
+Stats_struct.Orientation = cat(1,props.Orientation);
+Stats_struct.Extent = cat(1,props.Extent);
+Stats_struct.Extrema = cat(1,props.Extrema);
+Stats_struct.FilledArea = cat(1,props.FilledArea);
+
+
+
 
 var_names = fieldnames(Stats_struct);
 
