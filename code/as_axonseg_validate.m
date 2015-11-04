@@ -1,4 +1,4 @@
-function [Rejected_axons_img, Accepted_axons_img,Class_table_final] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
+function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_final,Sensitivity, Specificity, parameters] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
 % OUTPUTS -----------------------------------------------------------------
 % Rejected_axons_img (OUT) : binary image of rejected axons
 % Accepted_axons_img (OUT) : binary image of accepted axons
@@ -14,7 +14,7 @@ function [Rejected_axons_img, Accepted_axons_img,Class_table_final] = as_axonseg
 % type (IN) : string specifying the type of analysis ('linear' or
 % 'quadratic')
 %--------------------------------------------------------------------------
-% Example : [Rejected_axons_img, Accepted_axons_img, Classification] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected,{'Circularity','EquivDiameter'},'linear');
+% Example : [Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected,{'Circularity','EquivDiameter'},'linear',0.9);
 
 %--------------------------------------------------------------------------
 % % 
@@ -59,18 +59,19 @@ Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
 % Perform Discrimination Analysis once with default cost matrix
 
-% [classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 1, 0],type);
+[classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 1, 0],type);
 
 
 % Find cost needed to have more than 99% of true axons accepted
 
-% cost = find_cost(classifier_init,val);
+cost = find_cost(classifier_init,val);
+
+[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; cost, 0],type);
 
 
-[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; val, 0],type);
 
 Stats_3_used = table2array(struct2table(Stats_3_used));
-[label,~,~] = predict(classifier_final,Stats_3_used);
+[label,score,~] = predict(classifier_final,Stats_3_used);
 
 % Recalculate Discrimination Analysis using the newly found cost value
 
@@ -87,6 +88,17 @@ Rejected_axons_img = ismember(bwlabel(AxonSeg_1_img),index1);
 index2=find(label==2);
 Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 
+% Calculate ROC stats for discriminant analysis
+
+[Sensitivity,Specificity] = ROC_calculate(Class_table_final);
+
+
+% % figure(5);
+% % [Sen,Spe] = perfcurve(label,score(:,2),'2');
+% % plot(Sen,Spe);
+% % xlabel('False positive rate')
+% % ylabel('True positive rate')
+% % title('ROC Curve')
 
 
 % num_tot = bwconncomp(AxonSeg_1_img);
@@ -116,8 +128,18 @@ subplot(224);
 imshow(True_axons_img);
 title('True axons');
 
-plot_data_DiscrAnalysis(classifier_final, Stats_1_used, Stats_2_used, parameters, type);
-    
+% Plot discriminant (linear or quadratic) & classes scatters (false axons &
+% true axons)
+
+if length(parameters)==2
+    figure(2);
+    plot_data_DiscrAnalysis(classifier_final, Stats_1_used, Stats_2_used, parameters, type);
+end
+
+
+
+
+
 end
 
 
