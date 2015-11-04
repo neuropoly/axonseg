@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 22-Oct-2015 16:02:50
+% Last Modified by GUIDE v2.5 03-Nov-2015 09:42:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -228,7 +228,10 @@ function GoStep0_Callback(hObject, eventdata, handles)
 % hObject    handle to GoStep0 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.data.Step1=imcomplement(handles.data.img);
+
+handles.data.Step1=handles.data.img;
+if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.img); end
+% handles.data.Step1=imcomplement(handles.data.img);
 handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
 % handles.state.histEq=get(handles.histEq,'Value');
@@ -416,6 +419,10 @@ function goStep2_Callback(hObject, eventdata, handles)
 % handles.state.Circularity=get(handles.Circularity,'Value');
 % handles.state.Solidity=get(handles.Solidity,'Value');
 
+% DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
+
+
+
 
 handles.data.Step3_seg=step2(handles.data.Step2_seg, get(handles.minSize,'Value'), get(handles.Circularity,'Value'), ...
     get(handles.Solidity,'Value'), get(handles.ellipRatio,'Value'), get(handles.MinorAxis,'Value'), ...
@@ -437,6 +444,13 @@ handles.segParam.threshold=get(handles.threshold,'Value');
 handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
+
+handles.segParam.ellipRatio=get(handles.ellipRatio,'Value');
+handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
+handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
+
+% handles.segParam.parameters=get(handles.parameters,'Value');
+% handles.segParam.DA_classifier=get(handles.DA_classifier,'Value');
 
 
 SegParameters=handles.segParam; 
@@ -673,6 +687,17 @@ imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 rm=diag(Label(r,c));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
 imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+
+
+% IMAGE FOR DA ------------------------------------------------------------
+
+handles.data.DA_final = handles.data.Step3_seg;
+
+%--------------------------------------------------------------------------
+
+
+
 guidata(hObject, handles);
 
 
@@ -694,6 +719,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %% Launch Seg
+
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
 [handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
@@ -715,7 +741,7 @@ end
 savedir=[handles.outputdir 'results_croped' filesep];
 mkdir(savedir);
 % axonlist structure
-axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
+axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
 PixelSize = handles.PixelSize;
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
@@ -734,6 +760,8 @@ imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_label
 imwrite(handles.data.Step1,[savedir 'AxonSeg_step1.jpg']);
 imwrite(handles.data.Step2_seg,[savedir 'AxonSeg_step2.jpg']);
 imwrite(handles.data.Step3_seg,[savedir 'AxonSeg_step3.jpg']);
+% imwrite(handles.data.DA, [savedir 'AxonSeg_DA.jpg']);
+imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
 
 %--------------------------------------------------------------------------
 
@@ -951,3 +979,79 @@ function ExtendedMin_check_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of ExtendedMin_check
 guidata(hObject,handles);
+
+
+% --- Executes on button press in DiscriminantAnalysis.
+function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to DiscriminantAnalysis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+[Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = ...
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter'},'quadratic',1);
+
+% Stats_struct.Area = Area;
+% Stats_struct.Perimeter = Perimeter;
+% Stats_struct.Circularity = Circularity;
+% Stats_struct.EquivDiameter = cat(1,props.EquivDiameter);
+% Stats_struct.Solidity = cat(1,props.Solidity);
+% Stats_struct.MajorAxisLength = cat(1,props.MajorAxisLength);
+% Stats_struct.MinorAxisLength = cat(1,props.MinorAxisLength);
+% Stats_struct.MinorMajorRatio = Ratio;
+% Stats_struct.Eccentricity = cat(1,props.Eccentricity);
+
+
+% handles.parameters = parameters;
+
+handles.data.Step3_seg = Accepted_axons_img;
+
+% handles.DA_classifier = classifier_final;
+
+
+
+
+handles.segParam.invertColor=get(handles.invertColor,'Value');
+handles.segParam.histEq=get(handles.histEq,'Value');
+handles.segParam.Deconv=get(handles.Deconv,'Value');
+
+handles.segParam.initSeg=get(handles.initSeg,'Value');
+handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
+handles.segParam.threshold=get(handles.threshold,'Value');
+
+handles.segParam.minSize=get(handles.minSize,'Value');
+handles.segParam.Circularity=get(handles.Circularity,'Value');
+handles.segParam.Solidity=get(handles.Solidity,'Value');
+
+handles.segParam.ellipRatio=get(handles.ellipRatio,'Value');
+handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
+handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
+
+handles.segParam.parameters=parameters;
+handles.segParam.DA_classifier=classifier_final;
+
+
+SegParameters=handles.segParam; 
+PixelSize=get(handles.PixelSize,'Value');
+
+
+save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
+
+
+
+
+%--------------------------------------------------------------------------
+
+[Sensitivity,Specificity] = ROC_calculate(Classification);
+
+
+%--------------------------------------------------------------------------
+
+
+
+
+
+guidata(hObject,handles);
+
+
+

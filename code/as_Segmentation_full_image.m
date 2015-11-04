@@ -1,6 +1,6 @@
 function as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output)
 % as_Segmentation_full_image(im_fname,SegParameters,blocksize (# of pixels),overlap,output)
-% as_Segmentation_full_image('Control_2.tif', 'SegParameters.mat',5000,100,'Control_2_results')
+% as_Segmentation_full_image('Control_2.tif', 'SegParameters.mat',2000,100,'Control_2_results')
 %
 % im_fname: input image (filename)
 % SegParameters: output of SegmentationGUI
@@ -16,6 +16,7 @@ end
 if ~exist('SegParameters','var') || isempty(SegParameters)
     SegParameters=uigetfile({'*.mat'});
 end
+
 load(SegParameters);
 
 if ~exist('blocksize','var') || isempty(blocksize)
@@ -67,21 +68,36 @@ copyfile(which('colorbarhot.png'),output)
 
 
 
-function [im_out,AxSeg]=fullimage(im_in,state)
+function [im_out,AxSeg]=fullimage(im_in,segParam)
 
-%Preproc
-if state.invertColor, im_in=imcomplement(im_in); end
+% Apply initial parameters (invertion, histogram equalization, convolution)
+% to the full image
 
-im_in=histeq(im_in,state.histEq);
+if segParam.invertColor, im_in=imcomplement(im_in); end
+im_in=histeq(im_in,segParam.histEq);
+im_in=Deconv(im_in,segParam.Deconv);
 
-im_in=Deconv(im_in,state.Deconv);
+% Step1 - initial axon segmentation using the 3 parameters given
+AxSeg=step1(im_in,segParam.initSeg,segParam.diffMaxMin,segParam.threshold);
 
-%Step1
-AxSeg=step1(im_in,state);
+% Step 2 - discrimination for axon segmentation
 
 
-%Step 2
-AxSeg=step2(AxSeg,state);
+
+
+
+if isfield(segParam,'parameters')
+
+AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters);
+%--------------------------------------------------------------------------
+else
+
+AxSeg=step2(AxSeg,segParam.minSize, segParam.Circularity, segParam.Solidity, segParam.ellipRatio, segParam.MinorAxis, segParam.MajorAxis);
+
+
+%--------------------------------------------------------------------------
+
+end
 
 
 
