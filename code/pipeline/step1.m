@@ -1,4 +1,4 @@
-function im_out=step1(im_in,initSeg,diffMaxMin,threshold)
+function im_out =step1(im_in,initSeg,diffMaxMin,threshold)
 % Function that takes the 3 segmentation parameters chosen by user
 % (initSeg, diffmaxMin & threshold) & applies an initial axon segmentation
 % based on these.
@@ -8,7 +8,6 @@ function im_out=step1(im_in,initSeg,diffMaxMin,threshold)
 
 
 im1 = axonInitialSegmentation(im_in, initSeg);
-
 
 im1=imfill(im1,'holes'); %imshow(initialBW)
 
