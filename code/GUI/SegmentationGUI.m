@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 03-Nov-2015 09:42:17
+% Last Modified by GUIDE v2.5 05-Nov-2015 09:52:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -428,6 +428,12 @@ handles.data.Step3_seg=step2(handles.data.Step2_seg, get(handles.minSize,'Value'
     get(handles.Solidity,'Value'), get(handles.ellipRatio,'Value'), get(handles.MinorAxis,'Value'), ...
     get(handles.MajorAxis,'Value'));
 
+% DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
+handles.data.DA_final = handles.data.Step3_seg;
+% DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
+
+
+
 axes(handles.plotseg)
 imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 
@@ -720,6 +726,8 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %% Launch Seg
 
+set(handles.ROC_panel, 'Visible','off');
+
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
 [handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
@@ -775,6 +783,10 @@ function go_full_image_Callback(hObject, eventdata, handles)
 % hObject    handle to go_full_image (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+set(handles.ROC_panel, 'Visible','off');
+
 blocksize=1500;
 overlap=100;
 savedir=[handles.outputdir, 'results_full', filesep];
@@ -989,18 +1001,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 
 [Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter'},'quadratic',1);
-
-% Stats_struct.Area = Area;
-% Stats_struct.Perimeter = Perimeter;
-% Stats_struct.Circularity = Circularity;
-% Stats_struct.EquivDiameter = cat(1,props.EquivDiameter);
-% Stats_struct.Solidity = cat(1,props.Solidity);
-% Stats_struct.MajorAxisLength = cat(1,props.MajorAxisLength);
-% Stats_struct.MinorAxisLength = cat(1,props.MinorAxisLength);
-% Stats_struct.MinorMajorRatio = Ratio;
-% Stats_struct.Eccentricity = cat(1,props.Eccentricity);
-
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter'},'quadratic',0.8);
 
 % handles.parameters = parameters;
 
@@ -1044,6 +1045,11 @@ save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
 [Sensitivity,Specificity] = ROC_calculate(Classification);
 
+set(handles.Sensitivity,'String',num2str(Sensitivity));
+set(handles.Specificity,'String',num2str(Specificity));
+
+set(handles.ROC_panel, 'Visible','on');
+
 
 %--------------------------------------------------------------------------
 
@@ -1052,6 +1058,3 @@ save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
 
 guidata(hObject,handles);
-
-
-

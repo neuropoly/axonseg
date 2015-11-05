@@ -15,8 +15,6 @@ species((size(first_field1,1)+1):end)=2;
 % Combine each variable of both datasets in one matrix
 
 
-
-
 Set_1 = table2array(struct2table(Stats_1)); 
 Set_2 = table2array(struct2table(Stats_2)); 
 
