@@ -2,7 +2,7 @@ function [ axonlist ] = as_myelinseg_blocks_bw2list( myelin_seg_results , PixelS
 % as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap)
 
 %% Extract metrics from segmentation:
-listcell=as_blockwise_fun(@(x) as_myelinseg_bw2list(x,PixelSize),myelin_seg_results,0,0);
+listcell=as_blockwise_fun(@(x) as_myelinseg2axonlist(x,PixelSize),myelin_seg_results,0,0);
 
 %% Post processing
 % change origin of each block

@@ -630,7 +630,7 @@ end
 savedir=[handles.outputdir 'results_croped' filesep];
 mkdir(savedir);
 % axonlist structure
-axonlist=as_myelinseg_bw2list(handles.data.seg,get(handles.PixelSize,'Value'));
+axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
 PixelSize = handles.PixelSize;
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
