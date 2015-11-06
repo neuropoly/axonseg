@@ -14,6 +14,10 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
 % Auto_seg_img = AxonSeg;
 % Corrected_seg_img = AxonSeg_cor;
 
+% TEST IF INPUT IS LOGICAL ****
+
+
+% assert(islogical(AxonSeg_img),'Image input should be logical');
 
 
 %---
