@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 05-Nov-2015 09:52:34
+% Last Modified by GUIDE v2.5 06-Nov-2015 17:09:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -230,7 +230,11 @@ function GoStep0_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 handles.data.Step1=handles.data.img;
+
 if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.img); end
+if get(handles.Smoothing,'Value'), handles.data.Step1=as_gaussian_smoothing(handles.data.img); end
+
+
 % handles.data.Step1=imcomplement(handles.data.img);
 handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
@@ -442,6 +446,7 @@ imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 handles.segParam.invertColor=get(handles.invertColor,'Value');
 handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
+handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -637,7 +642,7 @@ function minSize_Callback(hObject, eventdata, handles)
 % hObject    handle to minSize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
+clctmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
 
 % handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
 
@@ -847,6 +852,7 @@ load(segparam_filepath);
 set(handles.invertColor,'Value',SegParameters.invertColor);
 set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
+set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -1001,7 +1007,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 
 [Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter'},'quadratic',0.8);
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},'quadratic',0.8);
 
 % handles.parameters = parameters;
 
@@ -1009,12 +1015,10 @@ handles.data.Step3_seg = Accepted_axons_img;
 
 % handles.DA_classifier = classifier_final;
 
-
-
-
 handles.segParam.invertColor=get(handles.invertColor,'Value');
 handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
+handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1054,7 +1058,24 @@ set(handles.ROC_panel, 'Visible','on');
 %--------------------------------------------------------------------------
 
 
+guidata(hObject,handles);
 
 
+% --- Executes on button press in Smoothing.
+function Smoothing_Callback(hObject, eventdata, handles)
+% hObject    handle to Smoothing (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+axes(handles.plotseg);
+
+imshow(as_gaussian_smoothing(handles.data.img));
 
 guidata(hObject,handles);
+
+
+
+
+
+
