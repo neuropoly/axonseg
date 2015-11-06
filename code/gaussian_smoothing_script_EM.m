@@ -17,7 +17,7 @@ for size_f=2:1:5
         img_smooth = imfilter(img,H);
         subplot(cx,cy,c);
         title(['gaussian filter size : ' num2str(size_f) '  & std : ' num2str(std)]); 
-        imshow(img_smooth);
+        imagesc(img_smooth);
         hold on;
    
 
@@ -26,5 +26,35 @@ c=c+1;
     end
    
 end
-        
+    
 hold off;
+
+%%
+
+figure(2);
+
+img_smooth = medfilt2(img);
+subplot(121);
+title('original'); 
+imshow(img);
+subplot(122);
+title('median filter'); 
+imshow(img_smooth);
+
+
+%%
+
+
+img_path_1 = uigetimagefile;
+img = imread(img_path_1);
+
+H = fspecial('gaussian',3, 3);
+img_smooth = imfilter(img,H);
+
+imwrite(img_smooth,'Moelle_rat_04_smooth.tif');
+
+
+
+
+
+
