@@ -76,20 +76,35 @@ function [im_out,AxSeg]=fullimage(im_in,segParam)
 if segParam.invertColor, im_in=imcomplement(im_in); end
 im_in=histeq(im_in,segParam.histEq);
 im_in=Deconv(im_in,segParam.Deconv);
+im_in=as_gaussian_smoothing(im_in);
 
 % Step1 - initial axon segmentation using the 3 parameters given
-AxSeg=step1(im_in,segParam.initSeg,segParam.diffMaxMin,segParam.threshold);
+
+if segParam.LevelSet
+    
+    AxSeg=as_LevelSet_method(im_in); 
+    AxSeg=uint8(AxSeg);
+    AxSeg=logical(AxSeg);
+    AxSeg=imfill(AxSeg,'holes');
+    AxSeg = bwmorph(AxSeg,'clean');
+    
+
+else
+    
+AxSeg=step1(im_in,segParam.initSeg,segParam.diffMaxMin,segParam.threshold);    
+    
+end
+
+
 
 % Step 2 - discrimination for axon segmentation
-
-
-
-
 
 if isfield(segParam,'parameters')
 
 AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters);
 %--------------------------------------------------------------------------
+
+    
 else
 
 AxSeg=step2(AxSeg,segParam.minSize, segParam.Circularity, segParam.Solidity, segParam.ellipRatio, segParam.MinorAxis, segParam.MajorAxis);
