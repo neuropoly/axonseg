@@ -1,4 +1,4 @@
-function [Sensitivity,Specificity] = ROC_calculate(Class_table)
+function [ROC_stats] = ROC_calculate(Class_table)
 
 % Calculate Sensitivity & Specificity
 
@@ -9,4 +9,17 @@ TN = Class_table(1,1);
 
 Sensitivity = TP/(TP+FN);
 Specificity = TN/(TN+FP);
+
+Precision = TP/(TP+FP);
+Accuracy = (TP+TN)/(TP+FP+FN+TN);
+
+Balanced_accuracy = mean([Sensitivity, Specificity]);
+
+ROC_stats=[Sensitivity,Specificity,Precision,Accuracy,Balanced_accuracy];
+
+
+
+
+
+
 

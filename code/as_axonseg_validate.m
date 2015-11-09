@@ -71,7 +71,7 @@ cost = find_cost(classifier_init,val);
 
 
 Stats_3_used = table2array(struct2table(Stats_3_used));
-[label,score,~] = predict(classifier_final,Stats_3_used);
+[label,~,~] = predict(classifier_final,Stats_3_used);
 
 % Recalculate Discrimination Analysis using the newly found cost value
 
@@ -90,7 +90,9 @@ Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 
 % Calculate ROC stats for discriminant analysis
 
-[Sensitivity,Specificity] = ROC_calculate(Class_table_final);
+[ROC_stats] = ROC_calculate(Class_table_final);
+Sensitivity=ROC_stats(1);
+Specificity=ROC_stats(2);
 
 
 % % figure(5);
@@ -114,19 +116,37 @@ Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 
 % sc(ismember(bwlabel(True_axons_img),index1))
 
-figure(1);
-subplot(221);
-imshow(Rejected_axons_img);
-title('Rejected axons');
-subplot(222);
-imshow(Accepted_axons_img);
-title('Accepted axons');
-subplot(223);
-imshow(False_axons_img);
-title('False axons');
-subplot(224);
-imshow(True_axons_img);
-title('True axons');
+% figure(1);
+% subplot(221);
+% imshow(Rejected_axons_img);
+% title('Rejected axons');
+% subplot(222);
+% imshow(Accepted_axons_img);
+% title('Accepted axons');
+% subplot(223);
+% imshow(False_axons_img);
+% title('False axons');
+% subplot(224);
+% imshow(True_axons_img);
+% title('True axons');
+
+
+TP_img = Accepted_axons_img & True_axons_img;
+TN_img = Rejected_axons_img & False_axons_img;
+FP_img = Accepted_axons_img & False_axons_img;
+FN_img = Rejected_axons_img & True_axons_img;
+
+
+
+figure(2);
+title('TP (green), TN (red), FP (blue) & FN (yellow)');
+sc(sc(TP_img,'g',TP_img)+sc(TN_img,'m',TN_img)+sc(FP_img,'c',FP_img)+sc(FN_img,'w',FN_img));
+
+
+% imshow(imfuse(imfuse(Rejected_axons_img,Accepted_axons_img),imfuse(False_axons_img,True_axons_img)));
+
+% sc(sc(Rejected_axons_img,'r',Rejected_axons_img)+sc(Accepted_axons_img,'g',Accepted_axons_img)+sc(False_axons_img,'b',~~False_axons_img)+sc(True_axons_img,'y'));
+
 
 % Plot discriminant (linear or quadratic) & classes scatters (false axons &
 % true axons)
@@ -143,14 +163,6 @@ end
 end
 
 
-
-
-
-
-
-
-
-
 % Plot variables in matrix
 
 % visualize_DiscrAnalysis(classifier_final,names3);
@@ -158,10 +170,4 @@ end
 
 
 
-% sc(ismember(bwlabel(True_axons_img),index1))
-% index1=find(label1==2);
-% sc(ismember(bwlabel(True_axons_img),index1))
-% index1=find(label1==1);
-% sc(ismember(bwlabel(True_axons_img),index1))
-% index1=find(label1==2);
-% sc(ismember(bwlabel(True_axons_img),index1))
+
