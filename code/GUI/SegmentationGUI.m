@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 06-Nov-2015 17:09:30
+% Last Modified by GUIDE v2.5 09-Nov-2015 17:37:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -223,9 +223,9 @@ guidata(hObject, handles);
 
 
 
-% --- Executes on button press in GoStep0.
-function GoStep0_Callback(hObject, eventdata, handles)
-% hObject    handle to GoStep0 (see GCBO)
+% --- Executes on button press in Go_0_to_1.
+function Go_0_to_1_Callback(hObject, eventdata, handles)
+% hObject    handle to Go_0_to_1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -280,18 +280,19 @@ function resetStep0_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 SegmentationGUI_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
-% --- Executes on button press in goStep1.
-function goStep1_Callback(hObject, eventdata, handles)
-% hObject    handle to goStep1 (see GCBO)
+% --- Executes on button press in Go_1_to_2.
+function Go_1_to_2_Callback(hObject, eventdata, handles)
+% hObject    handle to Go_1_to_2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 
 %--------------------------------------------------------------------------
 if get(handles.LevelSet_check,'Value')==1
 %     test=double(handles.data.Step1);
-    handles.data.Step2_seg=script_test_axonseg(handles.data.Step1); 
+    handles.data.Step2_seg=as_LevelSet_method(handles.data.Step1); 
     handles.data.Step2_seg=uint8(handles.data.Step2_seg);
     handles.data.Step2_seg=logical(handles.data.Step2_seg);
     handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
+    handles.data.Step2_seg = bwmorph(handles.data.Step2_seg,'clean');
     
 else
     
@@ -319,7 +320,9 @@ function resetStep1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
+
+% warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
+fprintf('*** WARNING *** Reseting Step 1 will erase segmentation parameters previously defined.');
 
 axes(handles.plotseg);
 imshow(handles.data.img);
@@ -329,21 +332,15 @@ set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
 
 
-
-
-
 % --- Executes on slider movement.
 function initSeg_Callback(hObject, eventdata, handles)
 % hObject    handle to initSeg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 %--------------------------------------------------------------------------
 tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
-
-
 
 %--------------------------------------------------------------------------
 axes(handles.plotseg)
@@ -412,9 +409,9 @@ imshow(imfuse(handles.data.Step1,tmp));
 
 
 
-% --- Executes on button press in goStep2.
-function goStep2_Callback(hObject, eventdata, handles)
-% hObject    handle to goStep2 (see GCBO)
+% --- Executes on button press in Go_2_to_3.
+function Go_2_to_3_Callback(hObject, eventdata, handles)
+% hObject    handle to Go_2_to_3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -447,6 +444,8 @@ handles.segParam.invertColor=get(handles.invertColor,'Value');
 handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
+
+handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -642,7 +641,7 @@ function minSize_Callback(hObject, eventdata, handles)
 % hObject    handle to minSize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-clctmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
+tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
 
 % handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
 
@@ -854,6 +853,8 @@ set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
+handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
+
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
 set(handles.threshold,'Value',SegParameters.threshold);
@@ -861,6 +862,10 @@ set(handles.threshold,'Value',SegParameters.threshold);
 set(handles.minSize,'Value',SegParameters.minSize);
 set(handles.Circularity,'Value',SegParameters.Circularity);
 set(handles.Solidity,'Value',SegParameters.Solidity);
+
+set(handles.ellipRatio,'Value',SegParameters.ellipRatio);
+set(handles.MinorAxis,'Value',SegParameters.MinorAxis);
+set(handles.MajorAxis,'Value',SegParameters.MajorAxis);
 
 % Update handles
 guidata(hObject,handles);
@@ -873,7 +878,7 @@ function LevelSetSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 tic
-tmp=script_test_axonseg(handles.data.Step1);
+tmp=as_LevelSet_method(handles.data.Step1);
 toc
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
@@ -1007,7 +1012,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 
 [Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},'quadratic',0.8);
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},'linear',0.8);
 
 % handles.parameters = parameters;
 
@@ -1019,6 +1024,8 @@ handles.segParam.invertColor=get(handles.invertColor,'Value');
 handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
+
+handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1039,18 +1046,14 @@ handles.segParam.DA_classifier=classifier_final;
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
 
-
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
-
-
-
 
 %--------------------------------------------------------------------------
 
-[Sensitivity,Specificity] = ROC_calculate(Classification);
+[ROC_stats] = ROC_calculate(Classification);
 
-set(handles.Sensitivity,'String',num2str(Sensitivity));
-set(handles.Specificity,'String',num2str(Specificity));
+set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
+set(handles.Specificity,'String',num2str(ROC_stats(2)));
 
 set(handles.ROC_panel, 'Visible','on');
 
@@ -1073,6 +1076,28 @@ axes(handles.plotseg);
 imshow(as_gaussian_smoothing(handles.data.img));
 
 guidata(hObject,handles);
+
+
+% --- Executes on button press in LevelSet_step1.
+function LevelSet_step1_Callback(hObject, eventdata, handles)
+% hObject    handle to LevelSet_step1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of LevelSet_step1
+
+handles.data.Step2_seg=as_LevelSet_method(handles.data.Step1);
+handles.data.Step2_seg=uint8(handles.data.Step2_seg);
+handles.data.Step2_seg=logical(handles.data.Step2_seg);
+handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
+handles.data.Step2_seg = bwmorph(handles.data.Step2_seg,'clean');
+
+axes(handles.plotseg);
+imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+
+guidata(hObject,handles);
+
+
 
 
 
