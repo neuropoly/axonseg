@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 09-Nov-2015 17:37:12
+% Last Modified by GUIDE v2.5 10-Nov-2015 11:05:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -82,6 +82,7 @@ imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 % set some default parameters
 set(handles.histEq,'Value',0);
 set(handles.ExtendedMin_check,'Value',1);
+set(handles.Transparency,'Value',0.7);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -301,7 +302,11 @@ handles.data.Step2_seg=step1(handles.data.Step1,get(handles.initSeg,'Value'), ge
 end
 %--------------------------------------------------------------------------
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,handles.data.Step2_seg))
+
+sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
+% sc(sc(handles.data.Step1)+sc(handles.data.Step2_seg,'y',handles.data.Step2_seg));
+
+% imshow(imfuse(handles.data.Step1,handles.data.Step2_seg))
 guidata(hObject, handles);
 fprintf('Step 1 Done \n');
 
@@ -344,7 +349,9 @@ tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
 %--------------------------------------------------------------------------
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,tmp))
+
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp))
 guidata(hObject, handles);
 
 % Hints: get(hObject,'Value') returns position of slider
@@ -388,7 +395,8 @@ tmp=initseg(handles.data.Step1, get(handles.diffMaxMin,'Value'));
 
 % Show updated axon segmentation on screen
 axes(handles.plotseg);
-imshow(imfuse(handles.data.Step1,tmp));
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp));
 
 % Update handles
 guidata(hObject, handles);
@@ -405,7 +413,8 @@ function threshold_Callback(hObject, eventdata, handles)
 tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
 tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
 
-imshow(imfuse(handles.data.Step1,tmp));
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp));
 
 
 
@@ -436,7 +445,9 @@ handles.data.DA_final = handles.data.Step3_seg;
 
 
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
+
+sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 
 % Segmentation parameters to save for future use (full image seg.)---------
 
@@ -483,7 +494,9 @@ function resetStep2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg);
-imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+
+sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 set(handles.uipanel1, 'Visible', 'on')
 set(handles.uipanel2, 'Visible', 'off')
 guidata(hObject, handles);
@@ -510,7 +523,9 @@ function circularity_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 tmp=circTest(handles.data.Step2_seg,get(handles.circularity,'Value'));
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 
 
@@ -548,7 +563,9 @@ function maxSize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handle.data.proc=maxSize(handles.data.Step2_seg,get(handles.maxSize,'Value'));
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 
 function im_out=maxSize(im_in,sizeMax)
@@ -582,7 +599,9 @@ tmp = axonValidateCircularity(handles.data.Step2_seg, get(handles.Circularity,'V
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -615,7 +634,8 @@ tmp=solidityTest(handles.data.Step2_seg,get(handles.Solidity,'Value'));
 % handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
 
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -647,7 +667,9 @@ tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
 
 
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 
 
@@ -673,10 +695,14 @@ function ellipse_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 manualBW=as_axonSeg_manual;
 handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
-imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
 guidata(hObject, handles);
 
@@ -690,13 +716,17 @@ function remove_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 [Label, numAxonObj]  = bwlabel(handles.data.Step3_seg);
 [c,r,~] = impixel;
 rm=diag(Label(r,c));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
-imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 
 
@@ -719,7 +749,9 @@ function resetStep3_Callback(hObject, eventdata, handles)
 set(handles.uipanel2, 'Visible', 'on')
 set(handles.uipanel3, 'Visible', 'off')
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
 
 
@@ -883,7 +915,9 @@ toc
 tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
 axes(handles.plotseg)
-imshow(imfuse(handles.data.Step1,tmp))
+
+imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,tmp))
 % imshow(tmp)
 guidata(hObject, handles);
 
@@ -910,7 +944,10 @@ tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.ellipRatio,'Valu
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -943,7 +980,10 @@ tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.MinorAxis,'Value
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -976,7 +1016,10 @@ tmp = axonValidateMajorAxis(handles.data.Step2_seg, get(handles.MajorAxis,'Value
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -1093,14 +1136,31 @@ handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
 handles.data.Step2_seg = bwmorph(handles.data.Step2_seg,'clean');
 
 axes(handles.plotseg);
-imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)));
+
+% imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
 guidata(hObject,handles);
 
 
+% --- Executes on slider movement.
+function Transparency_Callback(hObject, eventdata, handles)
+% hObject    handle to Transparency (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+guidata(hObject, handles);
 
+% --- Executes during object creation, after setting all properties.
+function Transparency_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Transparency (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
 
-
-
-
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
