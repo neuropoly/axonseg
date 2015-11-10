@@ -1,4 +1,4 @@
-function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_final,Sensitivity, Specificity, parameters] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
+function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_final,Sensitivity, Specificity, parameters,ROC_values] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
 % OUTPUTS -----------------------------------------------------------------
 % Rejected_axons_img (OUT) : binary image of rejected axons
 % Accepted_axons_img (OUT) : binary image of accepted axons
@@ -33,7 +33,7 @@ AxonSeg_2_img = im2bw(axonSeg_segCorrected);
 
 % Find removed objects (axons) from initial seg. to corrected seg.
 
-False_axons_img = (AxonSeg_1_img-AxonSeg_2_img);
+False_axons_img = im2bw(AxonSeg_1_img-AxonSeg_2_img);
 % % False_axons_img = imfill(False_axons_img,'holes');
 
 % False_axons_img = find_removed_axons(AxonSeg_1_img, AxonSeg_2_img);
@@ -59,14 +59,14 @@ Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
 % Perform Discrimination Analysis once with default cost matrix
 
-[classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 1, 0],type);
-
+[classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 10; 10, 0],type);
 
 % Find cost needed to have more than 99% of true axons accepted
 
-cost = find_cost(classifier_init,val);
+[cost,ROC_values] = find_cost(classifier_init,val);
 
-[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; cost, 0],type);
+
+[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 10; cost, 0],type);
 
 
 
