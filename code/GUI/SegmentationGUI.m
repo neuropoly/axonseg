@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 10-Nov-2015 11:05:29
+% Last Modified by GUIDE v2.5 10-Nov-2015 16:39:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -245,12 +245,12 @@ imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end)
 
 %--------------------------------------------------------------------------
 
-if get(handles.LevelSet_check,'Value')==1
-    set(handles.initSeg, 'Visible', 'off');
-    set(handles.diffMaxMin, 'Visible', 'off');
-    set(handles.threshold, 'Visible', 'off');
-
-end
+% if get(handles.LevelSet_check,'Value')==1
+%     set(handles.initSeg, 'Visible', 'off');
+%     set(handles.diffMaxMin, 'Visible', 'off');
+%     set(handles.threshold, 'Visible', 'off');
+% 
+% end
 
 
 %--------------------------------------------------------------------------
@@ -287,14 +287,10 @@ function Go_1_to_2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 
 %--------------------------------------------------------------------------
-if get(handles.LevelSet_check,'Value')==1
+if get(handles.LevelSet_step1,'Value')==1
 %     test=double(handles.data.Step1);
     handles.data.Step2_seg=as_LevelSet_method(handles.data.Step1); 
-    handles.data.Step2_seg=uint8(handles.data.Step2_seg);
-    handles.data.Step2_seg=logical(handles.data.Step2_seg);
-    handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
-    handles.data.Step2_seg = bwmorph(handles.data.Step2_seg,'clean');
-    
+   
 else
     
 handles.data.Step2_seg=step1(handles.data.Step1,get(handles.initSeg,'Value'), get(handles.diffMaxMin,'Value'), get(handles.threshold,'Value'));    
@@ -746,6 +742,10 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % hObject    handle to resetStep3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+set(handles.ROC_panel, 'Visible','off');
+set(handles.ROC_curve, 'Visible','off');
+
 set(handles.uipanel2, 'Visible', 'on')
 set(handles.uipanel3, 'Visible', 'off')
 axes(handles.plotseg)
@@ -763,6 +763,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 %% Launch Seg
 
 set(handles.ROC_panel, 'Visible','off');
+set(handles.ROC_curve, 'Visible','off');
 
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
@@ -822,6 +823,7 @@ function go_full_image_Callback(hObject, eventdata, handles)
 
 
 set(handles.ROC_panel, 'Visible','off');
+set(handles.ROC_curve, 'Visible','off');
 
 blocksize=1500;
 overlap=100;
@@ -1054,8 +1056,22 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-[Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, Sensitivity, Specificity, parameters] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},'linear',0.8);
+if get(handles.Linear,'Value')
+    type = 'linear';
+else
+    type = 'quadratic';
+end
+
+
+[~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,ROC_values] = ...
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},type,1);
+
+
+% Plot ROC curve
+
+axes(handles.ROC_curve);
+as_plot_ROC_curve_DA(ROC_values);
+
 
 % handles.parameters = parameters;
 
@@ -1101,6 +1117,11 @@ set(handles.Specificity,'String',num2str(ROC_stats(2)));
 set(handles.ROC_panel, 'Visible','on');
 
 
+
+
+
+set(handles.ROC_curve, 'Visible','on');
+
 %--------------------------------------------------------------------------
 
 
@@ -1129,15 +1150,11 @@ function LevelSet_step1_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of LevelSet_step1
 
-handles.data.Step2_seg=as_LevelSet_method(handles.data.Step1);
-handles.data.Step2_seg=uint8(handles.data.Step2_seg);
-handles.data.Step2_seg=logical(handles.data.Step2_seg);
-handles.data.Step2_seg=imfill(handles.data.Step2_seg,'holes');
-handles.data.Step2_seg = bwmorph(handles.data.Step2_seg,'clean');
+tmp=as_LevelSet_method(handles.data.Step1);
 
 axes(handles.plotseg);
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)));
+imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
 
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
@@ -1164,3 +1181,39 @@ function Transparency_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on button press in remove_concavity.
+function remove_concavity_Callback(hObject, eventdata, handles)
+% hObject    handle to remove_concavity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+axes(handles.plotseg)
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+
+CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
+
+[Label, ~]  = bwlabel(CH_total);
+[c,r,~] = impixel;
+
+rm=diag(Label(r,c));
+CH_others=~ismember(Label,[0;rm]);
+
+CH_object=im2bw(CH_total-CH_others);
+handles.data.Step3_seg=im2bw(handles.data.Step3_seg+CH_object);
+
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+
+
+% IMAGE FOR DA ------------------------------------------------------------
+
+handles.data.DA_final = handles.data.Step3_seg;
+
+%--------------------------------------------------------------------------
+guidata(hObject,handles);
