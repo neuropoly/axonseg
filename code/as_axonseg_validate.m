@@ -34,11 +34,15 @@ AxonSeg_2_img = im2bw(axonSeg_segCorrected);
 % Find removed objects (axons) from initial seg. to corrected seg.
 
 False_axons_img = im2bw(AxonSeg_1_img-AxonSeg_2_img);
+False_axons_img = bwmorph(False_axons_img,'clean');
+
 % % False_axons_img = imfill(False_axons_img,'holes');
 
 % False_axons_img = find_removed_axons(AxonSeg_1_img, AxonSeg_2_img);
 
 True_axons_img = AxonSeg_2_img;
+True_axons_img = bwmorph(True_axons_img,'clean');
+
 % % True_axons_img = imfill(True_axons_img,'holes');
 % % 
 % % 
