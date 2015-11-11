@@ -18,12 +18,8 @@ im3=bwmorph(im3,'close');
 im3=bwmorph(im3,'hbreak'); 
 im3 = bwareaopen(im3,5); %imshow(im3)
  
-% im4=as_LevelSet_method(im_in);
-% im4=uint8(im4);
-% im4=logical(im4);
-% im4=imfill(im4,'holes');
-% im4 = bwmorph(im4,'clean');
+im4=as_LevelSet_method(im_in);
 
-im_out= im1 | im2 | im3;
+im_out= im1 | im2 | im3 | im4;
 
 
