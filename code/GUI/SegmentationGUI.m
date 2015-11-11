@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 10-Nov-2015 16:39:43
+% Last Modified by GUIDE v2.5 11-Nov-2015 10:52:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -81,7 +81,6 @@ imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
 % set some default parameters
 set(handles.histEq,'Value',0);
-set(handles.ExtendedMin_check,'Value',1);
 set(handles.Transparency,'Value',0.7);
 
 % Update handles structure
@@ -232,8 +231,8 @@ function Go_0_to_1_Callback(hObject, eventdata, handles)
 
 handles.data.Step1=handles.data.img;
 
-if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.img); end
-if get(handles.Smoothing,'Value'), handles.data.Step1=as_gaussian_smoothing(handles.data.img); end
+if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.Step1); end
+if get(handles.Smoothing,'Value'), handles.data.Step1=as_gaussian_smoothing(handles.data.Step1); end
 
 
 % handles.data.Step1=imcomplement(handles.data.img);
@@ -452,7 +451,7 @@ handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
-handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
+handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -685,9 +684,9 @@ end
 
 
 
-% --- Executes on button press in ellipse.
-function ellipse_Callback(hObject, eventdata, handles)
-% hObject    handle to ellipse (see GCBO)
+% --- Executes on button press in Add.
+function Add_Callback(hObject, eventdata, handles)
+% hObject    handle to Add (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg)
@@ -697,6 +696,13 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handle
 manualBW=as_axonSeg_manual;
 handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
 
+% IMAGE FOR DA ------------------------------------------------------------
+
+handles.data.DA_final = handles.data.Step3_seg;
+
+%--------------------------------------------------------------------------
+
+guidata(hObject, handles);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
@@ -721,18 +727,15 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handle
 rm=diag(Label(r,c));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-
-
-
 % IMAGE FOR DA ------------------------------------------------------------
 
 handles.data.DA_final = handles.data.Step3_seg;
 
 %--------------------------------------------------------------------------
 
-
+guidata(hObject, handles);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 guidata(hObject, handles);
 
@@ -745,6 +748,7 @@ function resetStep3_Callback(hObject, eventdata, handles)
 
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
+cla(handles.ROC_curve);
 
 set(handles.uipanel2, 'Visible', 'on')
 set(handles.uipanel3, 'Visible', 'off')
@@ -764,6 +768,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
+cla(handles.ROC_curve);
 
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
@@ -772,8 +777,8 @@ handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
 
 handles.data.Step3_seg = as_myelinseg_to_axonseg(handles.data.seg);
 
-axes(handles.plotseg)
-sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper'))
+axes(handles.plotseg);
+sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper'));
 
 handles.data.labelseg=zeros(size(handles.data.seg,1), size(handles.data.seg,2));
 for i=1:size(handles.data.seg,3)
@@ -824,6 +829,7 @@ function go_full_image_Callback(hObject, eventdata, handles)
 
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
+cla(handles.ROC_curve);
 
 blocksize=1500;
 overlap=100;
@@ -887,7 +893,7 @@ set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
-handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
+handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -905,33 +911,25 @@ set(handles.MajorAxis,'Value',SegParameters.MajorAxis);
 guidata(hObject,handles);
 
 
-% --- Executes on button press in LevelSetSeg.
-function LevelSetSeg_Callback(hObject, eventdata, handles)
-% hObject    handle to LevelSetSeg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% % --- Executes on button press in LevelSetSeg.
+% function LevelSetSeg_Callback(hObject, eventdata, handles)
+% % hObject    handle to LevelSetSeg (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% tic
+% tmp=as_LevelSet_method(handles.data.Step1);
+% toc
+% tmp=imfill(tmp,'holes'); %imshow(initialBW)
+% 
+% axes(handles.plotseg)
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,tmp))
+% % imshow(tmp)
+% guidata(hObject, handles);
 
-tic
-tmp=as_LevelSet_method(handles.data.Step1);
-toc
-tmp=imfill(tmp,'holes'); %imshow(initialBW)
 
-axes(handles.plotseg)
-
-imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,tmp))
-% imshow(tmp)
-guidata(hObject, handles);
-
-
-% --- Executes on button press in LevelSet_check.
-function LevelSet_check_Callback(hObject, eventdata, handles)
-% hObject    handle to LevelSet_check (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of LevelSet_check
-guidata(hObject,handles);
 
 
 % --- Executes on slider movement.
@@ -1038,17 +1036,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
-
-% --- Executes on button press in ExtendedMin_check.
-function ExtendedMin_check_Callback(hObject, eventdata, handles)
-% hObject    handle to ExtendedMin_check (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ExtendedMin_check
-guidata(hObject,handles);
-
-
 % --- Executes on button press in DiscriminantAnalysis.
 function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % hObject    handle to DiscriminantAnalysis (see GCBO)
@@ -1062,16 +1049,28 @@ else
     type = 'quadratic';
 end
 
+% Comb=as_comb_parameters({'Area'}, {'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'});
 
+
+% for i=1:size(Comb,1)
+% 
+%     fprintf('i');
+    
 [~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,ROC_values] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Circularity','Solidity','EquivDiameter','Area','Perimeter','Eccentricity'},type,1);
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'},type,1);
 
+
+
+% end
 
 % Plot ROC curve
 
 axes(handles.ROC_curve);
 as_plot_ROC_curve_DA(ROC_values);
 
+% Get sensitivity to use for discriminant analysis
+
+% [selected_x, selected_y] = getpts(handles.ROC_curve);
 
 % handles.parameters = parameters;
 
@@ -1084,7 +1083,7 @@ handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
-handles.segParam.LevelSet=get(handles.LevelSet_check,'Value');
+handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1134,10 +1133,12 @@ function Smoothing_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+guidata(hObject,handles);
 axes(handles.plotseg);
 
 imshow(as_gaussian_smoothing(handles.data.img));
+
+
 
 guidata(hObject,handles);
 
@@ -1189,7 +1190,7 @@ function remove_concavity_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.plotseg)
+axes(handles.plotseg);
 
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
@@ -1206,14 +1207,21 @@ CH_others=~ismember(Label,[0;rm]);
 CH_object=im2bw(CH_total-CH_others);
 handles.data.Step3_seg=im2bw(handles.data.Step3_seg+CH_object);
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-
-
-
 % IMAGE FOR DA ------------------------------------------------------------
 
 handles.data.DA_final = handles.data.Step3_seg;
 
-%--------------------------------------------------------------------------
+%---------------------------UPDATE STEP2 WITH CONVEX FORMS (FOR DA)--------
+
+
+handles.data.Step2_seg = im2bw(handles.data.Step2_seg+CH_object);
+
+
+%---------------------------UPDATE STEP2 WITH CONVEX FORMS (FOR DA)--------
+
+
+guidata(hObject, handles);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
 guidata(hObject,handles);
