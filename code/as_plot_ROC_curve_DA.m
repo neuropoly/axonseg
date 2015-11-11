@@ -1,9 +1,19 @@
 function as_plot_ROC_curve_DA(ROC_values)
 
-plot(1-ROC_values(:,2),ROC_values(:,1));
+plot(1-ROC_values(:,2),ROC_values(:,1),'r--o');
+% plot(1-ROC_values(:,2),ROC_values(:,1));
+
+hold on;
+x=linspace(0,1,50);
+plot(x,x,'-.');
+hold off;
+
 xlabel('1-Specificity');
 ylabel('Sensitivity');
 axis([0 1 0 1]);
+grid on;
+
+
 
 
 
