@@ -63,14 +63,14 @@ Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
 % Perform Discrimination Analysis once with default cost matrix
 
-[classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 10; 10, 0],type);
+[classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 10, 0],type);
 
 % Find cost needed to have more than 99% of true axons accepted
 
 [cost,ROC_values] = find_cost(classifier_init,val);
 
 
-[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 10; cost, 0],type);
+[classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; cost, 0],type);
 
 
 
@@ -98,28 +98,6 @@ Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 Sensitivity=ROC_stats(1);
 Specificity=ROC_stats(2);
 
-
-% % figure(5);
-% % [Sen,Spe] = perfcurve(label,score(:,2),'2');
-% % plot(Sen,Spe);
-% % xlabel('False positive rate')
-% % ylabel('True positive rate')
-% % title('ROC Curve')
-
-
-% num_tot = bwconncomp(AxonSeg_1_img);
-% num_rejected = bwconncomp(Rejected_axons_img);
-% num_accepted = bwconncomp(Accepted_axons_img);
-
-% 
-% index1=find(label2==1);
-% Rejected_axons_img = ismember(bwlabel(False_axons_img),index1);
-% 
-% index2=find(label2==2);
-% Accepted_axons_img = ismember(bwlabel(True_axons_img),index2);
-
-% sc(ismember(bwlabel(True_axons_img),index1))
-
 % figure(1);
 % subplot(221);
 % imshow(Rejected_axons_img);
@@ -139,8 +117,6 @@ TP_img = Accepted_axons_img & True_axons_img;
 TN_img = Rejected_axons_img & False_axons_img;
 FP_img = Accepted_axons_img & False_axons_img;
 FN_img = Rejected_axons_img & True_axons_img;
-
-
 
 figure(2);
 title('TP (green), TN (red), FP (blue) & FN (yellow)');
