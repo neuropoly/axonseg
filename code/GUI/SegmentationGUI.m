@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 11-Nov-2015 10:52:11
+% Last Modified by GUIDE v2.5 12-Nov-2015 13:40:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -746,6 +746,7 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+set(handles.panel_select_ROC, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 cla(handles.ROC_curve);
@@ -766,6 +767,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %% Launch Seg
 
+set(handles.panel_select_ROC, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 cla(handles.ROC_curve);
@@ -826,7 +828,7 @@ function go_full_image_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+set(handles.panel_select_ROC, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 cla(handles.ROC_curve);
@@ -1043,25 +1045,42 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+
 if get(handles.Linear,'Value')
     type = 'linear';
 else
     type = 'quadratic';
 end
 
-% Comb=as_comb_parameters({'Area'}, {'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'});
-
-
-% for i=1:size(Comb,1)
-% 
-%     fprintf('i');
-    
-[~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,ROC_values] = ...
+   
+[~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'},type,1);
 
 
+%--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-% end
+[~,best_indexes]=as_find_max_ROC_metrics(ROC_values);
+
+if get(handles.Precision,'Value') && ~get(handles.Accuracy,'Value')
+
+    sensitivity_to_use=ROC_values(best_indexes(1),1);
+    set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+
+elseif ~get(handles.Precision,'Value') && get(handles.Accuracy,'Value')     
+    
+    sensitivity_to_use=ROC_values(best_indexes(2),1);
+    set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+
+end   
+
+%--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+[~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'},type,get(handles.Enter_sensitivity,'Value'));
+
+
+
+
 
 % Plot ROC curve
 
@@ -1071,6 +1090,10 @@ as_plot_ROC_curve_DA(ROC_values);
 % Get sensitivity to use for discriminant analysis
 
 % [selected_x, selected_y] = getpts(handles.ROC_curve);
+% [selected_x, selected_y] = ginput(1);
+% CP = get(gca, 'CurrentPoint');
+% x  = CP(1);
+% y  = CP(2);
 
 % handles.parameters = parameters;
 
@@ -1114,13 +1137,8 @@ set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
 set(handles.Specificity,'String',num2str(ROC_stats(2)));
 
 set(handles.ROC_panel, 'Visible','on');
-
-
-
-
-
 set(handles.ROC_curve, 'Visible','on');
-
+set(handles.panel_select_ROC, 'Visible','on');
 %--------------------------------------------------------------------------
 
 
@@ -1195,7 +1213,6 @@ axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
-
 CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
 
 [Label, ~]  = bwlabel(CH_total);
@@ -1225,3 +1242,63 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handle
 % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 guidata(hObject,handles);
+
+
+% --- Executes on button press in Precision.
+function Precision_Callback(hObject, eventdata, handles)
+% hObject    handle to Precision (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Precision
+guidata(hObject,handles);
+
+% --- Executes on button press in Accuracy.
+function Accuracy_Callback(hObject, eventdata, handles)
+% hObject    handle to Accuracy (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Accuracy
+guidata(hObject,handles);
+
+function Enter_sensitivity_Callback(hObject, eventdata, handles)
+% hObject    handle to Enter_sensitivity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Enter_sensitivity as text
+%        str2double(get(hObject,'String')) returns contents of Enter_sensitivity as a double
+
+
+
+sens_value=str2double(get(hObject,'String'));
+
+if ~isnan(sens_value)&&(sens_value<=1)&&(sens_value>=0) % if text --> put default value
+    set(hObject,'Value',sens_value);
+else   
+    set(hObject,'String',num2str(get(hObject,'Value')));  
+end
+
+
+
+
+
+
+
+
+
+
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function Enter_sensitivity_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Enter_sensitivity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
