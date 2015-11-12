@@ -22,7 +22,7 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
 
 %---
 cc = bwconncomp(AxonSeg_img,8);
-props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','ConvexHull'});
+props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'});
 
 
 
@@ -33,7 +33,6 @@ Circularity=4*pi*Area./(Perimeter.^2);
 Major=[props.MajorAxisLength]';
 Minor=[props.MinorAxisLength]';
 Ratio=Minor./Major;
-
 
 Stats_struct = struct;
 
@@ -51,10 +50,6 @@ Stats_struct.ConvexArea = cat(1,props.ConvexArea);
 Stats_struct.Orientation = cat(1,props.Orientation);
 Stats_struct.Extent = cat(1,props.Extent);
 Stats_struct.FilledArea = cat(1,props.FilledArea);
-Stats_struct.ConvexHull = cat(1,props.ConvexHull);
-
-
-
 
 var_names = fieldnames(Stats_struct);
 
