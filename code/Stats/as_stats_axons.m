@@ -1,4 +1,4 @@
-function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
+function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img,AxonSeg_gray)
 % Description : This function calculates the sensitivity of the axon
 % segmentation performed by SegmentationGUI by comparing the result with
 % the image obtained by correcting the segmentation (by using
@@ -21,10 +21,8 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img)
 
 
 %---
-cc = bwconncomp(AxonSeg_img,8);
+[cc,num] = bwlabel(AxonSeg_img,8);
 props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'});
-
-
 
 Area=[props.Area]';
 Perimeter=[props.Perimeter]';
@@ -50,6 +48,31 @@ Stats_struct.ConvexArea = cat(1,props.ConvexArea);
 Stats_struct.Orientation = cat(1,props.Orientation);
 Stats_struct.Extent = cat(1,props.Extent);
 Stats_struct.FilledArea = cat(1,props.FilledArea);
+
+
+if nargin==2
+
+AxonSeg_gray=im2double(AxonSeg_gray);
+% Get intensity stats
+
+Intensity_means=zeros(num,1);
+Intensity_std=zeros(num,1);
+
+for i=1:num
+
+Gray_object_values = AxonSeg_gray(cc==i);
+Intensity_means(i,:)=mean(Gray_object_values);
+Intensity_std(i,:)=std(Gray_object_values);
+
+end
+
+
+Stats_struct.Intensity_mean = Intensity_means;
+Stats_struct.Intensity_std = Intensity_std;
+
+end
+
+
 
 var_names = fieldnames(Stats_struct);
 
