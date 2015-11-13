@@ -1,10 +1,10 @@
-function AxonSeg_DA = as_AxonSeg_predict(AxSeg,classifier_final, parameters)
+function AxonSeg_DA = as_AxonSeg_predict(AxSeg,classifier_final, parameters,AxonSeg_gray)
 % Ex : AxonSeg_DA = as_AxonSeg_predict(AxSeg,classifier_final, parameters);
 
 
 % Calculate stats of the image
 
-[Stats_3, names3] = as_stats_axons(AxSeg);
+[Stats_3, names3] = as_stats_axons(AxSeg,AxonSeg_gray);
 Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
 % Predict true & false axons by using the classifier (INPUT)

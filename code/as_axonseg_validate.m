@@ -1,4 +1,4 @@
-function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_final,Sensitivity, Specificity, parameters,ROC_values] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected, parameters,type,val)
+function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_final,Sensitivity, Specificity, parameters,ROC_values] = as_axonseg_validate(axonSeg_step1,axonSeg_segCorrected,axonSeg_gray, parameters,type,val)
 % OUTPUTS -----------------------------------------------------------------
 % Rejected_axons_img (OUT) : binary image of rejected axons
 % Accepted_axons_img (OUT) : binary image of accepted axons
@@ -50,9 +50,9 @@ True_axons_img = bwmorph(True_axons_img,'clean');
 
 % Compute stats (parameters of interest) for both groups
 
-[Stats_1, names1] = as_stats_axons(False_axons_img);
-[Stats_2, names2] = as_stats_axons(True_axons_img);
-[Stats_3, names3] = as_stats_axons(AxonSeg_1_img);
+[Stats_1, names1] = as_stats_axons(False_axons_img,axonSeg_gray);
+[Stats_2, names2] = as_stats_axons(True_axons_img,axonSeg_gray);
+[Stats_3, names3] = as_stats_axons(AxonSeg_1_img,axonSeg_gray);
 
 % Only keep parameters wanted for discrimination analysis
 

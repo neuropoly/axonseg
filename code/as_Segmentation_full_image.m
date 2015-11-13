@@ -101,7 +101,7 @@ end
 
 if isfield(segParam,'parameters')
 
-AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters);
+AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
 %--------------------------------------------------------------------------
 
     

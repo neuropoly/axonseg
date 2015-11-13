@@ -1049,12 +1049,14 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 if get(handles.Linear,'Value')
     type = 'linear';
 else
-    type = 'quadratic';
+    type = 'pseudoQuadratic';
 end
 
+%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean'}
    
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'},type,1);
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean'},type,1);
 
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -1076,7 +1078,8 @@ end
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 [~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,{'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'},type,get(handles.Enter_sensitivity,'Value'));
+    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean'},type,get(handles.Enter_sensitivity,'Value'));
 
 
 
@@ -1169,12 +1172,15 @@ function LevelSet_step1_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of LevelSet_step1
 
+if get(handles.LevelSet_step1,'Value')
+
 tmp=as_LevelSet_method(handles.data.Step1);
 
 axes(handles.plotseg);
 
 imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
 
+end
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
 guidata(hObject,handles);
