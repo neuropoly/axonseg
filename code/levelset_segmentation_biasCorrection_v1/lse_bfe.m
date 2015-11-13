@@ -19,10 +19,10 @@ function [u, b, C]= lse_bfe(u0,Img, b, Ksigma,KONE, nu,timestep,mu,epsilon, iter
 % Copyright (c) by Chunming Li
 % Author: Chunming Li
 
-u=u0;
+u=u0; % image with white contour & black center
 KB1 = conv2(b,Ksigma,'same');
 KB2 = conv2(b.^2,Ksigma,'same');
-C =updateC(Img, u, KB1, KB2, epsilon);
+C =updateC(Img, u, KB1, KB2, epsilon); % 2 scalars
 
 KONE_Img = Img.^2.*KONE;
 u = updateLSF(Img,u, C, KONE_Img, KB1, KB2, mu, nu, timestep, epsilon, iter_lse);
