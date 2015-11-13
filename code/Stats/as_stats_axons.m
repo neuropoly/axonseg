@@ -22,7 +22,7 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img,AxonSeg_gray)
 
 %---
 [cc,num] = bwlabel(AxonSeg_img,8);
-props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea'});
+props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','ConvexImage','ConvexHull'});
 
 Area=[props.Area]';
 Perimeter=[props.Perimeter]';
@@ -49,6 +49,27 @@ Stats_struct.Orientation = cat(1,props.Orientation);
 Stats_struct.Extent = cat(1,props.Extent);
 Stats_struct.FilledArea = cat(1,props.FilledArea);
 
+%---
+
+Perimeter_ConvexHull=zeros(num,1);
+
+for i=1:num
+
+Perimeter_image=bwperim(props(i).ConvexImage,8);
+Perimeter_ConvexHull(i,:) = sum(Perimeter_image(:));
+
+end
+
+
+Stats_struct.Perimeter_ConvexHull=Perimeter_ConvexHull;
+
+%---
+
+Stats_struct.PPchRatio=Perimeter./Perimeter_ConvexHull;
+Stats_struct.AAchRatio=Area./Stats_struct.ConvexArea;
+
+
+%---
 
 if nargin==2
 
