@@ -119,9 +119,9 @@ FP_img = Accepted_axons_img & False_axons_img;
 FN_img = Rejected_axons_img & True_axons_img;
 
 figure(2);
-title('TP (green), TN (red), FP (blue) & FN (yellow)');
-sc(sc(TP_img,'g',TP_img)+sc(TN_img,'m',TN_img)+sc(FP_img,'c',FP_img)+sc(FN_img,'w',FN_img));
 
+sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
+legend('TP (dark green), TN (dark red), FP (light green) & FN (orange)');
 
 % imshow(imfuse(imfuse(Rejected_axons_img,Accepted_axons_img),imfuse(False_axons_img,True_axons_img)));
 
