@@ -1,17 +1,21 @@
 function [Intensity_means,Intensity_std] = as_intensity_stats(img_gray, img_BW)
+% Function that computes the intensity means & std (gray) of objects
+% present on binary mask input (img_BW), in gray level image input
+% (img_gray). 
+% - The output Intensity_means is a column vector containing the
+% mean intensities of each object found in the binary mask input.
+%
+% - The output Intensity_std is a column vector containing the
+% standard deviation of the intensities of each object found in the binary
+% mask input.
+%
+% Example : [Intensity_means,Intensity_std] =
+% as_intensity_stats(initial_img_gray, img_axonseg_bw);
+%
+%
 
-% img_path_1 = uigetimagefile;
-% img_gray = imread(img_path_1);
-% 
-% img_path_2 = uigetimagefile;
-% img_BW_before = imread(img_path_2);
-% 
-% img_path_3 = uigetimagefile;
-% img_BW_after = imread(img_path_3);
-% 
-% 
-% img_BW_before=im2bw(img_BW_before);
-% img_BW_after=im2bw(img_BW_after);
+
+img_gray=im2double(img_gray);
 
 [BW_before_labeled,num] = bwlabel(img_BW,8);
 
@@ -20,9 +24,9 @@ Intensity_std=zeros(num,1);
 
 for i=1:num
 
-Gray_object_values = img_gray(BW_before_labeled==i);
-Intensity_means(i,:)=mean(Gray_object_values);
-Intensity_std(i,:)=std(Gray_object_values);
+    Gray_object_values = img_gray(BW_before_labeled==i);
+    Intensity_means(i,:)=mean(Gray_object_values);
+    Intensity_std(i,:)=std(Gray_object_values);
 
 end
 
