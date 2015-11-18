@@ -13,9 +13,15 @@ Specificity = TN/(TN+FP);
 Precision = TP/(TP+FP);
 Accuracy = (TP+TN)/(TP+FP+FN+TN);
 
-Balanced_accuracy = mean([Sensitivity, Specificity]);
+Balanced_accuracy = 0.5*(Sensitivity+Specificity);
 
-ROC_stats=[Sensitivity,Specificity,Precision,Accuracy,Balanced_accuracy];
+Youden_index = (Sensitivity+Specificity)-1;
+
+P = [1,1];
+Q = [1-Specificity,Sensitivity];
+Distance = sqrt(sum((P - Q).^2));
+
+ROC_stats=[Sensitivity,Specificity,Precision,Accuracy,Balanced_accuracy,Youden_index,Distance];
 
 
 

@@ -16,6 +16,8 @@ for i=1:300
         Precision_values=Stats_ROC(3);
         Accuracy_values=Stats_ROC(4);
         Balanced_accuracy_values=Stats_ROC(5);
+        Youden_index_values=Stats_ROC(6);
+        Distance_values=Stats_ROC(7);
         
     end
     
@@ -24,6 +26,8 @@ for i=1:300
     Precision_values=[Precision_values;Stats_ROC(3)];
     Accuracy_values=[Accuracy_values;Stats_ROC(4)];
     Balanced_accuracy_values=[Balanced_accuracy_values;Stats_ROC(5)];
+    Youden_index_values=[Youden_index_values;Stats_ROC(6)];
+    Distance_values=[Distance_values;Stats_ROC(7)];
         
     FN_test = R(2,1);
     
@@ -46,4 +50,4 @@ if i==300
     Cost=300;
 end
 
-ROC_values=[Sensitivity_values,Specificity_values,Precision_values,Accuracy_values,Balanced_accuracy_values];
+ROC_values=[Sensitivity_values,Specificity_values,Precision_values,Accuracy_values,Balanced_accuracy_values,Youden_index_values,Distance_values];

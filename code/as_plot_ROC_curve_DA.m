@@ -34,12 +34,20 @@ hold on;
 
 % Show max balanced accuracy
 plot(1-Specificity_values(best_indexes(3)+1,:),Sensitivity_values(best_indexes(3)+1,:),'bo','MarkerSize',10);
+hold on;
+
+% Show max Youden index
+plot(1-Specificity_values(best_indexes(4)+1,:),Sensitivity_values(best_indexes(4)+1,:),'ko','MarkerSize',10);
+hold on;
+
+% Show min euclidian distance
+plot(1-Specificity_values(best_indexes(5)+1,:),Sensitivity_values(best_indexes(5)+1,:),'bs','MarkerSize',10);
 hold off;
 
 xlabel('1-Specificity');
 ylabel('Sensitivity');
 title('ROC curve of axon discrimination analysis');
-legend('ROC curve','Reference y=x curve','Max Precision','Max Accuracy','Max Balanced Accuracy','Location','Best');
+legend('ROC curve','Reference y=x curve','Max Precision','Max Accuracy','Max Balanced Accuracy','Max Youden Index','Min Euclidian Distance','Location','Best');
 axis([0 1 0 1]);
 grid on;
 
