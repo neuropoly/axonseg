@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 12-Nov-2015 13:40:00
+% Last Modified by GUIDE v2.5 16-Nov-2015 14:02:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1052,25 +1052,25 @@ else
     type = 'pseudoQuadratic';
 end
 
-%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'}
+%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'}
    
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
+    {'Area','Perimeter','EquivDiameter', 'Solidity','Circularity','Eccentricity','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
 
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 [~,best_indexes]=as_find_max_ROC_metrics(ROC_values);
 
-if get(handles.Precision,'Value') && ~get(handles.Accuracy,'Value')
+if get(handles.Precision,'Value') && ~get(handles.Distance,'Value')
 
     sensitivity_to_use=ROC_values(best_indexes(1),1);
     set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
 
-elseif ~get(handles.Precision,'Value') && get(handles.Accuracy,'Value')     
+elseif ~get(handles.Precision,'Value') && get(handles.Distance,'Value')     
     
-    sensitivity_to_use=ROC_values(best_indexes(2),1);
+    sensitivity_to_use=ROC_values(best_indexes(5),1);
     set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
 
 end   
@@ -1079,7 +1079,7 @@ end
 
 [~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
+    {'Area','Perimeter','EquivDiameter', 'Solidity','Circularity','Eccentricity','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
 
 
 
@@ -1259,13 +1259,13 @@ function Precision_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Precision
 guidata(hObject,handles);
 
-% --- Executes on button press in Accuracy.
-function Accuracy_Callback(hObject, eventdata, handles)
-% hObject    handle to Accuracy (see GCBO)
+% --- Executes on button press in Distance.
+function Distance_Callback(hObject, eventdata, handles)
+% hObject    handle to Distance (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of Accuracy
+% Hint: get(hObject,'Value') returns toggle state of Distance
 guidata(hObject,handles);
 
 function Enter_sensitivity_Callback(hObject, eventdata, handles)
