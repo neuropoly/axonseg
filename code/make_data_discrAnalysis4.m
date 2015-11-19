@@ -9,8 +9,8 @@ first_field2 = getfield(Stats_2 ,names{1});
 % Create a species vector to separate the datasets (#1 & #2)
 
 species = ones((size(first_field1,1)+size(first_field2,1)), 1);
-species(1:size(first_field1,1))=1;
-species((size(first_field1,1)+1):end)=2;
+species(1:size(first_field1,1))=0;
+species((size(first_field1,1)+1):end)=1;
 
 % Combine each variable of both datasets in one matrix
 

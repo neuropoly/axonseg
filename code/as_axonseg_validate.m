@@ -86,10 +86,10 @@ Class_table_final = confusionmat(classifier_final.Y,resubPredict(classifier_fina
 
 % probleme dans bwlabel du AxonSeg_1_img
 
-index1=find(label==1);
+index1=find(label==0);
 Rejected_axons_img = ismember(bwlabel(AxonSeg_1_img),index1);
 
-index2=find(label==2);
+index2=find(label==1);
 Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 
 % Calculate ROC stats for discriminant analysis

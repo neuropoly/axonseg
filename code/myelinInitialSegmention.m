@@ -196,7 +196,7 @@ for currentAxonLabel = 1:numAxon
     
     currentMyelinBW = bwmorph(currentMyelinBW, 'diag');
     
-    %Fill holes except for the axon
+    % Fill holes except for the axon
     currentMyelinBWFilled = imfill(currentMyelinBW, 'holes');
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
     
