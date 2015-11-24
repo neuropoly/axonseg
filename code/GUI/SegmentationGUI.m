@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 16-Nov-2015 14:02:36
+% Last Modified by GUIDE v2.5 24-Nov-2015 17:22:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -288,12 +288,11 @@ function Go_1_to_2_Callback(hObject, eventdata, handles)
 %--------------------------------------------------------------------------
 if get(handles.LevelSet_step1,'Value')==1
 %     test=double(handles.data.Step1);
-    handles.data.Step2_seg=as_LevelSet_method(handles.data.Step1); 
-   
+    LevelSet_results=as_LevelSet_method(handles.data.Step1); 
+    handles.data.Step2_seg=LevelSet_results.img;
 else
     
-handles.data.Step2_seg=step1(handles.data.Step1,get(handles.initSeg,'Value'), get(handles.diffMaxMin,'Value'), get(handles.threshold,'Value'));    
-
+handles.data.Step2_seg=step1(handles);    
 end
 %--------------------------------------------------------------------------
 axes(handles.plotseg)
@@ -397,7 +396,6 @@ sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
 guidata(hObject, handles);
 
 
-
 % --- Executes on slider movement.
 function threshold_Callback(hObject, eventdata, handles)
 % hObject    handle to threshold (see GCBO)
@@ -429,9 +427,7 @@ function Go_2_to_3_Callback(hObject, eventdata, handles)
 
 
 
-handles.data.Step3_seg=step2(handles.data.Step2_seg, get(handles.minSize,'Value'), get(handles.Circularity,'Value'), ...
-    get(handles.Solidity,'Value'), get(handles.ellipRatio,'Value'), get(handles.MinorAxis,'Value'), ...
-    get(handles.MajorAxis,'Value'));
+handles.data.Step3_seg=step2(handles);
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 handles.data.DA_final = handles.data.Step3_seg;
@@ -452,6 +448,7 @@ handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -461,7 +458,7 @@ handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
 
-handles.segParam.ellipRatio=get(handles.ellipRatio,'Value');
+handles.segParam.PerimeterRatio=get(handles.PerimeterRatio,'Value');
 handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
 handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
 
@@ -895,7 +892,8 @@ set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
-handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -905,7 +903,7 @@ set(handles.minSize,'Value',SegParameters.minSize);
 set(handles.Circularity,'Value',SegParameters.Circularity);
 set(handles.Solidity,'Value',SegParameters.Solidity);
 
-set(handles.ellipRatio,'Value',SegParameters.ellipRatio);
+set(handles.PerimeterRatio,'Value',SegParameters.PerimeterRatio);
 set(handles.MinorAxis,'Value',SegParameters.MinorAxis);
 set(handles.MajorAxis,'Value',SegParameters.MajorAxis);
 
@@ -935,13 +933,15 @@ guidata(hObject,handles);
 
 
 % --- Executes on slider movement.
-function ellipRatio_Callback(hObject, eventdata, handles)
-% hObject    handle to ellipRatio (see GCBO)
+function PerimeterRatio_Callback(hObject, eventdata, handles)
+% hObject    handle to PerimeterRatio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Only select axons that validate the circularity criterion defined by user
-tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.ellipRatio,'Value'));
+
+% tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.PerimeterRatio,'Value'));
+tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.PerimeterRatio,'Value'));
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
@@ -959,8 +959,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function ellipRatio_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ellipRatio (see GCBO)
+function PerimeterRatio_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to PerimeterRatio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1110,6 +1110,7 @@ handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1119,7 +1120,7 @@ handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
 
-handles.segParam.ellipRatio=get(handles.ellipRatio,'Value');
+handles.segParam.PerimeterRatio=get(handles.PerimeterRatio,'Value');
 handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
 handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
 
@@ -1172,15 +1173,15 @@ function LevelSet_step1_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of LevelSet_step1
 
-if get(handles.LevelSet_step1,'Value')
-
-tmp=as_LevelSet_method(handles.data.Step1);
-
-axes(handles.plotseg);
-
-imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
-
-end
+% if get(handles.LevelSet_step1,'Value')
+% 
+% tmp=as_LevelSet_method(handles.data.Step1);
+% 
+% axes(handles.plotseg);
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
+% 
+% end
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
 guidata(hObject,handles);
@@ -1308,3 +1309,33 @@ function Enter_sensitivity_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in Show_LevelSet.
+function Show_LevelSet_Callback(hObject, eventdata, handles)
+% hObject    handle to Show_LevelSet (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Show_LevelSet
+
+
+if get(hObject,'Value')
+    
+[LevelSet_results]=as_LevelSet_method(handles.data.Step1); 
+axes(handles.plotseg);
+sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
+
+end
+
+guidata(hObject,handles);
+
+
+% --- Executes on button press in Only_LevelSet.
+function Only_LevelSet_Callback(hObject, eventdata, handles)
+% hObject    handle to Only_LevelSet (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Only_LevelSet
+guidata(hObject,handles);

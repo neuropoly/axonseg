@@ -1,4 +1,4 @@
-function img = as_LevelSet_method(img_init)
+function [LevelSet_results] = as_LevelSet_method(img_init)
 % Uses the Level Set method to compute axon segmentation
 
 % Some initial operations
@@ -14,10 +14,10 @@ Img=A*normalize01(Img); % normalize intensities from 0 to 254
 nu=0.001*A^2; % coefficient of arc length term
 sigma = 4; % scale parameter that specifies the size of the neighborhood
 
-iter_outer=30;   % number of iterations to compute
-iter_inner=10;   % inner iteration for level set evolution
+iter_outer=15;   % number of iterations to compute
+iter_inner=5;   % inner iteration for level set evolution
 
-timestep=.1;
+timestep=0.1;
 mu=1;  % coefficient for distance regularization term (regularize the level set function)
 
 c0=1;
@@ -25,7 +25,14 @@ c0=1;
 epsilon=1;
 b=ones(size(Img));  %%% initialize bias field with 1s same size as image
 
-
+LevelSet_results.parameters.nu=nu;
+LevelSet_results.parameters.sigma=sigma;
+LevelSet_results.parameters.iter_outer=iter_outer;
+LevelSet_results.parameters.iter_inner=iter_inner;
+LevelSet_results.parameters.timestep=timestep;
+LevelSet_results.parameters.mu=mu;
+LevelSet_results.parameters.c0=c0;
+LevelSet_results.parameters.epsilon=epsilon;
 
 % *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -106,6 +113,9 @@ img=uint8(u);
 img=logical(img);
 img=imfill(img,'holes');
 img=bwmorph(img,'clean');
+
+
+LevelSet_results.img=img;
 
 
 

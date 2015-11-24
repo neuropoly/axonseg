@@ -20,7 +20,7 @@ index2 = find(U(2,:) == maxU);
 img_cluster1 = ismember(bwlabel(img_BW),index1);
 img_cluster2 = ismember(bwlabel(img_BW),index2);
 
-hist(Stats_size_used(index1),Stats_size_used(index1,2),'ob')
+% hist(Stats_size_used(index1),Stats_size_used(index1,2),'ob')
 
 
 end

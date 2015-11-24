@@ -82,16 +82,12 @@ im_in=as_gaussian_smoothing(im_in);
 
 if segParam.LevelSet
     
-    AxSeg=as_LevelSet_method(im_in); 
-    AxSeg=uint8(AxSeg);
-    AxSeg=logical(AxSeg);
-    AxSeg=imfill(AxSeg,'holes');
-    AxSeg = bwmorph(AxSeg,'clean');
-    
+    LevelSet_results=as_LevelSet_method(im_in);
+    AxSeg=LevelSet_results.img;
 
 else
     
-AxSeg=step1(im_in,segParam.initSeg,segParam.diffMaxMin,segParam.threshold);    
+AxSeg=step1_full(im_in,segParam);    
     
 end
 
@@ -104,10 +100,9 @@ if isfield(segParam,'parameters')
 AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
 %--------------------------------------------------------------------------
 
-    
 else
 
-AxSeg=step2(AxSeg,segParam.minSize, segParam.Circularity, segParam.Solidity, segParam.ellipRatio, segParam.MinorAxis, segParam.MajorAxis);
+AxSeg=step2_full(AxSeg,segParam);
 
 
 %--------------------------------------------------------------------------
