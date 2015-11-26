@@ -28,12 +28,12 @@ im3 = bwareaopen(im3,5); %imshow(im3)
 if get(handles.Only_LevelSet,'Value')
     
 im4=as_LevelSet_method(im_in);
-im_out=im4;
+im_out=im4.img;
 
 elseif get(handles.LevelSet_step1,'Value')
 
 im4=as_LevelSet_method(im_in);
-im_out= im1 | im2 | im3 | im4;
+im_out= im1 | im2 | im3 | im4.img;
 
 else
     

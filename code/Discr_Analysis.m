@@ -1,44 +1,14 @@
-
 function [classifier,species] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix, type)
-% Example of a good cost matrix for our case : [0, 1; 10, 1];
+% Computes a classifier (discriminant analysis) given 2 datasets with
+% variables, a discriminant analysis type & a defined cost matrix.
+%
+% Example of a cost matrix : [0, 1; 10, 0];
+% If you want the default cost matrix, use : [0, 1; 1, 0];
 
+% Convert data to compatible format for use with fitcdiscr
 
-% Convert data to desired format
+[X,species] = make_data_DA(Stats_1, Stats_2);
 
-
-
-[X,species] = make_data_discrAnalysis4(Stats_1, Stats_2);
-
-
-% Create the classifier
+% Perform the discriminant analysis & create the classifier
 
 classifier = fitcdiscr(X,species,'DiscrimType',type,'Cost',Cost_matrix);
-
-% classifier.Cost = Cost_matrix;
-
-% use the classifier to predict data group from initial image (Stats_3)
-
-
-
-
-
-
-% Confusion_matrix1 = confusionmat(classifier.Y,resubPredict(classifier));
-
-
-
-% Confusion_matrix2 = confusionmat(classifier.Y,resubPredict(classifier));
-
-% K = classifier.Coeffs(1,2).Const; 
-% L = classifier.Coeffs(1,2).Linear;
-
-
-% h1 = gscatter(X(:,1),X(:,2),species,'krb','ov^',[],'off');
-% hold on
-% 
-% % Plot the curve K + [x,y]*L  = 0.
-% f = @(x1,x2) K + L(1)*x1 + L(2)*x2;
-% h2 = ezplot(f,[0 200 0 150]);
-% h2.Color = 'blue';
-% h2.LineWidth = 2;
-% hold off;

@@ -24,93 +24,80 @@ function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_fi
 % img_path_2 = uigetimagefile;
 % axonSeg_segCorrected = imread(img_path_2);
 
-%--------------------------------------------------------------------------
+%---PART 1 - PERFORM A DISCRIMINANT ANALYSIS ------------------------------
 
 % Validate both images are binary
-
 AxonSeg_1_img = im2bw(axonSeg_step1);
 AxonSeg_2_img = im2bw(axonSeg_segCorrected);
 
 % Find removed objects (axons) from initial seg. to corrected seg.
-
 False_axons_img = im2bw(AxonSeg_1_img-AxonSeg_2_img);
 False_axons_img = bwmorph(False_axons_img,'clean');
 
-% % False_axons_img = imfill(False_axons_img,'holes');
-
-% False_axons_img = find_removed_axons(AxonSeg_1_img, AxonSeg_2_img);
-
+% False_axons_img2 = find_removed_axons(AxonSeg_1_img, AxonSeg_2_img);
 True_axons_img = AxonSeg_2_img;
 True_axons_img = bwmorph(True_axons_img,'clean');
 
-% % True_axons_img = imfill(True_axons_img,'holes');
-% % 
-% % 
-% % AxonSeg_1_img = imfill(AxonSeg_1_img,'holes');
-
 % Compute stats (parameters of interest) for both groups
-
 [Stats_1, names1] = as_stats_axons(False_axons_img,axonSeg_gray);
 [Stats_2, names2] = as_stats_axons(True_axons_img,axonSeg_gray);
-[Stats_3, names3] = as_stats_axons(AxonSeg_1_img,axonSeg_gray);
 
 % Only keep parameters wanted for discrimination analysis
-
 Stats_1_used = rmfield(Stats_1,setdiff(names1, parameters));
 Stats_2_used = rmfield(Stats_2,setdiff(names2, parameters));
-Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 
-
-% Perform Discrimination Analysis once with default cost matrix
-
+% Perform Discrimination Analysis once with an initial cost matrix (we use
+% the matrix [0, 1; 10, 0] because we want the more ROC data possible, so
+% with the find_cost function, we can end up with a cost matrix of [0, 300;
+% 10, 0].
 [classifier_init,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; 10, 0],type);
 
-% Find cost needed to have more than 99% of true axons accepted
-
+% Find cost needed to have more than val of true axons accepted & get the
+% ROC values that can be used later for analysis of the ROC curve
 [cost,ROC_values] = find_cost(classifier_init,val);
 
-
+% Make a discriminant analysis with the optimized cost given by find_cost()
 [classifier_final,~] = Discr_Analysis(Stats_1_used, Stats_2_used, [0, 1; cost, 0],type);
 
+%---PART 2 - APPLY IT TO THE WHOLE DATA -----------------------------------
 
-
+% Get the stats from the whole data (initial binary image without any
+% corrections)
+[Stats_3, names3] = as_stats_axons(AxonSeg_1_img,axonSeg_gray);
+Stats_3_used = rmfield(Stats_3,setdiff(names3, parameters));
 Stats_3_used = table2array(struct2table(Stats_3_used));
+
+% Classify the whole data with the classifier obtained in PART 2
 [label,~,~] = predict(classifier_final,Stats_3_used);
 
-% Recalculate Discrimination Analysis using the newly found cost value
-
-
-% Class_table_init = confusionmat(classifier_init.Y,resubPredict(classifier_init));
+% Get the final confusion matrix for output
 Class_table_final = confusionmat(classifier_final.Y,resubPredict(classifier_final));
 
-
-% probleme dans bwlabel du AxonSeg_1_img
-
+% Get the rejected axons as given by the classifier
 index1=find(label==0);
 Rejected_axons_img = ismember(bwlabel(AxonSeg_1_img),index1);
 
+% Get the accepted axons as given by the classifier
 index2=find(label==1);
 Accepted_axons_img = ismember(bwlabel(AxonSeg_1_img),index2);
 
-% Calculate ROC stats for discriminant analysis
 
+
+
+
+
+% Calculate ROC stats & get the sensitivity & specificity values
 [ROC_stats] = ROC_calculate(Class_table_final);
 Sensitivity=ROC_stats(1);
 Specificity=ROC_stats(2);
 
-% figure(1);
-% subplot(221);
-% imshow(Rejected_axons_img);
-% title('Rejected axons');
-% subplot(222);
-% imshow(Accepted_axons_img);
-% title('Accepted axons');
-% subplot(223);
-% imshow(False_axons_img);
-% title('False axons');
-% subplot(224);
-% imshow(True_axons_img);
-% title('True axons');
+
+
+
+
+
+
+%---PART 3 - DISPLAY THE REJECTED & ACCEPTED AXONS ------------------------
 
 TP_img = Accepted_axons_img & True_axons_img;
 TN_img = Rejected_axons_img & False_axons_img;
@@ -119,16 +106,10 @@ FN_img = Rejected_axons_img & True_axons_img;
 
 figure(2);
 sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
-legend('TP (dark green), TN (dark red), FP (light green) & FN (orange)');
-title('DA result --> TP (dark green), TN (dark red), FP (light green) & FN (orange)');
-
-% imshow(imfuse(imfuse(Rejected_axons_img,Accepted_axons_img),imfuse(False_axons_img,True_axons_img)));
-
-% sc(sc(Rejected_axons_img,'r',Rejected_axons_img)+sc(Accepted_axons_img,'g',Accepted_axons_img)+sc(False_axons_img,'b',~~False_axons_img)+sc(True_axons_img,'y'));
+fprintf('Figure legend --> TP (dark green), TN (dark red), FP (light green) & FN (orange) \n');
 
 % Plot discriminant (linear or quadratic) & classes scatters (false axons &
-% true axons)
-
+% true axons) if only 2 parameters chosen (2D)
 if length(parameters)==2
     figure(2);
     plot_data_DiscrAnalysis(classifier_final, Stats_1_used, Stats_2_used, parameters, type);
@@ -136,13 +117,3 @@ end
 
 
 end
-
-
-% Plot variables in matrix
-
-% visualize_DiscrAnalysis(classifier_final,names3);
-
-
-
-
-

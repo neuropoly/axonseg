@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 24-Nov-2015 17:22:11
+% Last Modified by GUIDE v2.5 25-Nov-2015 11:43:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -146,8 +146,6 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% handles.state.invertColor=get(handles.invertColor,'Value');
 axes(handles.plotseg);
 imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
 
@@ -160,33 +158,28 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% handles.state.histEq=get(handles.histEq,'Value');
 if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 
-axes(handles.plotseg)
+axes(handles.plotseg);
 imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of histEq
     
-
-
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
 % hObject    handle to Deconv (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-
-fprintf('*** Warning *** : Computing deconvolution. This may take time. \n');
+fprintf('*** Warning *** : Computing deconvolution. This may take time. Please wait. \n');
 
 tic;
+
 set(handles.Deconv,'Value',round(get(handles.Deconv,'Value'))); % ensure int
 if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 tmp=Deconv(tmp,get(handles.Deconv,'Value'));
-axes(handles.plotseg)
-imshow(tmp)
+axes(handles.plotseg);
+imshow(tmp);
 
 toc;
 
@@ -220,9 +213,6 @@ axes(handles.plotseg)
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 
-
-
-
 % --- Executes on button press in Go_0_to_1.
 function Go_0_to_1_Callback(hObject, eventdata, handles)
 % hObject    handle to Go_0_to_1 (see GCBO)
@@ -233,28 +223,11 @@ handles.data.Step1=handles.data.img;
 
 if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.Step1); end
 if get(handles.Smoothing,'Value'), handles.data.Step1=as_gaussian_smoothing(handles.data.Step1); end
+if get(handles.histEq,'Value'), handles.data.Step1=histeq(handles.data.Step1,get(handles.histEq,'Value')); end
 
-
-% handles.data.Step1=imcomplement(handles.data.img);
 handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
-% handles.state.histEq=get(handles.histEq,'Value');
-if get(handles.histEq,'Value'), handles.data.Step1=histeq(handles.data.Step1,get(handles.histEq,'Value')); end
-imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end))
-
-%--------------------------------------------------------------------------
-
-% if get(handles.LevelSet_check,'Value')==1
-%     set(handles.initSeg, 'Visible', 'off');
-%     set(handles.diffMaxMin, 'Visible', 'off');
-%     set(handles.threshold, 'Visible', 'off');
-% 
-% end
-
-
-%--------------------------------------------------------------------------
-
-
+imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
 set(handles.uipanel1, 'Visible', 'on')
 set(handles.uipanel0, 'Visible', 'off')
@@ -295,7 +268,8 @@ else
 handles.data.Step2_seg=step1(handles);    
 end
 %--------------------------------------------------------------------------
-axes(handles.plotseg)
+
+axes(handles.plotseg);
 
 sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
 % sc(sc(handles.data.Step1)+sc(handles.data.Step2_seg,'y',handles.data.Step2_seg));
@@ -1044,7 +1018,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% Get discriminant analysis type chosen by user
 
 if get(handles.Linear,'Value')
     type = 'linear';
@@ -1053,11 +1027,13 @@ else
 end
 
 %{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'}
-   
+
+% For ROC curve plotting, use sensitivity=1 as input so a maximum of points
+% will be calculated for the ROC curve
+
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area','Perimeter','EquivDiameter', 'Solidity','Circularity','Eccentricity','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
-
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1126,7 +1102,6 @@ handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
 
 handles.segParam.parameters=parameters;
 handles.segParam.DA_classifier=classifier_final;
-
 
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
@@ -1339,3 +1314,33 @@ function Only_LevelSet_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Only_LevelSet
 guidata(hObject,handles);
+
+
+% --- Executes on slider movement.
+function LevelSet_slider_Callback(hObject, eventdata, handles)
+% hObject    handle to LevelSet_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+% [LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(hObject,'Value'));
+% axes(handles.plotseg);
+% sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
+
+
+guidata(hObject,handles);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function LevelSet_slider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to LevelSet_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end

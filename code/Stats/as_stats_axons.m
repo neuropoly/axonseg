@@ -15,15 +15,16 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img,AxonSeg_gray)
 % Corrected_seg_img = AxonSeg_cor;
 
 % TEST IF INPUT IS LOGICAL ****
-
-
 % assert(islogical(AxonSeg_img),'Image input should be logical');
 
 
-% Get all the stats that have scalar values
+% Get all the stats that have scalar values with regionprops function (we
+% need bwlabel here instead of bwconncomp because we als calculate the
+% intensities means & stds so we need labeled objects).
 
 [cc,num] = bwlabel(AxonSeg_img,8);
-props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','ConvexImage','ConvexHull'});
+props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength',...
+    'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','ConvexImage','ConvexHull'});
 
 Area=[props.Area]';
 Perimeter=[props.Perimeter]';
@@ -65,11 +66,13 @@ Stats_struct.Perimeter_ConvexHull=Perimeter_ConvexHull;
 
 % Compute the perimeter & area ratios (convex hull) & add them to the
 % struct
+
 Stats_struct.PPchRatio=Perimeter./Perimeter_ConvexHull;
 Stats_struct.AAchRatio=Area./Stats_struct.ConvexArea;
 
 % If a gray level image is in input, also do intensity stats (mean
 % intensity & std of each object of the binary image).
+
 if nargin==2
 
     AxonSeg_gray=im2double(AxonSeg_gray);
