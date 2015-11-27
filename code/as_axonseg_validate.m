@@ -99,14 +99,14 @@ Specificity=ROC_stats(2);
 
 %---PART 3 - DISPLAY THE REJECTED & ACCEPTED AXONS ------------------------
 
-TP_img = Accepted_axons_img & True_axons_img;
-TN_img = Rejected_axons_img & False_axons_img;
-FP_img = Accepted_axons_img & False_axons_img;
-FN_img = Rejected_axons_img & True_axons_img;
-
-figure(2);
-sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
-fprintf('Figure legend --> TP (dark green), TN (dark red), FP (light green) & FN (orange) \n');
+% ROC_images.TP_img = Accepted_axons_img & True_axons_img;
+% ROC_images.TN_img = Rejected_axons_img & False_axons_img;
+% ROC_images.FP_img = Accepted_axons_img & False_axons_img;
+% ROC_images.FN_img = Rejected_axons_img & True_axons_img;
+% 
+% figure(2);
+% sc(sc(ROC_images.TP_img,[0 0.75 0],ROC_images.TP_img)+sc(ROC_images.TN_img,[0.7 0 0],ROC_images.TN_img)+sc(ROC_images.FP_img,[0.75 1 0.5],ROC_images.FP_img)+sc(ROC_images.FN_img,[1 0.5 0],ROC_images.FN_img));
+% fprintf('Figure legend --> TP (dark green), TN (dark red), FP (light green) & FN (orange) \n');
 
 % Plot discriminant (linear or quadratic) & classes scatters (false axons &
 % true axons) if only 2 parameters chosen (2D)

@@ -1,11 +1,4 @@
-function [axonInitialBW, minor] = axonValidateMinorAxis(axonInitialBW, thresh)
-% Rejection rules:
-% 	- objects with normalized properties distance > distThrsh
-%       distThrsh = 11 keeps 95% as determined from ground truth
-%       distThrsh = 30 keeps 100% as determined from ground truth
-
-% Use normalised properties distance threshold
-
+function [Stats_struct,cc]=axon_stats_step2(axonInitialBW)
 
 [cc,num] = bwlabel(axonInitialBW,8);
 props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength',...
@@ -53,10 +46,3 @@ Stats_struct.Perimeter_ConvexHull=Perimeter_ConvexHull;
 
 Stats_struct.PPchRatio=Perimeter./Perimeter_ConvexHull;
 Stats_struct.AAchRatio=Area./Stats_struct.ConvexArea;
-
-
-autre=(Stats_struct.Circularity+Stats_struct.Solidity)/2;
-
-p=find(autre<thresh);
-axonInitialBW(ismember(cc,p)==1)=0;
-

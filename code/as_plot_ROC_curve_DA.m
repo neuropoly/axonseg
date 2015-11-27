@@ -1,4 +1,4 @@
-function as_plot_ROC_curve_DA(ROC_values)
+function h_legend = as_plot_ROC_curve_DA(ROC_values)
 % Function that plots the ROC curve (Sensitivity vs 1-Specificity)
 
 % Add point at (0,0) for ROC curve
@@ -25,29 +25,29 @@ plot(x,x,'-.');
 hold on;
 
 % Show max precision
-plot(1-Specificity_values(best_indexes(1)+1,:),Sensitivity_values(best_indexes(1)+1,:),'g*','MarkerSize',10);
+plot(1-Specificity_values(best_indexes(1)+1,:),Sensitivity_values(best_indexes(1)+1,:),'kd','MarkerSize',13);
 hold on;
 
 % Show max accuracy
-plot(1-Specificity_values(best_indexes(2)+1,:),Sensitivity_values(best_indexes(2)+1,:),'y*','MarkerSize',10);
+plot(1-Specificity_values(best_indexes(2)+1,:),Sensitivity_values(best_indexes(2)+1,:),'g*','MarkerSize',12);
 hold on;
 
 % Show max balanced accuracy
-plot(1-Specificity_values(best_indexes(3)+1,:),Sensitivity_values(best_indexes(3)+1,:),'bo','MarkerSize',10);
+plot(1-Specificity_values(best_indexes(3)+1,:),Sensitivity_values(best_indexes(3)+1,:),'bo','MarkerSize',11);
 hold on;
 
 % Show max Youden index
-plot(1-Specificity_values(best_indexes(4)+1,:),Sensitivity_values(best_indexes(4)+1,:),'ko','MarkerSize',10);
+plot(1-Specificity_values(best_indexes(4)+1,:),Sensitivity_values(best_indexes(4)+1,:),'k^','MarkerSize',11);
 hold on;
 
 % Show min euclidian distance
-plot(1-Specificity_values(best_indexes(5)+1,:),Sensitivity_values(best_indexes(5)+1,:),'bs','MarkerSize',10);
+plot(1-Specificity_values(best_indexes(5)+1,:),Sensitivity_values(best_indexes(5)+1,:),'bs','MarkerSize',11);
 hold off;
 
 xlabel('1-Specificity');
 ylabel('Sensitivity');
 title('ROC curve of axon discrimination analysis');
-legend('ROC curve','Reference y=x curve','Max Precision','Max Accuracy','Max Balanced Accuracy','Max Youden Index','Min Euclidian Distance','Location','Best');
+h_legend=legend('ROC curve','Reference y=x curve','Max Precision','Max Accuracy','Max Balanced Accuracy','Max Youden Index','Min Euclidian Distance','Location','Best');
 axis([0 1 0 1]);
 grid on;
 

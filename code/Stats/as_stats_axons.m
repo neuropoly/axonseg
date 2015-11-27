@@ -26,6 +26,8 @@ function [Stats_struct,var_names] = as_stats_axons(AxonSeg_img,AxonSeg_gray)
 props = regionprops(cc,{'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength',...
     'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','ConvexImage','ConvexHull'});
 
+
+
 Area=[props.Area]';
 Perimeter=[props.Perimeter]';
 Circularity=4*pi*Area./(Perimeter.^2);
@@ -90,7 +92,6 @@ if nargin==2
     Stats_struct.Intensity_std = Intensity_std;
 
 end
-
 
 % Get the parameters names for future use
 var_names = fieldnames(Stats_struct);

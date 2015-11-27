@@ -1,20 +1,32 @@
 function im=step2_full(AxSeg,segParam)
 
 im=AxSeg;
+[Stats_struct,cc]=axon_stats_step2(AxSeg);
 
-minSize=segParam.minSize;
-Circularity=segParam.Circularity;
-Solidity=segParam.Solidity;
-PerimeterRatio=segParam.PerimeterRatio;
-Minor=segParam.MinorAxis;
-Major=segParam.MajorAxis;
+% Minimal size
+metric=Stats_struct.EquivDiameter;
+p=find(metric<segParam.minSize);
+im(ismember(cc,p)==1)=0;
 
-im = sizeTest(im,minSize);
-im = axonValidateCircularity(im, Circularity);
-im = solidityTest(im,Solidity);
+% Circularity
+metric=Stats_struct.Circularity;
+p=find(metric<segParam.Circularity);
+im(ismember(cc,p)==1)=0;
 
-im = axonValidatePerimeterRatio(im, PerimeterRatio);
-im = axonValidateMinorAxis(im, Minor);
-im = axonValidateMajorAxis(im, Major);
+% Solidity
+metric=Stats_struct.Solidity;
+p=find(metric<segParam.Solidity);
+im(ismember(cc,p)==1)=0;
+
+% Ellipticity
+metric=Stats_struct.MinorMajorRatio;
+p=find(metric<segParam.Ellipticity);
+im(ismember(cc,p)==1)=0;
+
+% Area to Area convex hull
+metric=Stats_struct.AAchRatio;
+p=find(metric<segParam.AreaRatio);
+im(ismember(cc,p)==1)=0;
+
 
 %im =as_bwobjectfun(@ (x) bwconvhull(x, 'objects'),im);

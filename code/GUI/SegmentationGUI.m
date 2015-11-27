@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 25-Nov-2015 11:43:48
+% Last Modified by GUIDE v2.5 27-Nov-2015 13:00:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -281,6 +281,9 @@ fprintf('Step 1 Done \n');
 set(handles.uipanel2, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 
+
+[handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
+
 guidata(hObject, handles);
 
 
@@ -376,7 +379,6 @@ function threshold_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
 tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
 
@@ -398,13 +400,12 @@ function Go_2_to_3_Callback(hObject, eventdata, handles)
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
-
-
-
 handles.data.Step3_seg=step2(handles);
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
+
 handles.data.DA_final = handles.data.Step3_seg;
+
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
 
@@ -431,10 +432,9 @@ handles.segParam.threshold=get(handles.threshold,'Value');
 handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
+handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
+handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
 
-handles.segParam.PerimeterRatio=get(handles.PerimeterRatio,'Value');
-handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
-handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
 
 % handles.segParam.parameters=get(handles.parameters,'Value');
 % handles.segParam.DA_classifier=get(handles.DA_classifier,'Value');
@@ -560,12 +560,17 @@ function Circularity_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Only select axons that validate the circularity criterion defined by user
-tmp = axonValidateCircularity(handles.data.Step2_seg, get(handles.Circularity,'Value'));
+
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.Circularity;
+p=find(metric<get(handles.Circularity,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
+
+% tmp = axonValidateCircularity(handles.data.Step2_seg, get(handles.Circularity,'Value'));
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-
 imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
@@ -594,8 +599,12 @@ function Solidity_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.Solidity;
+p=find(metric<get(handles.Solidity,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
 
-tmp=solidityTest(handles.data.Step2_seg,get(handles.Solidity,'Value'));
+% tmp=solidityTest(handles.data.Step2_seg,get(handles.Solidity,'Value'));
 
 % handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
 
@@ -627,10 +636,15 @@ function minSize_Callback(hObject, eventdata, handles)
 % hObject    handle to minSize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
+
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.EquivDiameter;
+p=find(metric<get(handles.minSize,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
+
+% tmp=sizeTest(handles.data.Step2_seg,get(handles.minSize,'Value'));
 
 % handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
-
 
 axes(handles.plotseg)
 
@@ -718,6 +732,7 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 set(handles.panel_select_ROC, 'Visible','off');
+set(handles.Panel_manual_modifs, 'Visible','on');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 cla(handles.ROC_curve);
@@ -739,12 +754,23 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 %% Launch Seg
 
 set(handles.panel_select_ROC, 'Visible','off');
+set(handles.Panel_manual_modifs, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 cla(handles.ROC_curve);
 
+if isfield(handles,'data.DA_accepted')
+    
+tmp=RemoveBorder(handles.data.DA_accepted);
+backBW=handles.data.DA_accepted & ~tmp;
+
+else
+    
 tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
+
+end
+
 [handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
 handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
 
@@ -876,10 +902,8 @@ set(handles.threshold,'Value',SegParameters.threshold);
 set(handles.minSize,'Value',SegParameters.minSize);
 set(handles.Circularity,'Value',SegParameters.Circularity);
 set(handles.Solidity,'Value',SegParameters.Solidity);
-
-set(handles.PerimeterRatio,'Value',SegParameters.PerimeterRatio);
-set(handles.MinorAxis,'Value',SegParameters.MinorAxis);
-set(handles.MajorAxis,'Value',SegParameters.MajorAxis);
+set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
 
 % Update handles
 guidata(hObject,handles);
@@ -907,15 +931,20 @@ guidata(hObject,handles);
 
 
 % --- Executes on slider movement.
-function PerimeterRatio_Callback(hObject, eventdata, handles)
-% hObject    handle to PerimeterRatio (see GCBO)
+function AreaRatio_Callback(hObject, eventdata, handles)
+% hObject    handle to AreaRatio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Only select axons that validate the circularity criterion defined by user
 
-% tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.PerimeterRatio,'Value'));
-tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.PerimeterRatio,'Value'));
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.AAchRatio;
+p=find(metric<get(handles.AreaRatio,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
+
+% tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
+% tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
@@ -933,8 +962,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function PerimeterRatio_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to PerimeterRatio (see GCBO)
+function AreaRatio_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to AreaRatio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -945,18 +974,22 @@ end
 
 
 % --- Executes on slider movement.
-function MinorAxis_Callback(hObject, eventdata, handles)
-% hObject    handle to MinorAxis (see GCBO)
+function Ellipticity_Callback(hObject, eventdata, handles)
+% hObject    handle to Ellipticity (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.MinorMajorRatio;
+p=find(metric<get(handles.Ellipticity,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
+
 % Only select axons that validate the circularity criterion defined by user
-tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.MinorAxis,'Value'));
+% tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.Ellipticity,'Value'));
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
 axes(handles.plotseg)
-
 imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
@@ -967,8 +1000,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function MinorAxis_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to MinorAxis (see GCBO)
+function Ellipticity_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Ellipticity (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1030,10 +1063,13 @@ end
 
 % For ROC curve plotting, use sensitivity=1 as input so a maximum of points
 % will be calculated for the ROC curve
+tic;
+fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
+
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1053,30 +1089,20 @@ end
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-[~, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
+
+[Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area','Perimeter','EquivDiameter', 'Solidity','Circularity','Eccentricity','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
-
-
-
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
 
 
 % Plot ROC curve
 
 axes(handles.ROC_curve);
-as_plot_ROC_curve_DA(ROC_values);
-
-% Get sensitivity to use for discriminant analysis
-
-% [selected_x, selected_y] = getpts(handles.ROC_curve);
-% [selected_x, selected_y] = ginput(1);
-% CP = get(gca, 'CurrentPoint');
-% x  = CP(1);
-% y  = CP(2);
+h_legend=as_plot_ROC_curve_DA(ROC_values);
 
 % handles.parameters = parameters;
 
-handles.data.Step3_seg = Accepted_axons_img;
+handles.data.DA_accepted = Accepted_axons_img;
 
 % handles.DA_classifier = classifier_final;
 
@@ -1095,10 +1121,8 @@ handles.segParam.threshold=get(handles.threshold,'Value');
 handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
-
-handles.segParam.PerimeterRatio=get(handles.PerimeterRatio,'Value');
-handles.segParam.MinorAxis=get(handles.MinorAxis,'Value');
-handles.segParam.MajorAxis=get(handles.MajorAxis,'Value');
+handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
+handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
 
 handles.segParam.parameters=parameters;
 handles.segParam.DA_classifier=classifier_final;
@@ -1120,7 +1144,15 @@ set(handles.ROC_curve, 'Visible','on');
 set(handles.panel_select_ROC, 'Visible','on');
 %--------------------------------------------------------------------------
 
+% sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
 
+toc;
+fprintf('Discriminant analysis done. \n');
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
+    +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,'y',handles.data.DA_accepted)+sc(handles.data.Step1)));
 guidata(hObject,handles);
 
 
@@ -1134,8 +1166,6 @@ guidata(hObject,handles);
 axes(handles.plotseg);
 
 imshow(as_gaussian_smoothing(handles.data.img));
-
-
 
 guidata(hObject,handles);
 
@@ -1331,7 +1361,6 @@ function LevelSet_slider_Callback(hObject, eventdata, handles)
 
 
 guidata(hObject,handles);
-
 
 
 % --- Executes during object creation, after setting all properties.

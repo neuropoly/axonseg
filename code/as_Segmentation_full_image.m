@@ -92,7 +92,6 @@ AxSeg=step1_full(im_in,segParam);
 end
 
 
-
 % Step 2 - discrimination for axon segmentation
 
 if isfield(segParam,'parameters')
