@@ -1,4 +1,5 @@
 function varargout = SegmentationGUI(varargin)
+
 %SEGMENTATIONGUI M-file for SegmentationGUI.fig
 %      SEGMENTATIONGUI, by itself, creates a new SEGMENTATIONGUI or raises the existing
 %      singleton*.
@@ -22,7 +23,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 27-Nov-2015 13:00:42
+% Last Modified by GUIDE v2.5 02-Dec-2015 17:32:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1086,17 +1087,38 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 [~,best_indexes]=as_find_max_ROC_metrics(ROC_values);
 
-if get(handles.Precision,'Value') && ~get(handles.Distance,'Value')
+switch get(handles.popupmenu_ROC,'Value')
+        
+    case 2 % max sensitivity    
+        sensitivity_to_use=ROC_values(size(ROC_values,1),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+        
+    case 3 % max specificity    
+        sensitivity_to_use=ROC_values(1,1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+        
+    case 4 % max precision    
+        sensitivity_to_use=ROC_values(best_indexes(1),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+        
+    case 5 % max accuracy    
+        sensitivity_to_use=ROC_values(best_indexes(2),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
 
-    sensitivity_to_use=ROC_values(best_indexes(1),1);
-    set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+    case 6 % max bal accuracy    
+        sensitivity_to_use=ROC_values(best_indexes(3),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+        
+    case 7 % max youden    
+        sensitivity_to_use=ROC_values(best_indexes(4),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+        
+    case 8 % min distance        
+        sensitivity_to_use=ROC_values(best_indexes(5),1);
+        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
 
-elseif ~get(handles.Precision,'Value') && get(handles.Distance,'Value')     
-    
-    sensitivity_to_use=ROC_values(best_indexes(5),1);
-    set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
+end
 
-end   
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1373,4 +1395,27 @@ function LevelSet_slider_CreateFcn(hObject, eventdata, handles)
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on selection change in popupmenu_ROC.
+function popupmenu_ROC_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_ROC (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_ROC contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_ROC
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_ROC_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_ROC (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
