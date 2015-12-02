@@ -1,4 +1,4 @@
-function [LevelSet_results] = as_LevelSet_method(img_init)
+function [LevelSet_results] = as_LevelSet_method(img_init,iter)
 % Uses the Level Set method to compute axon segmentation
 
 % Some initial operations
@@ -11,13 +11,19 @@ Img=A*normalize01(Img); % normalize intensities from 0 to 254
 
 % *** SET VARIOUS PARAMETERS HERE *****************************************
 
+
 nu=0.001*A^2; % coefficient of arc length term
+
 sigma = 4; % scale parameter that specifies the size of the neighborhood
 
-iter_outer=15;   % number of iterations to compute
-iter_inner=5;   % inner iteration for level set evolution
+
+iter=round(iter);
+
+iter_outer=2*iter;   % number of iterations to compute
+iter_inner=1*iter;   % inner iteration for level set evolution
 
 timestep=0.1;
+
 mu=1;  % coefficient for distance regularization term (regularize the level set function)
 
 c0=1;
@@ -68,32 +74,15 @@ KONE=conv2(ones(size(Img)),K,'same');% Result of convolution of test image (only
 N=row*col; % Number of pixels in image (product of x size x y size)
 
 
-
 for n=1:iter_outer
     
-tic    
+tic;    
 [u, b, C]= lse_bfe(u,Img, b, K,KONE, nu,timestep,mu,epsilon, iter_inner);    
-toc
-
-
-
+toc;
 
 disp(n);
-
-
-%     if mod(n,2)==0
-%         pause(0.001);
-%         imagesc(Img,[0, 255]); colormap(gray); axis off; axis equal;
-%         hold on;
-%         contour(u,[0 0],'r');
-%         iterNum=[num2str(n), ' iterations'];
-%         title(iterNum);
-%         hold off;
-%     end
-   
+ 
 end
-
-
 
 % Mask =(Img>10); % Create a binary mask
 % Img_corrected=normalize01(Mask.*Img./(b+(b==0)))*255;
@@ -113,7 +102,6 @@ img=uint8(u);
 img=logical(img);
 img=imfill(img,'holes');
 img=bwmorph(img,'clean');
-
 
 LevelSet_results.img=img;
 
