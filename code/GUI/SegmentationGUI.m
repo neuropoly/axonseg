@@ -229,6 +229,7 @@ handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
 imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
+set(handles.panel_LS, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'on')
 set(handles.uipanel0, 'Visible', 'off')
 guidata(hObject, handles);
@@ -259,14 +260,15 @@ function Go_1_to_2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 
 %--------------------------------------------------------------------------
-if get(handles.LevelSet_step1,'Value')==1
-%     test=double(handles.data.Step1);
-    LevelSet_results=as_LevelSet_method(handles.data.Step1); 
-    handles.data.Step2_seg=LevelSet_results.img;
-else
+% if get(handles.LevelSet_step1,'Value')==1
+% %     test=double(handles.data.Step1);
+%     LevelSet_results=as_LevelSet_method(handles.data.Step1, get(handles.LevelSet_slider,'Value'));
+%     
+%     handles.data.Step2_seg=LevelSet_results.img;
+% else
     
 handles.data.Step2_seg=step1(handles);    
-end
+% end
 %--------------------------------------------------------------------------
 
 axes(handles.plotseg);
@@ -278,6 +280,7 @@ sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.
 guidata(hObject, handles);
 fprintf('Step 1 Done \n');
 
+set(handles.panel_LS, 'Visible', 'off')
 set(handles.uipanel2, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 
@@ -303,6 +306,7 @@ fprintf('*** WARNING *** Reseting Step 1 will erase segmentation parameters prev
 axes(handles.plotseg);
 imshow(handles.data.img);
 
+set(handles.panel_LS, 'Visible', 'off')
 set(handles.uipanel0, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
@@ -424,6 +428,7 @@ handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
 handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -432,13 +437,11 @@ handles.segParam.threshold=get(handles.threshold,'Value');
 handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
-handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
+% handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
 handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
-
 
 % handles.segParam.parameters=get(handles.parameters,'Value');
 % handles.segParam.DA_classifier=get(handles.DA_classifier,'Value');
-
 
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
@@ -463,6 +466,8 @@ axes(handles.plotseg);
 
 sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+
+set(handles.panel_LS, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'on')
 set(handles.uipanel2, 'Visible', 'off')
 guidata(hObject, handles);
@@ -885,15 +890,15 @@ load(segparam_filepath);
 % set(handles.histEq,'Enable','off');
 % set(handles.Deconv,'Enable','off');
 
-
 % Get parameters from a SegParameters file
 set(handles.invertColor,'Value',SegParameters.invertColor);
 set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
-% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -902,8 +907,18 @@ set(handles.threshold,'Value',SegParameters.threshold);
 set(handles.minSize,'Value',SegParameters.minSize);
 set(handles.Circularity,'Value',SegParameters.Circularity);
 set(handles.Solidity,'Value',SegParameters.Solidity);
-set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+% set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
 set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
+
+if isfield(SegParameters,'parameters')
+    
+% set(handles.parameters,'Value',SegParameters.parameters);
+% set(handles.parameters,'Value',SegParameters.parameters);
+
+handles.parameters=SegParameters.parameters;
+handles.classifier_final=SegParameters.DA_classifier;
+
+end
 
 % Update handles
 guidata(hObject,handles);
@@ -927,9 +942,6 @@ guidata(hObject,handles);
 % % imshow(tmp)
 % guidata(hObject, handles);
 
-
-
-
 % --- Executes on slider movement.
 function AreaRatio_Callback(hObject, eventdata, handles)
 % hObject    handle to AreaRatio (see GCBO)
@@ -941,7 +953,7 @@ function AreaRatio_Callback(hObject, eventdata, handles)
 tmp=handles.data.Step2_seg;
 metric=handles.stats_step2.AAchRatio;
 p=find(metric<get(handles.AreaRatio,'Value'));
-tmp(ismember(handles.stats_cc,p)==1)=0;
+tmp(ismember(handles.stats_cc,p)==0)=0;
 
 % tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
 % tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
@@ -1068,8 +1080,7 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
-
+    {'EquivDiameter', 'Solidity','Circularity','Eccentricity','Intensity_std', 'Intensity_mean','PPchRatio','AAchRatio'},type,1);
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1090,9 +1101,9 @@ end
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 
-[Rejected_axons_img, Accepted_axons_img, classifier_final, Classification, ~, ~, parameters,~] = ...
+[Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
+    {'EquivDiameter', 'Solidity','Circularity','Eccentricity','Intensity_std', 'Intensity_mean','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
 
 
 % Plot ROC curve
@@ -1113,6 +1124,7 @@ handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
 handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
 handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1121,11 +1133,11 @@ handles.segParam.threshold=get(handles.threshold,'Value');
 handles.segParam.minSize=get(handles.minSize,'Value');
 handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
-handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
+% handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
 handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
 
-handles.segParam.parameters=parameters;
-handles.segParam.DA_classifier=classifier_final;
+handles.segParam.parameters=handles.parameters;
+handles.segParam.DA_classifier=handles.classifier_final;
 
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
@@ -1282,8 +1294,6 @@ function Enter_sensitivity_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of Enter_sensitivity as text
 %        str2double(get(hObject,'String')) returns contents of Enter_sensitivity as a double
 
-
-
 sens_value=str2double(get(hObject,'String'));
 
 if ~isnan(sens_value)&&(sens_value<=1)&&(sens_value>=0) % if text --> put default value
@@ -1291,15 +1301,6 @@ if ~isnan(sens_value)&&(sens_value<=1)&&(sens_value>=0) % if text --> put defaul
 else   
     set(hObject,'String',num2str(get(hObject,'Value')));  
 end
-
-
-
-
-
-
-
-
-
 
 guidata(hObject,handles);
 
@@ -1327,7 +1328,7 @@ function Show_LevelSet_Callback(hObject, eventdata, handles)
 
 if get(hObject,'Value')
     
-[LevelSet_results]=as_LevelSet_method(handles.data.Step1); 
+[LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(handles.LevelSet_slider,'Value')); 
 axes(handles.plotseg);
 sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
 
@@ -1355,9 +1356,9 @@ function LevelSet_slider_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-% [LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(hObject,'Value'));
-% axes(handles.plotseg);
-% sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
+[LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(hObject,'Value'));
+axes(handles.plotseg);
+sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
 
 
 guidata(hObject,handles);
