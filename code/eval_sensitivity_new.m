@@ -1,4 +1,4 @@
-function sensitivity = eval_sensitivity_new(Auto_seg_img, Corrected_seg_img)
+function [sensitivity, TP, FP, FN, nbr_test, nbr_control,J] = eval_sensitivity_new(Auto_seg_img, Corrected_seg_img)
 % Description : This function calculates the sensitivity of the axon
 % segmentation performed by SegmentationGUI by comparing the result with
 % the image obtained by correcting the segmentation (by using
@@ -56,6 +56,7 @@ end
 % Stats for modified axons (diameter, area)
 
 sensitivity = TP/(TP+FN);
+J = TP/(TP+FN+FP);
 
 figure, imshow(imfuse(Auto_seg_img,Corrected_seg_img));
 hold on;
@@ -63,5 +64,11 @@ plot(centroids_auto_seg_img(:,1),centroids_auto_seg_img(:,2),'r*');
 hold off;
 
 % figure, imshow(Auto_seg_img);
+
+
+
+
+
+
 
 end

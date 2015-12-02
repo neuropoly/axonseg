@@ -12,3 +12,7 @@ function [classifier,species] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix, ty
 % Perform the discriminant analysis & create the classifier
 
 classifier = fitcdiscr(X,species,'DiscrimType',type,'Cost',Cost_matrix);
+
+
+
+
