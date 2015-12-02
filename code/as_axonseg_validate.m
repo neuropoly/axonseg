@@ -19,7 +19,7 @@ function [Rejected_axons_img, Accepted_axons_img,classifier_final,Class_table_fi
 %--------------------------------------------------------------------------
 % % 
 % img_path_1 = uigetimagefile;
-% axonSeg_step1 = imread(img_path_1);
+% img = imread(img_path_1);
 % 
 % img_path_2 = uigetimagefile;
 % axonSeg_segCorrected = imread(img_path_2);
