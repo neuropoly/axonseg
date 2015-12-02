@@ -5,8 +5,6 @@ function Validation_stats = as_eval_seg_quality_BW(img_BW_control,img_BW_test)
 % - Number of objects in each binary image (test vs control)
 % - % of axons of test that are also in control (use centroids)
 
-
-
 % img_path_1 = uigetimagefile;
 % test = imread(img_path_1);
 % 
@@ -22,7 +20,7 @@ imshow(img_BW_test);
 
 % use centroids & compare with ctrl image
 
-sensitivity=eval_sensitivity_new(img_BW_test,img_BW_control);
+[sensitivity, TP, FP, FN]=eval_sensitivity_new(img_BW_test,img_BW_control);
 
 % Correlation coefficient
 corr_coef=corr2(img_BW_control,img_BW_test);
