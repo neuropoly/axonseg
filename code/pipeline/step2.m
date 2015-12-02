@@ -22,10 +22,10 @@ metric=handles.stats_step2.MinorMajorRatio;
 p=find(metric<get(handles.Ellipticity,'Value'));
 im(ismember(handles.stats_cc,p)==1)=0;
 
-% Area to Area convex hull
-metric=handles.stats_step2.AAchRatio;
-p=find(metric<get(handles.AreaRatio,'Value'));
-im(ismember(handles.stats_cc,p)==1)=0;
+% % Perimeter to Perimeter convex hull
+% metric=handles.stats_step2.PPchRatio;
+% p=find(metric<get(handles.AreaRatio,'Value'));
+% im(ismember(handles.stats_cc,p)==1)=0;
 
 
 % im = sizeTest(im,get(handles.minSize,'Value'));

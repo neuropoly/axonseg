@@ -32,6 +32,8 @@ Area=[props.Area]';
 Perimeter=[props.Perimeter]';
 Circularity=4*pi*Area./(Perimeter.^2);
 
+
+
 Major=[props.MajorAxisLength]';
 Minor=[props.MinorAxisLength]';
 Ratio=Minor./Major;

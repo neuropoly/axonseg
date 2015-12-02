@@ -23,10 +23,10 @@ metric=Stats_struct.MinorMajorRatio;
 p=find(metric<segParam.Ellipticity);
 im(ismember(cc,p)==1)=0;
 
-% Area to Area convex hull
-metric=Stats_struct.AAchRatio;
-p=find(metric<segParam.AreaRatio);
-im(ismember(cc,p)==1)=0;
+% % Area to Area convex hull
+% metric=Stats_struct.AAchRatio;
+% p=find(metric<segParam.AreaRatio);
+% im(ismember(cc,p)==1)=0;
 
 
 %im =as_bwobjectfun(@ (x) bwconvhull(x, 'objects'),im);
