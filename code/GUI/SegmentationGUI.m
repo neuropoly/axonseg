@@ -713,7 +713,7 @@ axes(handles.plotseg)
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
-[Label, numAxonObj]  = bwlabel(handles.data.Step3_seg);
+[Label, ~]  = bwlabel(handles.data.Step3_seg);
 [c,r,~] = impixel;
 rm=diag(Label(r,c));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
@@ -737,10 +737,14 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+handles.segParam=rmfield(handles.segParam,{'parameters', 'DA_classifier'});
+
 set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','on');
 set(handles.ROC_panel, 'Visible','off');
+
 set(handles.ROC_curve, 'Visible','off');
+legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
 set(handles.uipanel2, 'Visible', 'on')
@@ -763,6 +767,7 @@ set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
+legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
 if isfield(handles,'data.DA_accepted')
@@ -834,10 +839,11 @@ function go_full_image_Callback(hObject, eventdata, handles)
 set(handles.panel_select_ROC, 'Visible','off');
 set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
+legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-blocksize=1500;
-overlap=100;
+blocksize=1000;
+overlap=50;
 savedir=[handles.outputdir, 'results_full', filesep];
 mkdir(savedir);
 as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
@@ -1081,7 +1087,7 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'EquivDiameter', 'Solidity','Circularity','Eccentricity','Intensity_std', 'Intensity_mean','PPchRatio','AAchRatio'},type,1);
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1122,16 +1128,14 @@ end
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-
 [Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'EquivDiameter', 'Solidity','Circularity','Eccentricity','Intensity_std', 'Intensity_mean','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
-
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
 
 % Plot ROC curve
 
 axes(handles.ROC_curve);
-h_legend=as_plot_ROC_curve_DA(ROC_values);
+as_plot_ROC_curve_DA(ROC_values);
 
 % handles.parameters = parameters;
 

@@ -1,7 +1,6 @@
 function AxonSeg_DA = as_AxonSeg_predict(AxSeg,classifier_final, parameters,AxonSeg_gray)
 % Ex : AxonSeg_DA = as_AxonSeg_predict(AxSeg,classifier_final, parameters,AxonSeg_gray);
 
-
 % Calculate stats of the image
 
 [Stats_3, names3] = as_stats_axons(AxSeg,AxonSeg_gray);

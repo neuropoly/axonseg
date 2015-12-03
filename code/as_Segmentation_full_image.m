@@ -40,6 +40,7 @@ if length(size(handles.data.img))==3
 end
 
 %% SEGMENTATION
+
 disp('Starting segmentation..')
 myelin_seg_results=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap);
 % clean conflicts
@@ -52,6 +53,7 @@ img=as_improc_rm_overlap(img,blocksize,overlap);
 
 
 %% SAVE
+
 save([output 'myelin_seg_results.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 delete([output, 'bwmyelin_seg_results.mat'])
 
@@ -71,38 +73,30 @@ function [im_out,AxSeg]=fullimage(im_in,segParam)
 % to the full image
 
 if segParam.invertColor, im_in=imcomplement(im_in); end
-im_in=histeq(im_in,segParam.histEq);
-im_in=Deconv(im_in,segParam.Deconv);
-im_in=as_gaussian_smoothing(im_in);
+if segParam.histEq, im_in=histeq(im_in,segParam.histEq); end;
+if segParam.Deconv,im_in=Deconv(im_in,segParam.Deconv); end;
+if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
 
 % Step1 - initial axon segmentation using the 3 parameters given
 
-if segParam.LevelSet
-    
-    LevelSet_results=as_LevelSet_method(im_in);
-    AxSeg=LevelSet_results.img;
-
-else
+% if segParam.LevelSet
+%     
+%     LevelSet_results=as_LevelSet_method(im_in);
+%     AxSeg=LevelSet_results.img;
+% 
+% else
     
 AxSeg=step1_full(im_in,segParam);    
     
-end
+% end
 
 
 % Step 2 - discrimination for axon segmentation
 
-if isfield(segParam,'parameters')
-
-AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
-%--------------------------------------------------------------------------
-
+if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
+    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
 else
-
-AxSeg=step2_full(AxSeg,segParam);
-
-
-%--------------------------------------------------------------------------
-
+    AxSeg=step2_full(AxSeg,segParam);
 end
 
 
