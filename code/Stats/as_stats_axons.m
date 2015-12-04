@@ -95,6 +95,8 @@ if nargin==2
 
 end
 
+% Stats_struct.PerimFraction = (Perimeter_ConvexHull-Perimeter)./Perimeter;
+
 % Get the parameters names for future use
 var_names = fieldnames(Stats_struct);
 

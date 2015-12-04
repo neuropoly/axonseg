@@ -831,8 +831,6 @@ imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
 
 guidata(hObject, handles);
 
-
-
 % --- Executes on button press in go_full_image.
 function go_full_image_Callback(hObject, eventdata, handles)
 % hObject    handle to go_full_image (see GCBO)
