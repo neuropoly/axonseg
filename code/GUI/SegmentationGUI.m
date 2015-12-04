@@ -813,18 +813,21 @@ writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
 AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
-imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled.jpg']);
+imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.jpg']);
+
+AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
+imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.jpg']);
+
+imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
 
 %--------------------------------------------------------------------------
 
 imwrite(handles.data.Step1,[savedir 'AxonSeg_step1.jpg']);
 imwrite(handles.data.Step2_seg,[savedir 'AxonSeg_step2.jpg']);
 imwrite(handles.data.Step3_seg,[savedir 'AxonSeg_step3.jpg']);
-% imwrite(handles.data.DA, [savedir 'AxonSeg_DA.jpg']);
 imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
 
 %--------------------------------------------------------------------------
-
 
 guidata(hObject, handles);
 
@@ -842,8 +845,8 @@ set(handles.ROC_curve, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-blocksize=1000;
-overlap=50;
+blocksize=1500;
+overlap=100;
 savedir=[handles.outputdir, 'results_full', filesep];
 mkdir(savedir);
 as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
@@ -1143,24 +1146,24 @@ handles.data.DA_accepted = Accepted_axons_img;
 
 % handles.DA_classifier = classifier_final;
 
-handles.segParam.invertColor=get(handles.invertColor,'Value');
-handles.segParam.histEq=get(handles.histEq,'Value');
-handles.segParam.Deconv=get(handles.Deconv,'Value');
-handles.segParam.Smoothing=get(handles.Smoothing,'Value');
+% handles.segParam.invertColor=get(handles.invertColor,'Value');
+% handles.segParam.histEq=get(handles.histEq,'Value');
+% handles.segParam.Deconv=get(handles.Deconv,'Value');
+% handles.segParam.Smoothing=get(handles.Smoothing,'Value');
+% 
+% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+% handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
+% 
+% handles.segParam.initSeg=get(handles.initSeg,'Value');
+% handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
+% handles.segParam.threshold=get(handles.threshold,'Value');
 
-handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
-handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
-
-handles.segParam.initSeg=get(handles.initSeg,'Value');
-handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
-handles.segParam.threshold=get(handles.threshold,'Value');
-
-handles.segParam.minSize=get(handles.minSize,'Value');
-handles.segParam.Circularity=get(handles.Circularity,'Value');
-handles.segParam.Solidity=get(handles.Solidity,'Value');
-% handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
-handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
+% handles.segParam.minSize=get(handles.minSize,'Value');
+% handles.segParam.Circularity=get(handles.Circularity,'Value');
+% handles.segParam.Solidity=get(handles.Solidity,'Value');
+% % handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
+% handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
 
 handles.segParam.parameters=handles.parameters;
 handles.segParam.DA_classifier=handles.classifier_final;
