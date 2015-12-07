@@ -300,8 +300,8 @@ function resetStep1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
+% warndlg('Reseting Step 1 will erase segmentation parameters previously
+% defined','Warning')...;
 fprintf('*** WARNING *** Reseting Step 1 will erase segmentation parameters previously defined.');
 
 axes(handles.plotseg);
