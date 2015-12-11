@@ -13,6 +13,18 @@ function [classifier,species] = Discr_Analysis(Stats_1, Stats_2, Cost_matrix, ty
 
 classifier = fitcdiscr(X,species,'DiscrimType',type,'Cost',Cost_matrix);
 
+% % tree classification
+% 
+% classifier = fitctree(X,species);
+% view(classifier,'mode','graph');
+% 
+% 
+% 
+% % tree classification
+
+% classifier= fitcsvm(X,species);
+
+
 
 
 

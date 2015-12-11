@@ -22,8 +22,8 @@
 
 close all;clear all;
 
-
-Img=imread('test_axon2.bmp');  
+img_path_1 = uigetimagefile;
+Img = imread(img_path_1);
 
 Iter_outer = 100;
 Iter_inner = 10;

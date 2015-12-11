@@ -20,3 +20,4 @@ Set_2 = table2array(struct2table(Stats_2));
 % Vector containing the variables to be analysed
 
 X = [Set_1; Set_2];
+

@@ -1,20 +1,32 @@
 % dilate
 
 img_path_1 = uigetimagefile;
-img_BW = imread(img_path_1);
-img_BW=im2bw(img_BW);
+img_BW_true = imread(img_path_1);
+img_BW_true=im2bw(img_BW_true);
 
 img_path_2 = uigetimagefile;
-img_gray = imread(img_path_2);
+img_BW_false = imread(img_path_2);
+img_BW_false=im2bw(img_BW_false);
+
+img_path_3 = uigetimagefile;
+img_gray = imread(img_path_3);
+
+%%
 
 se = strel('disk',1);
 
-img_BW_dilated = imdilate(img_BW,se);
-figure, imshow(imfuse(img_BW,img_BW_dilated));
+img_BW_dilated_true = imdilate(img_BW_true,se);
+figure, imshow(imfuse(img_BW_true,img_BW_dilated_true));
+
+img_diff_true = im2bw(img_BW_dilated_true-img_BW_true);
+figure, imshow(img_diff_true);
 
 
-img_diff = img_BW_dilated-img_BW;
-figure, imshow(im2bw(img_diff));
+img_BW_dilated_false = imdilate(img_BW_false,se);
+figure, imshow(imfuse(img_BW_false,img_BW_dilated_false));
+
+img_diff_false = im2bw(img_BW_dilated_false-img_BW_false);
+figure, imshow(img_diff_false);
 
 
 

@@ -1079,7 +1079,21 @@ else
     type = 'pseudoQuadratic';
 end
 
-%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'}
+
+%     Stats_struct.Intensity_mean = Intensity_mean_axon(:,2);
+%     Stats_struct.Intensity_std = Intensity_std_axon(:,2);
+%     Stats_struct.Neighbourhood_mean = Intensity_mean(:,2);
+%     Stats_struct.Neighbourhood_std = Intensity_std(:,2);
+%     
+%     Contrast=zeros(num1,2);
+%     Contrast(:,1)=Intensity_mean(:,1);
+%     Contrast(:,2)=Intensity_mean(:,2)-Intensity_mean_axon(:,2);
+%     
+%     Stats_struct.Contrast = Contrast(:,2);
+%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
+% 
+% {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
+
 
 % For ROC curve plotting, use sensitivity=1 as input so a maximum of points
 % will be calculated for the ROC curve
@@ -1088,7 +1102,7 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,1);
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1131,7 +1145,7 @@ end
 
 [Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio'},type,get(handles.Enter_sensitivity,'Value'));
+    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,get(handles.Enter_sensitivity,'Value'));
 
 % Plot ROC curve
 
