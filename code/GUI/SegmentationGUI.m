@@ -23,7 +23,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 02-Dec-2015 17:32:09
+% Last Modified by GUIDE v2.5 14-Dec-2015 15:19:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -415,10 +415,13 @@ handles.data.DA_final = handles.data.Step3_seg;
 
 
 
-axes(handles.plotseg)
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
 
-sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
+% 
+% sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
 
 % Segmentation parameters to save for future use (full image seg.)---------
 
@@ -576,9 +579,17 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
-axes(handles.plotseg)
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
-% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
+    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
+
+
+% 
+% axes(handles.plotseg)
+% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -614,9 +625,15 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 % handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
 
-axes(handles.plotseg)
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
-% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
+    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
+
+
+% 
+% axes(handles.plotseg)
+% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -643,6 +660,10 @@ function minSize_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% tmp ---> the axons accepted
+% handles.data.step2_seg ---> all axons
+
+
 tmp=handles.data.Step2_seg;
 metric=handles.stats_step2.EquivDiameter;
 p=find(metric<get(handles.minSize,'Value'));
@@ -652,9 +673,18 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 % handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
 
-axes(handles.plotseg)
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
+    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
 
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% axes(handles.plotseg);
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
+%     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
+% 
+
+
+% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 
@@ -680,10 +710,14 @@ function Add_Callback(hObject, eventdata, handles)
 % hObject    handle to Add (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-axes(handles.plotseg)
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 manualBW=as_axonSeg_manual;
 handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
 
@@ -694,8 +728,13 @@ handles.data.DA_final = handles.data.Step3_seg;
 %--------------------------------------------------------------------------
 
 guidata(hObject, handles);
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
 guidata(hObject, handles);
 
@@ -708,10 +747,13 @@ function remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.plotseg)
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
 [c,r,~] = impixel;
@@ -725,8 +767,13 @@ handles.data.DA_final = handles.data.Step3_seg;
 %--------------------------------------------------------------------------
 
 guidata(hObject, handles);
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 guidata(hObject, handles);
 
@@ -1009,10 +1056,17 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 % Show side-by-side segmentation obtained after step 2 VS segmentation
 % corrected by the circularity criterion
-axes(handles.plotseg)
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 
-% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
+    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
+
+% 
+% axes(handles.plotseg)
+% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% 
+% % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 
 % handles.state.Circularity = get(handles.Circularity,'Value'); 
 
@@ -1080,16 +1134,6 @@ else
 end
 
 
-%     Stats_struct.Intensity_mean = Intensity_mean_axon(:,2);
-%     Stats_struct.Intensity_std = Intensity_std_axon(:,2);
-%     Stats_struct.Neighbourhood_mean = Intensity_mean(:,2);
-%     Stats_struct.Neighbourhood_std = Intensity_std(:,2);
-%     
-%     Contrast=zeros(num1,2);
-%     Contrast(:,1)=Intensity_mean(:,1);
-%     Contrast(:,2)=Intensity_mean(:,2)-Intensity_mean_axon(:,2);
-%     
-%     Stats_struct.Contrast = Contrast(:,2);
 %{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
 % 
 % {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
@@ -1100,9 +1144,24 @@ end
 tic;
 fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
-[~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+
+[classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+
+
+% Select classifier depending on sensitivity
+
+handles.classifier_final=classifier{get(handles.slider_ROC_plot,'Value')};
+
+%
+
+[Accepted_axons_img,Rejected_axons_img,~,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
+
+
+
+% [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
+%     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
 
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1141,11 +1200,23 @@ switch get(handles.popupmenu_ROC,'Value')
 end
 
 
+% Slider for ROC plot
+
+set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
+set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);
+
+
+%
+
+
+
+
+
 %--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-[Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
-    as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,get(handles.Enter_sensitivity,'Value'));
+% [Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
+%     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,get(handles.Enter_sensitivity,'Value'));
 
 % Plot ROC curve
 
@@ -1155,6 +1226,15 @@ as_plot_ROC_curve_DA(ROC_values);
 % handles.parameters = parameters;
 
 handles.data.DA_accepted = Accepted_axons_img;
+
+
+% [x,y] = ginput(1);
+% hBrushLine = findall(gca,'tag','Brushing');
+% brushedData = get(hBrushLine, {'Xdata','Ydata'});
+% brushedIdx = ~isnan(brushedData{1});
+% brushedXData = brushedData{1}(brushedIdx);
+% brushedYData = brushedData{2}(brushedIdx);
+
 
 % handles.DA_classifier = classifier_final;
 
@@ -1195,6 +1275,8 @@ set(handles.Specificity,'String',num2str(ROC_stats(2)));
 set(handles.ROC_panel, 'Visible','on');
 set(handles.ROC_curve, 'Visible','on');
 set(handles.panel_select_ROC, 'Visible','on');
+
+set(handles.slider_ROC_plot, 'Visible','on');
 %--------------------------------------------------------------------------
 
 % sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
@@ -1273,10 +1355,13 @@ function remove_concavity_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.plotseg);
 
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
 
@@ -1303,8 +1388,15 @@ handles.data.Step2_seg = im2bw(handles.data.Step2_seg+CH_object);
 
 
 guidata(hObject, handles);
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
+
+
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
+% 
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
+% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 guidata(hObject,handles);
 
@@ -1437,4 +1529,32 @@ function popupmenu_ROC_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on slider movement.
+function slider_ROC_plot_Callback(hObject, eventdata, handles)
+% hObject    handle to slider_ROC_plot (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+float_value=get(handles.slider_ROC_plot,'Value');
+set(handles.slider_ROC_plot,'Value',round(float_value));
+
+
+
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function slider_ROC_plot_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider_ROC_plot (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
