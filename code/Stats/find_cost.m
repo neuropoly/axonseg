@@ -18,7 +18,8 @@ for i=1:300
         Balanced_accuracy_values=Stats_ROC(5);
         Youden_index_values=Stats_ROC(6);
         Distance_values=Stats_ROC(7);   
-    end
+    
+    else
     
     Sensitivity_values=[Sensitivity_values;Stats_ROC(1)];
     Specificity_values=[Specificity_values;Stats_ROC(2)];
@@ -27,6 +28,8 @@ for i=1:300
     Balanced_accuracy_values=[Balanced_accuracy_values;Stats_ROC(5)];
     Youden_index_values=[Youden_index_values;Stats_ROC(6)];
     Distance_values=[Distance_values;Stats_ROC(7)];
+    
+    end
     
     % Find the cost needed to get the specified sensitivity
     FN_test = R(2,1);

@@ -8,10 +8,10 @@ metric=Stats_struct.EquivDiameter;
 p=find(metric<segParam.minSize);
 im(ismember(cc,p)==1)=0;
 
-% Circularity
-metric=Stats_struct.Circularity;
-p=find(metric<segParam.Circularity);
-im(ismember(cc,p)==1)=0;
+% % Circularity
+% metric=Stats_struct.Circularity;
+% p=find(metric<segParam.Circularity);
+% im(ismember(cc,p)==1)=0;
 
 % Solidity
 metric=Stats_struct.Solidity;

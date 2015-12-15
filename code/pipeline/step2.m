@@ -7,10 +7,10 @@ metric=handles.stats_step2.EquivDiameter;
 p=find(metric<get(handles.minSize,'Value'));
 im(ismember(handles.stats_cc,p)==1)=0;
 
-% Circularity
-metric=handles.stats_step2.Circularity;
-p=find(metric<get(handles.Circularity,'Value'));
-im(ismember(handles.stats_cc,p)==1)=0;
+% % Circularity
+% metric=handles.stats_step2.Circularity;
+% p=find(metric<get(handles.Circularity,'Value'));
+% im(ismember(handles.stats_cc,p)==1)=0;
 
 % Solidity
 metric=handles.stats_step2.Solidity;

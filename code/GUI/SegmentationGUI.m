@@ -230,9 +230,9 @@ handles.data.Step1=Deconv(handles.data.Step1,get(handles.Deconv,'Value'));
 
 imshow(handles.data.Step1(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
-set(handles.panel_LS, 'Visible', 'on')
-set(handles.uipanel1, 'Visible', 'on')
-set(handles.uipanel0, 'Visible', 'off')
+% set(handles.panel_LS, 'Visible', 'on');
+set(handles.uipanel1, 'Visible', 'on');
+set(handles.uipanel0, 'Visible', 'off');
 guidata(hObject, handles);
 
 
@@ -281,9 +281,10 @@ sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.
 guidata(hObject, handles);
 fprintf('Step 1 Done \n');
 
-set(handles.panel_LS, 'Visible', 'off')
-set(handles.uipanel2, 'Visible', 'on')
-set(handles.uipanel1, 'Visible', 'off')
+set(handles.panel_LS, 'Visible', 'off');
+set(handles.uipanel2, 'Visible', 'on');
+set(handles.uipanel1, 'Visible', 'off');
+set(handles.text_legend, 'Visible','on');
 
 
 [handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
@@ -457,6 +458,8 @@ fprintf('Step 2 Done \n');
 
 set(handles.uipanel3, 'Visible', 'on');
 set(handles.uipanel2, 'Visible', 'off');
+set(handles.text_legend, 'Visible','on');
+
 
 guidata(hObject, handles);
 
@@ -470,10 +473,13 @@ axes(handles.plotseg);
 
 sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
+% 
+% set(handles.panel_LS, 'Visible', 'on');
+set(handles.uipanel1, 'Visible', 'on');
+set(handles.uipanel2, 'Visible', 'off');
 
-set(handles.panel_LS, 'Visible', 'on')
-set(handles.uipanel1, 'Visible', 'on')
-set(handles.uipanel2, 'Visible', 'off')
+set(handles.text_legend, 'Visible','off');
+
 guidata(hObject, handles);
 
 
@@ -785,6 +791,9 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 handles.segParam=rmfield(handles.segParam,{'parameters', 'DA_classifier'});
+
+set(handles.slider_ROC_plot, 'Visible','off');
+set(handles.text_slider_ROC_plot, 'Visible','off');
 
 set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','on');
@@ -1124,170 +1133,79 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % hObject    handle to DiscriminantAnalysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%
+% All possible parameters :
+%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio',...
+%'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', ...
+%'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean',...
+%'Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
+
+% {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
 
 % Get discriminant analysis type chosen by user
-
 if get(handles.Linear,'Value')
     type = 'linear';
 else
     type = 'pseudoQuadratic';
 end
 
-
-%{'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Orientation','Extent','FilledArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
-% 
-% {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
-
-
-% For ROC curve plotting, use sensitivity=1 as input so a maximum of points
-% will be calculated for the ROC curve
 tic;
 fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
-
+% Create a set of classifiers for the given data for each possible
+% sensivity value
 [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
 
-
-% Select classifier depending on sensitivity
-
-handles.classifier_final=classifier{get(handles.slider_ROC_plot,'Value')};
-
-%
-
-[Accepted_axons_img,Rejected_axons_img,~,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
-
-
-
-% [~, ~, ~, ~, ~, ~, ~,ROC_values] = ...
-%     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
-
-%--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-[~,best_indexes]=as_find_max_ROC_metrics(ROC_values);
-
-switch get(handles.popupmenu_ROC,'Value')
-        
-    case 2 % max sensitivity    
-        sensitivity_to_use=ROC_values(size(ROC_values,1),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-        
-    case 3 % max specificity    
-        sensitivity_to_use=ROC_values(1,1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-        
-    case 4 % max precision    
-        sensitivity_to_use=ROC_values(best_indexes(1),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-        
-    case 5 % max accuracy    
-        sensitivity_to_use=ROC_values(best_indexes(2),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-
-    case 6 % max bal accuracy    
-        sensitivity_to_use=ROC_values(best_indexes(3),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-        
-    case 7 % max youden    
-        sensitivity_to_use=ROC_values(best_indexes(4),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-        
-    case 8 % min distance        
-        sensitivity_to_use=ROC_values(best_indexes(5),1);
-        set(handles.Enter_sensitivity,'Value',sensitivity_to_use);
-
-end
-
-
-% Slider for ROC plot
-
+% Set slider_ROC_plot parameters depending on the DA analysis
 set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
 set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);
+set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
 
+% Select classifier depending on sensitivity defined by the ROC slider
+handles.classifier_final=classifier{get(handles.slider_ROC_plot,'Value')};
+handles.classifiers=classifier;
 
-%
-
-
-
-
-
-%--- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-% [Rejected_axons_img, Accepted_axons_img, handles.classifier_final, Classification, ~, ~, handles.parameters,~] = ...
-%     as_axonseg_validate(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,get(handles.Enter_sensitivity,'Value'));
+% Apply selected classifier to the given data
+[Accepted_axons_img,Rejected_axons_img,Classification,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
 
 % Plot ROC curve
-
+handles.ROC_values = ROC_values;
 axes(handles.ROC_curve);
-as_plot_ROC_curve_DA(ROC_values);
+as_plot_ROC_curve_DA(handles.ROC_values,get(handles.slider_ROC_plot,'Value'));
 
-% handles.parameters = parameters;
-
+% Select accepted axons given by classifier
 handles.data.DA_accepted = Accepted_axons_img;
 
-
-% [x,y] = ginput(1);
-% hBrushLine = findall(gca,'tag','Brushing');
-% brushedData = get(hBrushLine, {'Xdata','Ydata'});
-% brushedIdx = ~isnan(brushedData{1});
-% brushedXData = brushedData{1}(brushedIdx);
-% brushedYData = brushedData{2}(brushedIdx);
-
-
-% handles.DA_classifier = classifier_final;
-
-% handles.segParam.invertColor=get(handles.invertColor,'Value');
-% handles.segParam.histEq=get(handles.histEq,'Value');
-% handles.segParam.Deconv=get(handles.Deconv,'Value');
-% handles.segParam.Smoothing=get(handles.Smoothing,'Value');
-% 
-% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
-% handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
-% 
-% handles.segParam.initSeg=get(handles.initSeg,'Value');
-% handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
-% handles.segParam.threshold=get(handles.threshold,'Value');
-
-% handles.segParam.minSize=get(handles.minSize,'Value');
-% handles.segParam.Circularity=get(handles.Circularity,'Value');
-% handles.segParam.Solidity=get(handles.Solidity,'Value');
-% % handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
-% handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
-
+% Add classifier chosen & parameters to the segmentation parameters struct
 handles.segParam.parameters=handles.parameters;
 handles.segParam.DA_classifier=handles.classifier_final;
 
+% Save the SegParameters struct
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
-
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
-%--------------------------------------------------------------------------
-
+% Display current sensitivity & specificity values
 [ROC_stats] = ROC_calculate(Classification);
-
 set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
 set(handles.Specificity,'String',num2str(ROC_stats(2)));
 
+% Update visibility of widgets
 set(handles.ROC_panel, 'Visible','on');
 set(handles.ROC_curve, 'Visible','on');
-set(handles.panel_select_ROC, 'Visible','on');
-
+% set(handles.panel_select_ROC, 'Visible','on');
 set(handles.slider_ROC_plot, 'Visible','on');
-%--------------------------------------------------------------------------
-
-% sc(sc(TP_img,[0 0.75 0],TP_img)+sc(TN_img,[0.7 0 0],TN_img)+sc(FP_img,[0.75 1 0.5],FP_img)+sc(FN_img,[1 0.5 0],FN_img));
+set(handles.text_slider_ROC_plot, 'Visible','on');
 
 toc;
 fprintf('Discriminant analysis done. \n');
 
+% Display axon discrimination result
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,'y',handles.data.DA_accepted)+sc(handles.data.Step1)));
+
 guidata(hObject,handles);
 
 
@@ -1359,9 +1277,7 @@ function remove_concavity_Callback(hObject, eventdata, handles)
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
-% 
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+
 
 CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
 
@@ -1374,22 +1290,12 @@ CH_others=~ismember(Label,[0;rm]);
 CH_object=im2bw(CH_total-CH_others);
 handles.data.Step3_seg=im2bw(handles.data.Step3_seg+CH_object);
 
-% IMAGE FOR DA ------------------------------------------------------------
-
+% IMAGE FOR DA-
 handles.data.DA_final = handles.data.Step3_seg;
 
-%---------------------------UPDATE STEP2 WITH CONVEX FORMS (FOR DA)--------
-
-
+%-UPDATE STEP2 WITH CONVEX FORMS (FOR DA)-
 handles.data.Step2_seg = im2bw(handles.data.Step2_seg+CH_object);
-
-
-%---------------------------UPDATE STEP2 WITH CONVEX FORMS (FOR DA)--------
-
-
 guidata(hObject, handles);
-
-
 
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
@@ -1515,8 +1421,31 @@ function popupmenu_ROC_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_ROC contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_ROC
+% Get the indexes for the best metrics (precision, accuracy,...)
+[~,best_indexes]=as_find_max_ROC_metrics(handles.ROC_values);
+
+% Update ROC slider value depending on the user's choice
+switch get(handles.popupmenu_ROC,'Value')
+    case 2 % max sensitivity    
+        set(handles.slider_ROC_plot,'Value',size(handles.ROC_values,1));
+    case 3 % max specificity    
+        set(handles.slider_ROC_plot,'Value',1);
+    case 4 % max precision           
+        set(handles.slider_ROC_plot,'Value',best_indexes(1));
+    case 5 % max accuracy    
+        set(handles.slider_ROC_plot,'Value',best_indexes(2));
+    case 6 % max bal accuracy    
+        set(handles.slider_ROC_plot,'Value',best_indexes(3));
+    case 7 % max youden    
+        set(handles.slider_ROC_plot,'Value',best_indexes(4));
+    case 8 % min distance        
+        set(handles.slider_ROC_plot,'Value',best_indexes(5));      
+end
+
+% Call the slider_ROC_plot callback function to update classifier, ROC plot
+% & axon discrimination display
+slider_ROC_plot_Callback(hObject, eventdata, handles);
+
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -1538,14 +1467,41 @@ function slider_ROC_plot_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Make sure the slider value is an integer
 float_value=get(handles.slider_ROC_plot,'Value');
 set(handles.slider_ROC_plot,'Value',round(float_value));
 
+% Select a classifier by using the slider value
+handles.classifier_final=handles.classifiers{get(handles.slider_ROC_plot,'Value')};
+
+% Apply the classifier on the axon BW data
+[Accepted_axons_img,Rejected_axons_img,Classification,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
+
+% Get Sensitivity & Specificity for the classifier selected & display the
+% values
+[ROC_stats] = ROC_calculate(Classification);
+set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
+set(handles.Specificity,'String',num2str(ROC_stats(2)));
+
+% set(handles.ROC_panel, 'Visible','on');
+% set(handles.ROC_curve, 'Visible','on');
+% set(handles.panel_select_ROC, 'Visible','on');
+% 
+% set(handles.slider_ROC_plot, 'Visible','on');
+
+% Update ROC plot by displaying the current ROC value
+axes(handles.ROC_curve);
+as_plot_ROC_curve_DA(handles.ROC_values,get(handles.slider_ROC_plot,'Value'));
+
+% Get the accepted axons from the selected classifier
+handles.data.DA_accepted = Accepted_axons_img;
 
 
+% Update the axon discrimination display depending on the classifier used
+axes(handles.plotseg);
+imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
+    +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
