@@ -289,6 +289,24 @@ set(handles.text_legend, 'Visible','on');
 
 [handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
 
+
+
+
+
+
+
+
+% 
+% set(handles.minSize,'Max',max(cat(1,handles.stats_step2)));
+% 
+% if size(ROC_values,1)~=1
+%     set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);   
+% end
+% 
+% set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
+
+
+
 guidata(hObject, handles);
 
 
@@ -450,9 +468,10 @@ handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
 
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
-
+handles.segParam.PixelSize=PixelSize;
 
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
+
 
 fprintf('Step 2 Done \n');
 
@@ -702,6 +721,7 @@ function minSize_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
+
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
@@ -738,6 +758,9 @@ guidata(hObject, handles);
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
+
+
+
 % 
 % imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % % imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
@@ -764,7 +787,10 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0]
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
 [c,r,~] = impixel;
 rm=diag(Label(r,c));
+
+rejected=im2bw(handles.data.Step3_seg-(~ismember(Label,[0;rm])));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
+
 
 % IMAGE FOR DA ------------------------------------------------------------
 
@@ -774,12 +800,13 @@ handles.data.DA_final = handles.data.Step3_seg;
 
 guidata(hObject, handles);
 
+% axes(handles.plotseg);
+% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+%     +sc(handles.data.Step1)));
+
 axes(handles.plotseg);
-imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
-    +sc(handles.data.Step1)));
-% 
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
+imshow(sc(get(handles.Transparency,'Value')*sc(rejected,[1 0.5 0],rejected)...
+    +get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)+sc(handles.data.Step1)));
 
 guidata(hObject, handles);
 
@@ -790,7 +817,9 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if isfield(handles.segParam,'DA_classifier')
 handles.segParam=rmfield(handles.segParam,{'parameters', 'DA_classifier'});
+end
 
 set(handles.slider_ROC_plot, 'Visible','off');
 set(handles.text_slider_ROC_plot, 'Visible','off');
@@ -826,25 +855,27 @@ set(handles.ROC_curve, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-if isfield(handles,'data.DA_accepted')
-    
-tmp=RemoveBorder(handles.data.DA_accepted);
+if isfield(handles.data,'DA_accepted')
+
+[tmp,border_removed_mask]=RemoveBorder(handles.data.DA_accepted,get(handles.PixelSize,'Value'));
+% tmp=RemoveBorder(handles.data.DA_accepted);
 backBW=handles.data.DA_accepted & ~tmp;
 
 else
-    
-tmp=RemoveBorder(handles.data.Step3_seg);
+
+[tmp,border_removed_mask]=RemoveBorder(handles.data.Step3_seg,get(handles.PixelSize,'Value'));
+% tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
+[handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1,get(handles.PixelSize,'Value'));
 handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
 
 handles.data.Step3_seg = as_myelinseg_to_axonseg(handles.data.seg);
 
 axes(handles.plotseg);
-sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper'));
+sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper')+sc(border_removed_mask,[0.5 0.4 0.4], border_removed_mask));
 
 handles.data.labelseg=zeros(size(handles.data.seg,1), size(handles.data.seg,2));
 for i=1:size(handles.data.seg,3)
@@ -874,14 +905,17 @@ imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_label
 AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
 imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.jpg']);
 
-imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
+% imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
 
 %--------------------------------------------------------------------------
 
-imwrite(handles.data.Step1,[savedir 'AxonSeg_step1.jpg']);
-imwrite(handles.data.Step2_seg,[savedir 'AxonSeg_step2.jpg']);
-imwrite(handles.data.Step3_seg,[savedir 'AxonSeg_step3.jpg']);
-imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
+imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.jpg']);
+imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.jpg']);
+imwrite(handles.data.Step3_seg,[savedir 'Step_3_Final_AxonSeg.jpg']);
+% imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
+
+
+copyfile(which('colorbarhot.png'),savedir);
 
 %--------------------------------------------------------------------------
 
@@ -1159,7 +1193,11 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 % Set slider_ROC_plot parameters depending on the DA analysis
 set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
-set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);
+
+if size(ROC_values,1)~=1
+    set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);   
+end
+
 set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
 
 % Select classifier depending on sensitivity defined by the ROC slider
@@ -1195,8 +1233,11 @@ set(handles.Specificity,'String',num2str(ROC_stats(2)));
 set(handles.ROC_panel, 'Visible','on');
 set(handles.ROC_curve, 'Visible','on');
 % set(handles.panel_select_ROC, 'Visible','on');
+
+if size(ROC_values,1)~=1
 set(handles.slider_ROC_plot, 'Visible','on');
 set(handles.text_slider_ROC_plot, 'Visible','on');
+end
 
 toc;
 fprintf('Discriminant analysis done. \n');
