@@ -521,11 +521,13 @@ m=hist(r,5);
 img_path_1 = uigetimagefile;
 img = imread(img_path_1);
 
+img=as_gaussian_smoothing(img);
+
 img2=medfilt2(img,[2 2]);
 img2=medfilt2(img2,[15 15]);
 
 figure, imshow(img2);
-imwrite(Img(300:500,300:500),'test_mini_ledvelset3.bmp');
+imwrite(img(1:800,1:800),'test_mini_ledvelset3.bmp');
 
 
 
