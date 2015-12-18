@@ -116,6 +116,10 @@ else
     set(hObject,'Value',px_tmp);
 end
 
+handles.segParam.PixelSize=get(handles.PixelSize,'Value');
+
+guidata(hObject, handles);
+
 
 % --- Executes during object creation, after setting all properties.
 function PixelSize_CreateFcn(hObject, eventdata, handles)
@@ -291,20 +295,20 @@ set(handles.text_legend, 'Visible','on');
 
 
 
+% Set max & initial values for step 2 sliders
 
+set(handles.minSize,'Max',max(cat(1,handles.stats_step2.EquivDiameter)));
+set(handles.Ellipticity,'Max',max(cat(1,handles.stats_step2.MinorMajorRatio)));
+set(handles.Solidity,'Max',max(cat(1,handles.stats_step2.Solidity)));
 
+% Axon min diameter set to 0.8 um for slider
 
+min_pixels=round(0.8/get(handles.PixelSize,'Value'));
+set(handles.minSize,'Value',min_pixels);
+% set(handles.minSize,'Value',0.1*get(handles.minSize,'Max'));
 
-
-% 
-% set(handles.minSize,'Max',max(cat(1,handles.stats_step2)));
-% 
-% if size(ROC_values,1)~=1
-%     set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);   
-% end
-% 
-% set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
-
+set(handles.Ellipticity,'Value',0.4*get(handles.Ellipticity,'Max'));
+set(handles.Solidity,'Value',0.7*get(handles.Solidity,'Max'));
 
 
 guidata(hObject, handles);
@@ -512,6 +516,9 @@ if PixelSize
     set(handles.PixelSize,'String',PixelSize);
     set(handles.PixelSize,'Value',PixelSize);
 end
+
+
+handles.segParam.PixelSize=get(handles.PixelSize,'Value');
 
 guidata(hObject, handles);
 
@@ -721,7 +728,6 @@ function minSize_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
@@ -854,6 +860,14 @@ set(handles.ROC_panel, 'Visible','off');
 set(handles.ROC_curve, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
+
+%---
+
+SegParameters=handles.segParam; 
+PixelSize=get(handles.PixelSize,'Value');
+save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
+
+%---
 
 if isfield(handles.data,'DA_accepted')
 
