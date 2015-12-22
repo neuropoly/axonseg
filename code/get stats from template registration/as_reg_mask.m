@@ -38,8 +38,8 @@ mask_reg=mask_reg(1:size(img,1),1:size(img,2),:);
 imwrite(mask_reg,'Mask_reg_real_size.tif');
 
 
-imagesc(mask_reg(:,:,1:3)), axis image
-P_color = impixel(mask_reg(:,:,1:3));
+% imagesc(mask_reg(:,:,1:3)), axis image
+P_color = impixel(mask_reg(:,:,1));
 
 mask_reg_labeled=int8(false(size(mask_reg,1),size(mask_reg,2)));
 m=20;

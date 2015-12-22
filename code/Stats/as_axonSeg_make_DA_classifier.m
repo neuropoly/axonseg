@@ -46,11 +46,6 @@ True_axons_img = bwmorph(True_axons_img,'clean');
 Stats_1_used = rmfield(Stats_1,setdiff(names1, parameters));
 Stats_2_used = rmfield(Stats_2,setdiff(names2, parameters));
 
-
-
-
-
-
 % Perform Discrimination Analysis once with an initial cost matrix (we use
 % the matrix [0, 1; 10, 0] because we want the more ROC data possible, so
 % with the find_cost function, we can end up with a cost matrix of [0, 300;
