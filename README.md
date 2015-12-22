@@ -9,6 +9,8 @@ Please leave comments!
 
 **OPTION 2** - Axon Segmentation Toolbox (includes SegmentationGUI) : https://github.com/neuropoly/axon_segmentation/releases/tag/v1.1
 
+**OPTION 3** - You can also try our new pre-release of the Axon Segmentation Toolbox (includes SegmentationGUI). This enhanced version includes a more user-friendly GUI & a discriminant analysis option to improve axon segmentation : https://github.com/neuropoly/axon_segmentation/releases/tag/v2.1
+
 ## Tutorials
 Matlab Scripts:
   * **SegmentationGUI**: Segment using Graphical interface --> https://drive.google.com/open?id=0B2Xe6kvfjHHnLVE1N2lMYktWMGM
