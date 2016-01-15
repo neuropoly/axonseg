@@ -1,14 +1,11 @@
-function as_image_stitching(cell_array,translation_2D)
-
-
-
+% function as_image_stitching(cell_array,translation_2D)
+% 
 
 img_path_1 = uigetimagefile;
 img1 = imread(img_path_1);
 
 img_path_2 = uigetimagefile;
 img2 = imread(img_path_2);
-
 
 cell_array=cell(1,2);
 
@@ -68,4 +65,4 @@ xoffset = offset(1);
 yoffset = offset(2);
 
 
-end
+% end
