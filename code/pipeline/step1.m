@@ -10,15 +10,40 @@ initSeg=get(handles.initSeg,'Value');
 diffMaxMin=get(handles.diffMaxMin,'Value');
 threshold=get(handles.threshold,'Value');
 
+% %% markov
+% 
+% I=double(im_in);
+% 
+% class_number=2;
+% potential=0.5;
+% maxIter=40;
+% 
+% im3=ICM(I,class_number,potential,maxIter);
+% im3=mat2gray(im3);
+% im3=im2bw(im3);
+% 
 
 
+
+% im3=imcomplement(im3);
+% im3=imfill(im3,'holes');
+
+
+%%
 
 im1 = axonInitialSegmentation(im_in, initSeg);
+
+
 im1=imfill(im1,'holes'); %imshow(initialBW)
 
 im2 = axonInitialSegmentation(im_in, diffMaxMin);
 
+
+
+
 im3=im_in<prctile(im_in(:),100*threshold);
+
+
 im3=bwmorph(im3,'fill'); 
 im3=bwmorph(im3,'close'); 
 im3=bwmorph(im3,'hbreak'); 
@@ -38,6 +63,9 @@ im_out= im1 | im2 | im3 | im4.img;
 else
     
 im_out= im1 | im2 | im3;
+
+% im3=imcomplement(im3);
+% im_out= im3;
 
 end
 

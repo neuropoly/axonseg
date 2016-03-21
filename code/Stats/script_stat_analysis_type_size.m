@@ -38,11 +38,11 @@ end
 
 % Make 2 clusters for true axons
 
-[true_cluster1,true_cluster2]=as_clustering(TRUE);
-subplot(121);
-imshow(true_cluster1);
-subplot(122);
-imshow(true_cluster2);
+% [true_cluster1,true_cluster2]=as_clustering(TRUE);
+% subplot(121);
+% imshow(true_cluster1);
+% subplot(122);
+% imshow(true_cluster2);
 
 true_cluster1=TRUE;
 
@@ -54,7 +54,7 @@ imshow(false_cluster2);
 
 
 imshow(imfuse(false_cluster1,false_cluster2));
-imshow(imfuse(true_cluster1,true_cluster2));
+imshow(true_cluster1);
 
 % stats for each cluster
 
@@ -93,6 +93,60 @@ errorbar([1 2 3],[means_true_1(i); means_false_1(i); means_false_2(i)],[std_true
     
 end
 
+
+%% see dependence between 2 properties
+
+% diam circularity
+
+x_true=Stats_true_1(:,4);
+y_true=Stats_true_1(:,3);
+
+x_false_1=Stats_false_1(:,4);
+y_false_1=Stats_false_1(:,3);
+
+x_false_2=Stats_false_2(:,4);
+y_false_2=Stats_false_2(:,3);
+
+scatter(x_true,y_true,'green');
+hold on;
+scatter(x_false_1,y_false_1,'red');
+hold on;
+scatter(x_false_2,y_false_2,'blue');
+
+
+% diam solidity
+
+x_true=Stats_true_1(:,4);
+y_true=Stats_true_1(:,5);
+
+x_false_1=Stats_false_1(:,4);
+y_false_1=Stats_false_1(:,5);
+
+x_false_2=Stats_false_2(:,4);
+y_false_2=Stats_false_2(:,5);
+
+scatter(x_true,y_true,'green');
+hold on;
+scatter(x_false_1,y_false_1,'red');
+hold on;
+scatter(x_false_2,y_false_2,'blue');
+
+% diam contrast
+
+x_true=Stats_true_1(:,4);
+y_true=Stats_true_1(:,22);
+
+x_false_1=Stats_false_1(:,4);
+y_false_1=Stats_false_1(:,22);
+
+x_false_2=Stats_false_2(:,4);
+y_false_2=Stats_false_2(:,22);
+
+scatter(x_true,y_true,'green');
+hold on;
+scatter(x_false_1,y_false_1,'red');
+hold on;
+scatter(x_false_2,y_false_2,'blue');
 
 %% FIGURE FINALE shapes
 
@@ -205,13 +259,13 @@ set(h(3),'facecolor','blue');
 %% graph equiv diameter
 
 
-model_series = [means_true_1(4) means_false_1(4) means_false_2(4)];
-model_error = [std_true_1(4) std_false_1(4) std_false_2(4)];
+model_series = [means_true_1(4) means_false_1(4) means_false_2(4); means_true_1(4) means_false_1(4) means_false_2(4)];
+model_error = [std_true_1(4) std_false_1(4) std_false_2(4); std_true_1(4) std_false_1(4) std_false_2(4)];
 h = bar(model_series);
 set(h,'BarWidth',1);    % The bars will now touch each other
 set(gca,'YGrid','on')
 set(gca,'GridLineStyle','--')
-set(gca,'XTicklabel','Equivalent Diameter','FontSize', 14)
+set(gca,'XTicklabel','Equivalent Diameter|Equivalent Diameter','FontSize', 14)
 set(get(gca,'YLabel'),'String','Number of pixels','FontSize', 14)
 lh = legend('True Axons','False Axons 1','False Axons 2');
 set(lh,'Location','Best')
@@ -285,6 +339,71 @@ set(h(3),'facecolor','blue');
 
 
 
+%% plot
+
+
+sc(sc(true_cluster1,[0 1 0],true_cluster1)+sc(false_cluster1,[1 0 0],false_cluster1)+sc(false_cluster2,[0 0 1],false_cluster2)+sc(gray));
+
+
+
+
+
+
+%% tri des nouveaux true
+
+
+img_path_1 = uigetimagefile;
+Auto_seg_img = imread(img_path_1);
+
+img_path_2 = uigetimagefile;
+Corrected_seg_img = imread(img_path_2);
+
+cc_auto = bwlabel(im2bw(Auto_seg_img), 8);
+cc_corrected = bwlabel(im2bw(Corrected_seg_img), 8);
+
+centroids_auto_seg_img = regionprops(cc_auto,'Centroid');
+centroids_corr_seg_img = regionprops(cc_corrected,'Centroid');
+
+centroids_auto_seg_img = cat(1,centroids_auto_seg_img.Centroid);
+centroids_corr_seg_img = cat(1,centroids_corr_seg_img.Centroid);
+
+
+% image initiale vide
+img_finale=zeros(1024,1280);
+img_finale=logical(img_finale);
+
+%%
+
+for cnt=1:size(centroids_corr_seg_img,1)
+    test_point_x = round(centroids_corr_seg_img(cnt,2));
+    test_point_y = round(centroids_corr_seg_img(cnt,1));
+    
+    if (cc_auto(test_point_x,test_point_y)~=0)
+        label=cc_auto(test_point_x,test_point_y);
+        
+    % image axone à effacer
+    to_erase_i=cc_auto==label;
+    
+    if mean(mean(img_finale))==0
+        img_finale=to_erase_i;
+        
+    else
+    img_finale=img_finale+to_erase_i;
+    img_finale=logical(img_finale);
+    
+    end
+
+    end  
+end
+
+img_false_final=Auto_seg_img-img_finale;
+img_false_final=logical(img_false_final);
+
+imshow(imfuse(img_false_final,Auto_seg_img));
+
+imshow(imfuse(Corrected_seg_img,Auto_seg_img));
+
+imshow(img_finale);
 
 %%
 

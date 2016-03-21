@@ -28,8 +28,8 @@ throwIdx = false(numAxon, 1);
 numAnglesRadialProfile = 2*36;
 radialProfileMinLength = 10; % pixels
 
-if ~exist('radialProfileMaxLength','var'),  radialProfileMaxLength= 2/3; end% fraction of axon EquivDiameter to probe
-if ~exist('khomo_off','var'),  khomo_off= 0; end % homogeneous thickness
+if ~exist('radialProfileMaxLength','var'),  radialProfileMaxLength= 2/3; end% fraction of axon EquivDiameter to probe 2/3
+if ~exist('khomo_off','var'),  khomo_off= 0; end % homogeneous thickness 0
 
 %%
 % Meshgrid for computing the radial profiles

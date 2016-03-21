@@ -29,19 +29,23 @@ reduced=max(1,floor(size(img,1)/1000));
 [tform,ref]=as_reg_histo2mri(mask,img(1:reduced:end,1:reduced:end,:));
 
 mask_reg=imwarp(mask,tform,'outputview',ref);
-imwrite(mask_reg,'Mask_reg_reduced_20163.tif');
+imwrite(mask_reg,'Mask_ccc2.tif');
 
 % Get the mask with the right size
 
 mask_reg=imresize(mask_reg,reduced);
 mask_reg=mask_reg(1:size(img,1),1:size(img,2),:);
-imwrite(mask_reg,'Mask_reg_real_size_20163.tif');
+imwrite(mask_reg,'Mask_ccc2_real_size.tif');
 
-imshow(mask_reg(:,:,1:3)), axis image
-P_color = impixel(mask_reg(:,:,1:3));
+imshow(mask_reg(:,:,:)), axis image
+P_color = impixel(mask_reg(:,:,:));
 
 
-mask_reg=Mask_reg_reduced_20163;
+mask_reg=Mask_ccc2;
+
+
+% mask_reg = repmat(mask_reg,[1 1 3]);
+
 
 mask_reg_labeled=int8(false(size(mask_reg,1),size(mask_reg,2)));
 m=1;
@@ -54,9 +58,10 @@ end
 
 
 
+
 mask_reg_labeled=imresize(mask_reg_labeled,reduced);
 mask_reg_labeled=mask_reg_labeled(1:size(img,1),1:size(img,2),:);
-imwrite(uint8(mask_reg_labeled),'Mask_reg_real_size_20163_FINAL.tif');
+imwrite(uint8(mask_reg_labeled),'Mask_reg_real_size_ccc2_FINAL.tif');
 
 
 

@@ -11,6 +11,15 @@ function [Validation_stats,sensitivity, TP, FP, FN] = as_validation(img_BW_contr
 % img_path_2 = uigetimagefile;
 % img_BW_control = imread(img_path_2);
 
+% 
+% img_BW_control=as_display_label(axonlist_control,size(img),'axonEquivDiameter','axon');
+% 
+% img_BW_test=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+% img_BW_test=im2bw(img_BW_test,0);
+
+
+% imshow(imfuse(img_BW_test,img_BW_control));
+
 %% STEP 1 --- INPUT VALIDATION
 
 img_BW_control=im2bw(img_BW_control);

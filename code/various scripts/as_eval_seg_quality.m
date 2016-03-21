@@ -14,6 +14,11 @@ img_BW_test=im2bw(img_BW_test,0);
 imshow(img_BW_control);
 imshow(img_BW_test);
 
+% Sensitivity stats
+
+[sensitivity, TP, FP, FN,~,~,J]=eval_sensitivity_new(img_BW_test,img_BW_control);
+
+
 % Correlation coefficient
 corr_coef=corr2(img_BW_control,img_BW_test);
 Validation_stats.corr_coef=corr_coef;

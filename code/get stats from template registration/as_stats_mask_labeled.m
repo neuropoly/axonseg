@@ -17,7 +17,7 @@ max_regions = max(max(mask_reg_labeled));
 % [Index9, Stats9] = as_stats_Roi(axonlist, [], mask9);
 
 
-for i=1:16
+for i=5:7
     
 % for i=1:2
 %     
@@ -43,8 +43,8 @@ Py=P(:,1);
 % P_4=P;
 
 
-Px=downsample(Px,60);
-Py=downsample(Py,60);
+Px=downsample(Px,110);
+Py=downsample(Py,110);
 
 
 % Verify if the axons defined by their centroids are included in the

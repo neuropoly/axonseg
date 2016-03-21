@@ -152,7 +152,12 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 axes(handles.plotseg);
-imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+
+if get(handles.invertColor,'Value')==1
+    imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+else
+    imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+end
 
 guidata(hObject, handles);
 
@@ -166,7 +171,11 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
 
 axes(handles.plotseg);
-imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+if get(handles.histEq,'Value')==1
+    imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+else
+    imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+end
 guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of histEq
     
@@ -322,7 +331,6 @@ function resetStep1_Callback(hObject, eventdata, handles)
 % hObject    handle to resetStep1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 % warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
 fprintf('*** WARNING *** Reseting Step 1 will erase segmentation parameters previously defined.');
@@ -1203,7 +1211,11 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 % Create a set of classifiers for the given data for each possible
 % sensivity value
 [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+    {'EquivDiameter','Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+
+% [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+
 
 % Set slider_ROC_plot parameters depending on the DA analysis
 set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
@@ -1271,9 +1283,14 @@ function Smoothing_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 guidata(hObject,handles);
-axes(handles.plotseg);
 
-imshow(as_gaussian_smoothing(handles.data.img));
+
+axes(handles.plotseg);
+if get(handles.Smoothing,'Value')==1
+    imshow(as_gaussian_smoothing(handles.data.img));
+else
+    imshow(handles.data.img);
+end
 
 guidata(hObject,handles);
 
