@@ -1,4 +1,4 @@
-function [ J ] = as_improc_cutFromRect( I , reducefactor)
+function [J] = as_improc_cutFromRect( I , reducefactor)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if ~exist('reducefactor','var'), reducefactor=1; end

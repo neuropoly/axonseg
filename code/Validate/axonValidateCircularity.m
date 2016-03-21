@@ -7,10 +7,16 @@ function [axonInitialBW, circu] = axonValidateCircularity(axonInitialBW, cirThrs
 % Use normalised properties distance threshold
 
 
-axonProp = regionprops(axonInitialBW, 'Area','Perimeter','Eccentricity','Solidity');
+% Obtain region properties for currently segmented axons
+axonProp = regionprops(axonInitialBW, 'Area','Perimeter','Eccentricity','Solidity','EquivDiameter');
+
 Area=[axonProp.Area]';
 Perimeter=[axonProp.Perimeter]';
 circu=4*pi*Area./(Perimeter.^2);
+
+% diam=[axonProp.EquivDiameter]';
+% diam=diam/max(diam);
+% circu=circu./diam;
 
 [a,b]=bwlabel(axonInitialBW);
 p=find(circu<cirThrsh);

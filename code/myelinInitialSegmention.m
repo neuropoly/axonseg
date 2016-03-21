@@ -1,4 +1,4 @@
-function [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off)
+function [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,pix_size,radialProfileMaxLength,khomo_off)
 % [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
 % exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
 if ~isdeployed, dbstop if error; end
@@ -10,7 +10,10 @@ im=double(im);
 
 % Check inputs
 axonBW=im2bw(axonBW);
-axonBW=RemoveBorder(axonBW);
+
+[axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
+
+% axonBW=RemoveBorder(axonBW);
 backBW=im2bw(backBW);
 im=sum(im,3);
 
@@ -196,7 +199,7 @@ for currentAxonLabel = 1:numAxon
     
     currentMyelinBW = bwmorph(currentMyelinBW, 'diag');
     
-    %Fill holes except for the axon
+    % Fill holes except for the axon
     currentMyelinBWFilled = imfill(currentMyelinBW, 'holes');
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
     

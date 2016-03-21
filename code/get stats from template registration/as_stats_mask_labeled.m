@@ -1,0 +1,45 @@
+function indexes=as_stats_mask_labeled(axonlist, mask_reg_labeled)
+
+% index1=find(seg==1);
+% Mask1 = ismember(seg,index1);
+
+% for i=1:9
+% mask(i)=seg==i;
+% end
+
+max_regions = max(max(mask_reg_labeled));
+
+% mask9=imresize(img_reg_labeled==9, reduced);
+% mask9=mask9(1:size(img,1),1:size(img,2),:);
+
+
+
+% [Index9, Stats9] = as_stats_Roi(axonlist, [], mask9);
+
+
+
+for i=1:max_regions
+    
+P=mask2poly(mask_reg_labeled==i);
+% Get the axon centroids
+Centroid=cat(1,axonlist.Centroid);
+% Get the x values of the centroids
+Centroidx=Centroid(:,1);
+% Get the y values of the centroids
+Centroidy=Centroid(:,2);
+
+% Get the x values of the polygon
+Px=P(:,2);
+% Get the y values of the polygon
+Py=P(:,1);
+
+% Verify if the axons defined by their centroids are included in the
+% polygon area
+
+indexes{i}=inpolygon(Centroidx,Centroidy,Px,Py);
+
+% indexes{i}=inpolygon(Centroidx,Centroidy,Px*reduced,Py*reduced);
+
+
+
+end
