@@ -1,4 +1,4 @@
-function [Validation_stats,sensitivity, TP, FP, FN] = as_validation(img_BW_control,img_BW_test)
+function [Validation_results,Validation_stats,sensitivity, TP, FP, FN] = as_validation(img_BW_control,img_BW_test)
 
 % Validation methods that can be used :
 % - Correlation coefficient (2D) between the 2 binary images segmented
@@ -117,7 +117,7 @@ Validation_stats.nbr_pix_in_both=nbr_pixels_in_both;
 Validation_stats.nbr_pix_only_control=nbr_pixels_only_control;
 Validation_stats.nbr_pix_only_test=nbr_pixels_only_test;
 
-% Jaccard & others
+% Dice & others
 
 intersection_img=img_BW_control&img_BW_test;
 union_img=img_BW_control|img_BW_test;
@@ -132,7 +132,7 @@ n=a+b+c+d;
 % These are global measures taking into account the whole results (biaised
 % if missed axons in one of the 2 --- considers it in calculation)
 
-Validation_stats.Jaccard=a/(a+b+c);
+Validation_stats.Dice=2*a/((2*a)+b+c);
 Validation_stats.PatternDifference=(4*b*c)/n^2;
 Validation_stats.SizeDifference=(b+c)^2/n^2;
 Validation_stats.ShapeDifference=(n*(b+c)-(b-c)^2)/n^2;
@@ -177,19 +177,43 @@ for i=1:num_control
 
         n=a+b+c+d;
 
-        Local_Jaccard_i=a/(a+b+c);
+        Local_Dice_i=2*a/((2*a)+b+c);
         
         [ccc,~] = bwlabel(object_ctrl_i, 8);
         size_corr_seg_img = regionprops(ccc,'Area');
         Equiv_Diameter = cat(1,size_corr_seg_img);
         Equiv_Diameter = cell2mat(struct2cell(Equiv_Diameter));
              
-        Local_validation=[Local_validation;[i,Equiv_Diameter,Local_Jaccard_i]];
+        Local_validation=[Local_validation;[i,Equiv_Diameter,Local_Dice_i]];
         
     end  
     
 end
-        
+     
+
+
+Local_validation=Local_validation(2:end,:);
+
+
+Dice_mean = mean(Local_validation(:,3));
+Dice_std = std(Local_validation(:,3));
+
+
+Validation_results.test_img=img_BW_test;
+Validation_results.control_img=img_BW_control;
+
+Validation_results.Dice_mean=Dice_mean;
+Validation_results.Dice_std=Dice_std;
+Validation_results.Dice_table=Local_validation;
+
+Validation_results.Precision=precision;
+Validation_results.Sensitivity=sensitivity;
+Validation_results.ROC.TP=TP;
+Validation_results.ROC.FP=FP;
+Validation_results.ROC.FN=FN;
+
+save('Validation_results.mat','Validation_results');
+
 
 
 % scatter(Local_validation(2:end,2),Local_validation(2:end,3));
@@ -251,11 +275,6 @@ end
 % sc(sc(pixels_in_both,[1 1 1],pixels_in_both)+sc(pixels_only_control,[0 0.5 0],pixels_only_control)+sc(pixels_only_test,[1 0 0],pixels_only_test));
 
 end
-
-
-
-
-
 
 
 

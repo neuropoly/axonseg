@@ -1573,7 +1573,7 @@ handles.data.DA_accepted = Accepted_axons_img;
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
-
+ 
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
