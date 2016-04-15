@@ -10,11 +10,11 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 % sc(sc(bw_axonseg,'hot')+sc(img))
 
 
-dbstop error 
+dbstop error
 
 % If no displaytype specified in argument, 'myelin' by default
 if nargin<4; displaytype='myelin';end
-% If writeimg not specified in input, false 
+% If writeimg not specified in input, false
 if ~exist('writeimg','var'), writeimg=0; end
 if ~exist('verbose','var'), verbose=1; end
 
@@ -33,34 +33,36 @@ if verbose
 end
 for i=Naxon:-1:1
     if ~mod(i,1000), disp(i); end
-    index=round(axonlist(i).data); 
-%     tmp=index(1)<matrixsize(:,1) | index(:,1)>matrixsize(1);
-%     index(find(tmp))=[];
-%     tmp=index(2)<matrixsize(:,2) | index(:,2)>matrixsize(2);
-%     index(find(tmp))=[];
-
-%   If 'axon' display type is specified, find axon index instead of
-%   myelin index
-    if strcmp(displaytype,'axon')
+    if size(axonlist(i).data,1)>5
+        index=round(axonlist(i).data);
+        %     tmp=index(1)<matrixsize(:,1) | index(:,1)>matrixsize(1);
+        %     index(find(tmp))=[];
+        %     tmp=index(2)<matrixsize(:,2) | index(:,2)>matrixsize(2);
+        %     index(find(tmp))=[];
+        
+        %   If 'axon' display type is specified, find axon index instead of
+        %   myelin index
+        if strcmp(displaytype,'axon')
             index=as_myelin2axon(max(1,index));
-    end
-    
-    
-    ind=sub2ind(matrixsize,min(matrixsize(1),max(1,index(:,1))),min(matrixsize(2),max(1,index(:,2))));
-    
-    
-    if ~isempty(AxStats(i))
-        switch metric
-            case 'gRatio'
-                im_out(ind)=uint8(AxStats(i).gRatio(1)*100);
-            case 'axonEquivDiameter'
-                im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*10);
-            case 'myelinThickness'
-                im_out(ind)=uint8(AxStats(i).myelinThickness(1)*10);
-            case 'axon number'
-                im_out(ind)=i;
         end
         
+        
+        ind=sub2ind(matrixsize,min(matrixsize(1),max(1,index(:,1))),min(matrixsize(2),max(1,index(:,2))));
+        
+        
+        if ~isempty(AxStats(i))
+            switch metric
+                case 'gRatio'
+                    im_out(ind)=uint8(AxStats(i).gRatio(1)*100);
+                case 'axonEquivDiameter'
+                    im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*10);
+                case 'myelinThickness'
+                    im_out(ind)=uint8(AxStats(i).myelinThickness(1)*10);
+                case 'axon number'
+                    im_out(ind)=i;
+            end
+            
+        end
     end
 end
 

@@ -20,10 +20,10 @@ end
 load(SegParameters);
 
 if ~exist('blocksize','var') || isempty(blocksize)
-    blocksize=1000;
+    blocksize=400;
 end
 if ~exist('overlap','var') || isempty(overlap)
-    overlap=200;
+    overlap=50;
 end
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
