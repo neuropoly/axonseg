@@ -1,4 +1,4 @@
-function [Validation_results,Validation_stats,sensitivity, TP, FP, FN] = as_validation(img_BW_control,img_BW_test)
+function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 
 % Validation methods that can be used :
 % - Correlation coefficient (2D) between the 2 binary images segmented
@@ -25,8 +25,8 @@ function [Validation_results,Validation_stats,sensitivity, TP, FP, FN] = as_vali
 img_BW_control=im2bw(img_BW_control);
 img_BW_test=im2bw(img_BW_test);
 
-imshow(img_BW_control);
-imshow(img_BW_test);
+% imshow(img_BW_control);
+% imshow(img_BW_test);
 
 %% STEP 2 --- SENSITIVITY CALCULATIONS
 
@@ -113,9 +113,9 @@ nbr_pixels_in_both = sum(sum(pixels_in_both));
 nbr_pixels_only_control = sum(sum(pixels_only_control));
 nbr_pixels_only_test = sum(sum(pixels_only_test));
 
-Validation_stats.nbr_pix_in_both=nbr_pixels_in_both;
-Validation_stats.nbr_pix_only_control=nbr_pixels_only_control;
-Validation_stats.nbr_pix_only_test=nbr_pixels_only_test;
+% Validation_stats.nbr_pix_in_both=nbr_pixels_in_both;
+% Validation_stats.nbr_pix_only_control=nbr_pixels_only_control;
+% Validation_stats.nbr_pix_only_test=nbr_pixels_only_test;
 
 % Dice & others
 
@@ -132,20 +132,20 @@ n=a+b+c+d;
 % These are global measures taking into account the whole results (biaised
 % if missed axons in one of the 2 --- considers it in calculation)
 
-Validation_stats.Dice=2*a/((2*a)+b+c);
-Validation_stats.PatternDifference=(4*b*c)/n^2;
-Validation_stats.SizeDifference=(b+c)^2/n^2;
-Validation_stats.ShapeDifference=(n*(b+c)-(b-c)^2)/n^2;
-Validation_stats.Tarantula=a*(c+d)/(c*(a+b));
-
-
+% Validation_stats.Dice=2*a/((2*a)+b+c);
+% Validation_stats.PatternDifference=(4*b*c)/n^2;
+% Validation_stats.SizeDifference=(b+c)^2/n^2;
+% Validation_stats.ShapeDifference=(n*(b+c)-(b-c)^2)/n^2;
+% Validation_stats.Tarantula=a*(c+d)/(c*(a+b));
+% 
+% 
 
 
 
 
 % FOR EACH OBJECT
 
-Local_validation=zeros(1,3);
+Local_validation=zeros(1,6);
 
 % for each object in control image
 for i=1:num_control
@@ -179,12 +179,17 @@ for i=1:num_control
 
         Local_Dice_i=2*a/((2*a)+b+c);
         
+        
+        Local_PatternDifference_i=(4*b*c)/n^2;
+        Local_SizeDifference_i=(b+c)^2/n^2;
+        Local_ShapeDifference_i=(n*(b+c)-(b-c)^2)/n^2;
+        
         [ccc,~] = bwlabel(object_ctrl_i, 8);
         size_corr_seg_img = regionprops(ccc,'Area');
         Equiv_Diameter = cat(1,size_corr_seg_img);
         Equiv_Diameter = cell2mat(struct2cell(Equiv_Diameter));
              
-        Local_validation=[Local_validation;[i,Equiv_Diameter,Local_Dice_i]];
+        Local_validation=[Local_validation;[i,Equiv_Diameter,Local_Dice_i,Local_PatternDifference_i,Local_SizeDifference_i,Local_ShapeDifference_i]];
         
     end  
     
@@ -197,6 +202,19 @@ Local_validation=Local_validation(2:end,:);
 
 Dice_mean = mean(Local_validation(:,3));
 Dice_std = std(Local_validation(:,3));
+Dice_median = median(Local_validation(:,3));
+Dice_percentile_90 = prctile(Local_validation(:,3),90);
+Dice_percentile_95 = prctile(Local_validation(:,3),95);
+Dice_percentile_10 = prctile(Local_validation(:,3),10);
+
+Pattern_Difference_mean = mean(Local_validation(:,4));
+Pattern_Difference_std = std(Local_validation(:,4));
+
+Size_Difference_mean = mean(Local_validation(:,5));
+Size_Difference_std = std(Local_validation(:,5));
+
+Shape_Difference_mean = mean(Local_validation(:,6));
+Shape_Difference_std = std(Local_validation(:,6));
 
 
 Validation_results.test_img=img_BW_test;
@@ -204,6 +222,11 @@ Validation_results.control_img=img_BW_control;
 
 Validation_results.Dice_mean=Dice_mean;
 Validation_results.Dice_std=Dice_std;
+Validation_results.Dice_median=Dice_median;
+Validation_results.Dice_percentile_90=Dice_percentile_90;
+Validation_results.Dice_percentile_95=Dice_percentile_95;
+Validation_results.Dice_percentile_10=Dice_percentile_10;
+
 Validation_results.Dice_table=Local_validation;
 
 Validation_results.Precision=precision;
@@ -212,67 +235,21 @@ Validation_results.ROC.TP=TP;
 Validation_results.ROC.FP=FP;
 Validation_results.ROC.FN=FN;
 
-save('Validation_results.mat','Validation_results');
+Validation_results.Pattern_Difference_mean=Pattern_Difference_mean;
+Validation_results.Pattern_Difference_std=Pattern_Difference_std;
+
+Validation_results.Size_Difference_mean=Size_Difference_mean;
+Validation_results.Size_Difference_std=Size_Difference_std;
+
+Validation_results.Shape_Difference_mean=Shape_Difference_mean;
+Validation_results.Shape_Difference_std=Shape_Difference_std;
+
+
+save('Validation_results_1.mat','Validation_results','-v7.3');
 
 
 
 % scatter(Local_validation(2:end,2),Local_validation(2:end,3));
-
-
-
-
-%     
-%     object_dilated_i=imdilate(object_i,se);
-%     diff_i=im2bw(object_dilated_i-object_i);
-%     
-%     Gray_object_i = AxonSeg_gray(diff_i==1);
-%     Skewness(i,2)=skewness(Gray_object_i);
-%     
-%     Intensity_mean(i,1)=i;
-%     Intensity_std(i,1)=i;
-%     
-%     Intensity_mean(i,2)=mean(Gray_object_i);
-%     Intensity_std(i,2)=std(Gray_object_i);
-%     
-%     
-%     
-%     
-%     
-%     
-%     Gray_object_i_axon = AxonSeg_gray(cc==i);
-%     
-%     Intensity_mean_axon(i,1)=i;
-%     Intensity_std_axon(i,1)=i;
-%     Skewness(i,1)=i;
-%  
-%     Intensity_mean_axon(i,2)=mean(Gray_object_i_axon);
-%     Intensity_std_axon(i,2)=std(Gray_object_i_axon); 
-%     end
-% 
-%     Stats_struct.Intensity_mean = Intensity_mean_axon(:,2);
-%     Stats_struct.Intensity_std = Intensity_std_axon(:,2);
-%     Stats_struct.Neighbourhood_mean = Intensity_mean(:,2);
-%     Stats_struct.Neighbourhood_std = Intensity_std(:,2);
-%     Stats_struct.Skewness=Skewness(:,2);
-%     
-%     Contrast=zeros(num1,2);
-%     Contrast(:,1)=Intensity_mean(:,1);
-%     Contrast(:,2)=Intensity_mean(:,2)-Intensity_mean_axon(:,2);
-%     
-%     Stats_struct.Contrast = Contrast(:,2);
-% 
-% end
-
-
-
-
-
-
-
-% Plot comparison results
-
-% figure(1);
-% sc(sc(pixels_in_both,[1 1 1],pixels_in_both)+sc(pixels_only_control,[0 0.5 0],pixels_only_control)+sc(pixels_only_test,[1 0 0],pixels_only_test));
 
 end
 

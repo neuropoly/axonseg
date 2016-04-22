@@ -7,9 +7,6 @@ img_BW_test = imread(path_img);
 path_ctrl = uigetimagefile;
 img_BW_control = imread(path_ctrl);
 
-
-
-
 ManualCorrectionGUI(path_img,path_ctrl);
 
 
@@ -17,6 +14,66 @@ ManualCorrectionGUI(path_img,path_ctrl);
 % 
 % img_BW_test=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
 % img_BW_test=im2bw(img_BW_test,0);
+
+
+
+path_gray = uigetimagefile;
+aaa = imread(path_gray);
+aaa= rgb2gray(aaa);
+
+gray_11=aaa(1:round(end/2),1:round(end/2));
+gray_21=aaa(round(end/2):end,1:round(end/2));
+
+gray_12=aaa(1:round(end/2),round(end/2):end);
+gray_22=aaa(round(end/2):end,round(end/2):end);
+
+imwrite(gray_11,'Gray_11.tif');
+imwrite(gray_12,'Gray_12.tif');
+imwrite(gray_21,'Gray_21.tif');
+imwrite(gray_22,'Gray_22.tif');
+
+
+
+path_initial = uigetimagefile;
+bbb = imread(path_initial);
+bbb=im2bw(bbb,0.5);
+figure; imshow(bbb);
+
+
+init_11=bbb(1:round(end/2),1:round(end/2),:);
+init_21=bbb(round(end/2):end,1:round(end/2),:);
+
+init_12=bbb(1:round(end/2),round(end/2):end,:);
+init_22=bbb(round(end/2):end,round(end/2):end,:);
+
+imwrite(init_11,'Init_11.tif');
+imwrite(init_12,'Init_12.tif');
+imwrite(init_21,'Init_21.tif');
+imwrite(init_22,'Init_22.tif');
+
+
+% correct 11
+
+path_img = uigetimagefile;
+img_BW_test = imread(path_img);
+
+
+path_ctrl = uigetimagefile;
+img_BW_control = imread(path_ctrl);
+
+ManualCorrectionGUI(path_img,path_ctrl);
+
+
+
+ttt = uigetimagefile;
+tttt = imread(ttt);
+
+
+bwpaint1(tttt);
+
+mini=tttt(1:200,1:200,:);
+
+SegmentTool(mini);
 
 
 %% separate initial image in smaller images for manual seg

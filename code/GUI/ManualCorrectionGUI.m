@@ -122,7 +122,15 @@ bw = 4;
 uiresume
 while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value'))
     try
+        
+        if get(handles.freehand,'Value')==1
         roi_free=imfreehand;
+        elseif get(handles.polygon,'Value')==1
+        roi_free=impoly;
+%         elseif get(handles.ellipse,'Value')==1
+%         roi_free=imellipse;
+        end
+        
         coords=roi_free.getPosition;
         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
         roi_free.delete
