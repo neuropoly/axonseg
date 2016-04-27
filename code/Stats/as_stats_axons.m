@@ -108,9 +108,9 @@ if nargin==2
 %     se = strel('disk',Myelin_diam(i));
     
     object_dilated_i=imdilate(object_i,se);
-    diff_i=im2bw(object_dilated_i-object_i);
+    diff_i=object_dilated_i & ~object_i;
     
-    Gray_object_i = AxonSeg_gray(diff_i==1);
+    Gray_object_i = AxonSeg_gray(diff_i);
     Skewness(i,2)=skewness(Gray_object_i);
     
     Intensity_mean(i,1)=i;
@@ -124,7 +124,7 @@ if nargin==2
     
     
     
-    Gray_object_i_axon = AxonSeg_gray(cc==i);
+    Gray_object_i_axon = AxonSeg_gray(object_i);
     
     Intensity_mean_axon(i,1)=i;
     Intensity_std_axon(i,1)=i;
