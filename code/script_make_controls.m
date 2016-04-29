@@ -1,5 +1,18 @@
 
 
+
+% generate dark empty image 378 495
+
+a=zeros(495,378);
+a=logical(a);
+imwrite(a,'empty.tif');
+
+
+
+
+
+
+
 path_img = uigetimagefile;
 img_BW_test = imread(path_img);
 

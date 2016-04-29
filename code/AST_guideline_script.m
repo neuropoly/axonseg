@@ -1,13 +1,33 @@
-% guideline_script_AST
+%-------------------------------------------------------------------------%
+% Name: AST_guideline_script.                                             %
+% Description: The purpose of this script is to help new users of AST     %
+% start exploring the functions and utilities.                            %
+%                                                                         %
+%                                                                         %
+%                                                                         %
+%-------------------------------------------------------------------------%
 
 % create a test folder containing, cropped results, full results, axonlist
 % in both, SegParameters, control for validation test
 
 
+%% PART 1 - LOAD TEST IMAGE AND SEGMENT AXONS AND MYELIN BY USING THE SEGMENTATION GUI
 
-% Load an axonlist structure
+% load and display test image
+
+test=imread('test_image_OM.tif');
+figure; imshow(test);
+
+% Use SegmentationGUI to perform axon and myelin on test image
+
+SegmentationGUI;
+
+% Load the axonlist structure of the full image
 
 
+%% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
+
+load('/Users/alzaia/axon_segmentation/code/data/results_full/myelin_seg_results.mat');
 
 % Extract a specific stat (axon diameters) for all axons in axonlist
 
@@ -36,7 +56,7 @@ axonlist_2=axonlist(:).axonEquivDiameter>diam_mean;
 
 
 
-
+%% PART 3 - EXPLORE AXON AND MYELIN DISPLAY OPTIONS AVAILABLE
 
 
 
@@ -107,6 +127,18 @@ bw_axonseg_myelins=as_display_label(axonlist,size(img),'axonEquivDiameter','myel
 img_BW_fibers=im2bw(bw_axonseg_axons+bw_axonseg_myelins,0);
 imshow(img_BW_fibers);
 
+
+% Use fiber binary image as mask to select fibers in gray image
+
+
+fibers_extract=uint8(img_BW_fibers).*img;
+imshow(fibers_extract);
+imwrite(fibers_extract,'fibers_masked.tif');
+
+
+
+
+%% PART 1 - 
 
 % calculate myelin volume fraction (MVF) in an image
 
