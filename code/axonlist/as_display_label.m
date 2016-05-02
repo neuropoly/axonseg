@@ -33,6 +33,7 @@ if verbose
 end
 for i=Naxon:-1:1
     if ~mod(i,1000), disp(i); end
+    if size(axonlist(i).data,1)>5
     index=round(axonlist(i).data); 
 %     tmp=index(1)<matrixsize(:,1) | index(:,1)>matrixsize(1);
 %     index(find(tmp))=[];
