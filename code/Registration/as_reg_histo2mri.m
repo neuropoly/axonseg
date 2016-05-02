@@ -1,4 +1,4 @@
-function [tform,MRIref]=as_reg_histo2mri(histo,MRI)
+function [tform,MRIref,moving_out,fixed_out]=as_reg_histo2mri(histo,MRI)
 % [tform,MRIref]=as_reg_img2nii(histo,MRI)
 % Then: img_reg=imwarp(img,tform,'outputview',MRIref);
 
@@ -9,6 +9,7 @@ dbstop if error
 % %save_nii_v2(make_nii(repmat(img2,[1 1 nii.dims(3)]),[nii.hdr.dime.pixdim(2:4)]),'histo');
 
 [moving_out,fixed_out] = cpselect(sc(histo),sc(MRI),'Wait',true);
+moving_out = cpcorr(moving_out,fixed_out,rgb2gray(sc(histo,'jet')),rgb2gray(sc(MRI,[3.5 6.3],'jet')));
 tform = fitgeotrans(moving_out,fixed_out,'Affine');
 MRIref=imref2d(size(MRI));
 histo(isnan(histo))=0;
