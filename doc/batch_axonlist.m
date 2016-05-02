@@ -13,7 +13,7 @@
 %% PART 1 - LOAD SEGMENTATION RESULTS
 
 % load Segmentation Results (be patient.. can take some time)
-load('myelin_seg_results_cleaned.mat');
+load('axonlist_full.mat');
 
 
 %% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
