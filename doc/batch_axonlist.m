@@ -129,7 +129,7 @@ imshow(fibers_extract);
 imwrite(fibers_extract,'fibers_masked.tif');
 
 
-
+%% WARP STATS FROM HISTOLOGY TO MRI
 
 %% PART 1 - 
 
