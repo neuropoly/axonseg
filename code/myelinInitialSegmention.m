@@ -25,6 +25,7 @@ initialArray = false(size(im, 1), size(im, 2), max(numAxon,1));
 throwIdx = false(numAxon, 1);
 
 %% Parameters
+
 numAnglesRadialProfile = 2*36;
 radialProfileMinLength = 10; % pixels
 
