@@ -14,6 +14,12 @@ clear ind
 
 % Get axon positions (x & y coordinates)
 [xa,ya]=find(Axon);
+
+if isempty([xa,ya])
+    xa=1;
+    ya=1;
+end
+
 ind(:,1)=xa+indminx;
 ind(:,2)=ya+indminy;
 
