@@ -49,6 +49,20 @@ disp(['number of axons segmented (<9µm) : ' num2str(nbaxons) ' axons']);
 
 %% PART 2 - EXTRACT STATS OF A PARTICULAR ROI
 
+% Create a binary mask to extract stats
+
+mask=imread('mask_2.png');
+
+
+% Register mask on image (click each mask region in registration GUI)
+[mask_reg_labeled, P_color]=as_reg_mask(mask,img);
+
+% get indexes of axons in each region of the mask
+indexes=as_stats_mask_labeled(axonlist, mask_reg_labeled);
+
+% plot barplots for main stats
+as_stats_barplot(axonlist,indexes,P_color);
+
 
 
 
@@ -127,25 +141,38 @@ imshow(img_BW_fibers);
 
 fibers_extract=uint8(img_BW_fibers).*img;
 imshow(fibers_extract);
-imwrite(fibers_extract,'fibers_masked.tif');
+% imwrite(fibers_extract,'fibers_masked.tif');
 
 
 %% WARP STATS FROM HISTOLOGY TO MRI
 
-%% PART 1 - 
+% Downsample histology data
 
-% calculate myelin volume fraction (MVF) in an image
-
-total_area=size(img,1)*size(img,2);
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
-img_BW_myelins=im2bw(bw_axonseg,0);
-
-myelin_area=sum(sum(img_BW_myelins));
-
-MVF=myelin_area/total_area;
+as_stats_downsample_2nii(axonlist,size(img),PixelSize,150);
 
 
+
+
+
+
+
+
+%%
+
+% %% PART 1 - 
+% 
+% % calculate myelin volume fraction (MVF) in an image
+% 
+% total_area=size(img,1)*size(img,2);
+% 
+% bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
+% img_BW_myelins=im2bw(bw_axonseg,0);
+% 
+% myelin_area=sum(sum(img_BW_myelins));
+% 
+% MVF=myelin_area/total_area;
+% 
+% 
 
 
 
