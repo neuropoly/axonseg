@@ -43,8 +43,9 @@ disp(['axon diameter standard deviation in this image is : ' num2str(diam_std) '
 
 
 % Remove axons larger than 15 µm
-axonlist_2=axonlist(Axon_diameters<15);
-disp(['number of axons segmented (<15µm) : ' num2str(nbaxons) ' axons']);
+axonlist_2=axonlist(Axon_diameters<9);
+nbaxons = length(axonlist_2);
+disp(['number of axons segmented (<9µm) : ' num2str(nbaxons) ' axons']);
 
 %% PART 2 - EXTRACT STATS OF A PARTICULAR ROI
 
@@ -58,7 +59,7 @@ disp(['number of axons segmented (<15µm) : ' num2str(nbaxons) ' axons']);
 % Produce an axon display colorcoded for axon diameter on initial gray
 % image
 
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon'); 
+bw_axonseg=as_display_label(axonlist_2,size(img),'axonEquivDiameter','axon'); 
 sc2(sc2(bw_axonseg,'hot')+sc2(img))
 % display axon colorcoded for axon number
 
