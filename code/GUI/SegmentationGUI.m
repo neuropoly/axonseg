@@ -922,18 +922,18 @@ writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
 AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
-imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.jpg']);
+imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.tif']);
 
 AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
-imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.jpg']);
+imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
 
 % imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
 
 %--------------------------------------------------------------------------
 
-imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.jpg']);
-imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.jpg']);
-imwrite(handles.data.Step3_seg,[savedir 'Step_3_Final_AxonSeg.jpg']);
+imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.tif']);
+imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.tif']);
+imwrite(handles.data.Step3_seg,[savedir 'Step_3_Final_AxonSeg.tif']);
 % imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
 
 
