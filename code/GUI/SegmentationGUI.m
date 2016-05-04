@@ -151,15 +151,36 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.plotseg);
+% axes(handles.plotseg);
 
-if get(handles.invertColor,'Value')==1
-    imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
-else
-    imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
-end
+show_pre_process(handles);
+
+% if get(handles.invertColor,'Value')==1
+%     imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+% else
+%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% end
 
 guidata(hObject, handles);
+
+
+function show_pre_process(handles)
+
+im_pre=handles.data.img;
+
+if get(handles.invertColor,'Value')==1
+    im_pre=imcomplement(handles.data.img);
+end
+if get(handles.histEq,'Value')==1
+    im_pre=histeq(im_pre,1);
+end
+if get(handles.Smoothing,'Value')==1
+    im_pre=as_gaussian_smoothing(im_pre);   
+end
+    axes(handles.plotseg);
+    imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
+
+
 
 
 % --- Executes on button press in histEq.
@@ -168,16 +189,21 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+show_pre_process(handles);
 
-axes(handles.plotseg);
-if get(handles.histEq,'Value')==1
-    imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
-else
-    imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
-end
+% 
+% 
+% if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+% 
+% axes(handles.plotseg);
+% if get(handles.histEq,'Value')==1
+%     imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% else
+%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% end
+
 guidata(hObject, handles);
-% Hint: get(hObject,'Value') returns toggle state of histEq
+
     
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
@@ -1284,13 +1310,14 @@ function Smoothing_Callback(hObject, eventdata, handles)
 
 guidata(hObject,handles);
 
-
-axes(handles.plotseg);
-if get(handles.Smoothing,'Value')==1
-    imshow(as_gaussian_smoothing(handles.data.img));
-else
-    imshow(handles.data.img);
-end
+show_pre_process(handles);
+ 
+% axes(handles.plotseg);
+% if get(handles.Smoothing,'Value')==1
+%     imshow(as_gaussian_smoothing(handles.data.img));
+% else
+%     imshow(handles.data.img);
+% end
 
 guidata(hObject,handles);
 
