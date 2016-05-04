@@ -1,4 +1,4 @@
-# axon_segmentation
+# AST: Axon Segmentation Toolbox
 Segment axon and myelin from microscopy data. Written in Matlab.
 
 ## Installation
