@@ -11,7 +11,7 @@ im=double(im);
 % Check inputs
 axonBW=im2bw(axonBW);
 
-[axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
+% [axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
 
 % axonBW=RemoveBorder(axonBW);
 backBW=im2bw(backBW);
