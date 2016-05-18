@@ -1,10 +1,5 @@
 function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 
-% Validation methods that can be used :
-% - Correlation coefficient (2D) between the 2 binary images segmented
-% - Number of objects in each binary image (test vs control)
-% - % of axons of test that are also in control (use centroids)
-
 % img_path_1 = uigetimagefile;
 % img_BW_test = imread(img_path_1);
 % 
@@ -20,10 +15,38 @@ function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 
 % imshow(imfuse(img_BW_test,img_BW_control));
 
+
+
+if nargin<2
+    error('Not enough input arguments');
+elseif nargin>2
+    error('Too many arguments in input');
+end
+
+
+% if islogical(varargin{1})
+%     
+% 
+% 
+% 
+% 
+% if strfind(varargin{1},'.jpg')|
+%     
+%     
+%     
+%     
+% end
+
+
+
+
+
+
+
 %% STEP 1 --- INPUT VALIDATION
 
-img_BW_control=im2bw(img_BW_control);
-img_BW_test=im2bw(img_BW_test);
+% img_BW_control=im2bw(img_BW_control);
+% img_BW_test=im2bw(img_BW_test);
 
 % imshow(img_BW_control);
 % imshow(img_BW_test);

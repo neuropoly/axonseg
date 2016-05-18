@@ -54,7 +54,7 @@ img=as_improc_rm_overlap(img,blocksize,overlap);
 
 %% SAVE
 
-save([output 'myelin_seg_results.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 delete([output, 'bwmyelin_seg_results.mat'])
 
 % gRatio_map=as_display_label(axonlist, size(img),'gRatio');
