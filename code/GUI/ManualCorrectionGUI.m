@@ -54,6 +54,7 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
 % End initialization code - DO NOT EDIT
 
 
@@ -87,8 +88,9 @@ else
 end
 
 % Display image and initial mask on GUI
-axes(handles.axes1)
+axes(handles.axes1);
 sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'y',handles.bw_axonseg)+sc(handles.img));
+
 % zoom(handles.axes1,2);
 
 % Make a copy of image for other operations in GUI
@@ -172,10 +174,15 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
         
         %%
         
+        if isfield(handles, 'current_mask')
+        
         bw_zoom=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
-%         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
         
+        else
+            
+        bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
         
+        end
         
         %%
         roi_free.delete
@@ -184,9 +191,17 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
     end
     
 
-bw=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+
+% if handles.zoom_value==1
+%     bw=bw_zoom;
+% else
+
+if isfield(handles, 'current_mask')
 bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
-    
+end
+% end
+
 handles.bw_axonseg=handles.bw_axonseg | bw;
 
 
@@ -194,12 +209,22 @@ handles.bw_axonseg=handles.bw_axonseg | bw;
 
 guidata(hObject, handles);
 
+if isfield(handles, 'current_mask')
+
 length_y=handles.length_y;
 length_x=handles.length_x;
 
 display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
 display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
 sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+
+else
+    
+display_img=handles.img;
+display_mask=handles.bw_axonseg;
+sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+
+end
 
 
 
@@ -308,14 +333,12 @@ end
 handles.zoom_value=get(handles.zoom_scale,'Value');
 zoom_val=handles.zoom_value;
 
-
-length_y=round(size(handles.img,1)/zoom_val)-1;
-length_x=round(size(handles.img,2)/zoom_val)-1;
+length_y=round(size(handles.img,1)/zoom_val);
+length_x=round(size(handles.img,2)/zoom_val);
 
 handles.length_x=length_x;
 handles.length_y=length_y;
-
-
+  
 % 
 % display_img=handles.img(1:round(end/zoom_val),1:round(end/zoom_val));
 % display_mask=handles.bw_axonseg(1:round(end/zoom_val),1:round(end/zoom_val));
@@ -327,8 +350,13 @@ handles.length_y=length_y;
 
 % set 2 sliders x and y
 
+
+if zoom_val>1
+
 set(handles.slider_x, 'Visible','on');
 set(handles.slider_y, 'Visible','on');
+set(handles.text3, 'Visible','on');
+set(handles.text4, 'Visible','on');
 
 set(handles.slider_x,'Max',size(handles.img,1)-length_y);
 set(handles.slider_x, 'SliderStep', [1/(size(handles.img,1)-length_y) , 20/(size(handles.img,1)-length_y) ]);   
@@ -338,13 +366,28 @@ set(handles.slider_y,'Max',size(handles.img,2)-length_x);
 set(handles.slider_y, 'SliderStep', [1/(size(handles.img,2)-length_x) , 20/(size(handles.img,2)-length_x) ]);   
 set(handles.slider_y,'Value',0);
 
+update_display(hObject, eventdata, handles);
+
+else
+    
+set(handles.slider_x, 'Visible','off');
+set(handles.slider_y, 'Visible','off');
+set(handles.text3, 'Visible','off');
+set(handles.text4, 'Visible','off');
+    
+display_img=handles.img;
+display_mask=handles.bw_axonseg;
+sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+    
+end
+
 % handles.current_img=display_img;
 % handles.current_mask=display_mask;
 
 % handles.mask_position=[get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_x,get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_y];
 
 
-slider_x_Callback(hObject, eventdata, handles);
+
 
 guidata(hObject, handles);
 
@@ -373,21 +416,7 @@ function slider_x_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-
-length_y=handles.length_y;
-length_x=handles.length_x;
-
-display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
-
-handles.current_img=display_img;
-handles.current_mask=display_mask;
-
-handles.mask_position=[get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_x];
-% handles.mask_position=[get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_y,get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_x];
-
-guidata(hObject, handles);
+update_display(hObject, eventdata, handles);
 
 % --- Executes on slider movement.
 function slider_y_Callback(hObject, eventdata, handles)
@@ -398,19 +427,9 @@ function slider_y_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-length_y=handles.length_y;
-length_x=handles.length_x;
+update_display(hObject, eventdata, handles);
 
-display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
 
-handles.current_img=display_img;
-handles.current_mask=display_mask;
-
-handles.mask_position=[get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_x];
-
-guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function slider_y_CreateFcn(hObject, eventdata, handles)
@@ -434,6 +453,24 @@ function slider_x_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+function update_display(hObject, eventdata, handles)
+
+length_y=handles.length_y;
+length_x=handles.length_x;
+
+display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
+display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
+sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+
+handles.current_img=display_img;
+handles.current_mask=display_mask;
+
+handles.mask_position=[get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_x];
+% handles.mask_position=[get(handles.slider_y,'Value')+1,get(handles.slider_y,'Value')+length_y,get(handles.slider_x,'Value')+1,get(handles.slider_x,'Value')+length_x];
+
+guidata(hObject, handles);
 
 
 % --- Executes on button press in reset_mask.
