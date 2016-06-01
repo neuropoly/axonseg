@@ -122,7 +122,7 @@ function alpha_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-axes(handles.axes1)
+axes(handles.axes1);
 
 
 length_y=handles.length_y;
@@ -174,15 +174,16 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
         
         %%
         
-        if isfield(handles, 'current_mask')
+%         if isfield(handles, 'current_mask')
         
-        bw_zoom=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
+        % binary mask of the new axon in zoomed image
+        bw_added=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
         
-        else
-            
-        bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-        
-        end
+%         else
+%             
+%         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+%         
+%         end
         
         %%
         roi_free.delete
@@ -191,18 +192,25 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
     end
     
 
-bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+% bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
 
 % if handles.zoom_value==1
 %     bw=bw_zoom;
 % else
 
-if isfield(handles, 'current_mask')
-bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
-end
+% if isfield(handles, 'current_mask')
+% bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
 % end
 
-handles.bw_axonseg=handles.bw_axonseg | bw;
+% end
+
+% 
+% bw_zoom=bw_zoom|bw_added;
+
+handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
+
+% handles.bw_axonseg=handles.bw_axonseg | bw;
 
 
 % alpha_Callback(hObject, eventdata, handles)
