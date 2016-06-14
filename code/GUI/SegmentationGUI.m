@@ -933,7 +933,7 @@ end
 
 
 %% SAVE
-savedir=[handles.outputdir 'results_croped' filesep];
+savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
 % axonlist structure
 axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));

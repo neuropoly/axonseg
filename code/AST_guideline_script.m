@@ -67,6 +67,7 @@ bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
 display_1=sc(sc(bw_axonseg,'hot')+sc(img));
 imshow(display_1);
 
+imwrite(display_1,'myel_display.tif');
 % display axon colorcoded for axon number
 
 bw_axonseg=as_display_label(axonlist,size(img),'axon number','axon'); 
@@ -75,7 +76,7 @@ imshow(display_2);
 
 % display myelin colorcoded for myelin thickness
 
-bw_axonseg=as_display_label(axonlist,size(img),'myelinThickness','myelin'); 
+bw_axonseg=as_display_label(axonlist,size(img),'myelinThickness','axon'); 
 display_3=sc(sc(bw_axonseg,'hot')+sc(img));
 imshow(display_3);
 
@@ -118,6 +119,8 @@ imshow(img_BW_axons);
 bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
 img_BW_myelins=im2bw(bw_axonseg,0);
 imshow(img_BW_myelins);
+
+imwrite(img_BW_myelins,'myelins_masked.tif');
 
 % Get the binary image of entire fibers (axon + myelin)
 
