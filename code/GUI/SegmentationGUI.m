@@ -911,6 +911,11 @@ backBW=handles.data.DA_accepted & ~tmp;
 
 else
 
+% img_path_2 = uigetimagefile;
+% img_BW_control = imread(img_path_2);    
+% handles.data.Step3_seg=img_BW_control;    
+    
+    
 [tmp,border_removed_mask]=RemoveBorder(handles.data.Step3_seg,get(handles.PixelSize,'Value'));
 % tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
@@ -933,10 +938,18 @@ end
 
 
 %% SAVE
+
 savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
+
 % axonlist structure
+
 axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
+
+% clean axonlist (if 0 gRatio & 0 axon diameter)
+axonlist=axonlist([axonlist.gRatio]~=0);
+axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
+
 PixelSize = handles.PixelSize;
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
