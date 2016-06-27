@@ -950,7 +950,7 @@ axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
 axonlist=axonlist([axonlist.gRatio]~=0);
 axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
 
-PixelSize = handles.PixelSize;
+PixelSize = get(handles.PixelSize,'Value');
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
 
