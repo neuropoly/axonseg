@@ -1,4 +1,4 @@
-# AST: Axon Segmentation Toolbox
+# AxonSeg: Axon Segmentation Toolbox
 Segment axon and myelin from microscopy data. Written in Matlab.
 
 ## Installation
@@ -10,7 +10,10 @@ Segment axon and myelin from microscopy data. Written in Matlab.
 3 - Run the script SegmentationGUI
 
 ## Tutorials
-Matlab Scripts:
+
+Link to video demo (SegmentationGUI.m): https://github.com/neuropoly/axonseg/releases/download/v2.1/Axon_Segmentation_GUI_Quick_Overview.mp4.
+
+Old tutorials:
   * **SegmentationGUI**: Segment using Graphical interface --> https://drive.google.com/open?id=0B2Xe6kvfjHHnLVE1N2lMYktWMGM
   * **myelinInitialSegmention** : Segment myelin using axon segmentation as input -->  https://drive.google.com/open?id=0B2Xe6kvfjHHncWVRMG5mS3JZQUE
 
