@@ -35,7 +35,7 @@ function varargout = ManualCorrectionGUI(varargin)
 
 % Edit the above text to modify the response to help ManualCorrectionGUI
 
-% Last Modified by GUIDE v2.5 18-May-2016 16:33:10
+% Last Modified by GUIDE v2.5 04-Jul-2016 17:06:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -493,3 +493,55 @@ handles.bw_axonseg=aaa;
 
 
 guidata(hObject, handles);
+
+
+% --- Executes on button press in region_growing.
+function region_growing_Callback(hObject, eventdata, handles)
+% hObject    handle to region_growing (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+I = im2double(handles.current_img);
+
+[y,x]=getpts; 
+y=round(y(1)); 
+x=round(x(1));
+
+J = regiongrowing(I,x,y); 
+
+handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
+
+handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|J;
+
+update_display(hObject, eventdata, handles);
+
+
+
+% Hint: get(hObject,'Value') returns toggle state of region_growing
+
+guidata(hObject, handles);
+
+
+% --- Executes on button press in undo.
+function undo_Callback(hObject, eventdata, handles)
+% hObject    handle to undo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=handles.before_add;
+
+update_display(hObject, eventdata, handles);
+
+
+
+
+
+% Hint: get(hObject,'Value') returns toggle state of undo
+guidata(hObject, handles);
+
+
+
+
+
+
