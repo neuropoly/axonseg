@@ -56,15 +56,15 @@ initialLSF(5:size(Img,1)-2,5:size(Img,2)-2) = -c0; % Put square of (-1s) near th
 
 u=initialLSF; % Our u will be the initialLSF (has the initial contour)
 
-% hold on;
-% contour(u,[0 0],'r');
-% title('Initial contour');
+hold on;
+contour(u,[0 0],'r');
+title('Initial contour');
 
-% figure(2);
-% imagesc(Img,[0, 255]); colormap(gray); axis off; axis equal
-% hold on;
-% contour(u,[0 0],'r');
-% title('Initial contour');
+figure(2);
+imagesc(Img,[0, 255]); colormap(gray); axis off; axis equal
+hold on;
+contour(u,[0 0],'r');
+title('Initial contour');
 
 K=fspecial('gaussian',round(2*sigma)*2+1,sigma); % Gaussian kernel
 KI=conv2(Img,K,'same'); % Result of convolution of image Img by K gaussian kernel

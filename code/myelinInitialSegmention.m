@@ -11,7 +11,7 @@ im=double(im);
 % Check inputs
 axonBW=im2bw(axonBW);
 
-[axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
+% [axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
 
 % axonBW=RemoveBorder(axonBW);
 backBW=im2bw(backBW);
@@ -25,11 +25,12 @@ initialArray = false(size(im, 1), size(im, 2), max(numAxon,1));
 throwIdx = false(numAxon, 1);
 
 %% Parameters
+
 numAnglesRadialProfile = 2*36;
 radialProfileMinLength = 10; % pixels
 
-if ~exist('radialProfileMaxLength','var'),  radialProfileMaxLength= 2/3; end% fraction of axon EquivDiameter to probe
-if ~exist('khomo_off','var'),  khomo_off= 0; end % homogeneous thickness
+if ~exist('radialProfileMaxLength','var'),  radialProfileMaxLength= 2/3; end% fraction of axon EquivDiameter to probe 2/3
+if ~exist('khomo_off','var'),  khomo_off=0; end % homogeneous thickness 0
 
 %%
 % Meshgrid for computing the radial profiles

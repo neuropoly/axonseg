@@ -151,10 +151,36 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.plotseg);
-imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+% axes(handles.plotseg);
+
+show_pre_process(handles);
+
+% if get(handles.invertColor,'Value')==1
+%     imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
+% else
+%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% end
 
 guidata(hObject, handles);
+
+
+function show_pre_process(handles)
+
+im_pre=handles.data.img;
+
+if get(handles.invertColor,'Value')==1
+    im_pre=imcomplement(handles.data.img);
+end
+if get(handles.histEq,'Value')==1
+    im_pre=histeq(im_pre,1);
+end
+if get(handles.Smoothing,'Value')==1
+    im_pre=as_gaussian_smoothing(im_pre);   
+end
+    axes(handles.plotseg);
+    imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
+
+
 
 
 % --- Executes on button press in histEq.
@@ -163,12 +189,21 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+show_pre_process(handles);
 
-axes(handles.plotseg);
-imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% 
+% 
+% if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
+% 
+% axes(handles.plotseg);
+% if get(handles.histEq,'Value')==1
+%     imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% else
+%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
+% end
+
 guidata(hObject, handles);
-% Hint: get(hObject,'Value') returns toggle state of histEq
+
     
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
@@ -322,7 +357,6 @@ function resetStep1_Callback(hObject, eventdata, handles)
 % hObject    handle to resetStep1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 % warndlg('Reseting Step 1 will erase segmentation parameters previously defined','Warning');
 fprintf('*** WARNING *** Reseting Step 1 will erase segmentation parameters previously defined.');
@@ -876,7 +910,12 @@ if isfield(handles.data,'DA_accepted')
 backBW=handles.data.DA_accepted & ~tmp;
 
 else
-
+% 
+% img_path_2 = uigetimagefile;
+% img_BW_control = imread(img_path_2);    
+% handles.data.Step3_seg=img_BW_control;    
+    
+    
 [tmp,border_removed_mask]=RemoveBorder(handles.data.Step3_seg,get(handles.PixelSize,'Value'));
 % tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
@@ -899,11 +938,19 @@ end
 
 
 %% SAVE
-savedir=[handles.outputdir 'results_croped' filesep];
+
+savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
+
 % axonlist structure
+
 axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
-PixelSize = handles.PixelSize;
+
+% clean axonlist (if 0 gRatio & 0 axon diameter)
+axonlist=axonlist([axonlist.gRatio]~=0);
+axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
+
+PixelSize = get(handles.PixelSize,'Value');
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
 
@@ -914,18 +961,18 @@ writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
 AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
-imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.jpg']);
+imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.tif']);
 
 AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
-imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.jpg']);
+imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
 
 % imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
 
 %--------------------------------------------------------------------------
 
-imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.jpg']);
-imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.jpg']);
-imwrite(handles.data.Step3_seg,[savedir 'Step_3_Final_AxonSeg.jpg']);
+imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.tif']);
+imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.tif']);
+imwrite(handles.data.Step3_seg,[savedir 'Step_3_Final_AxonSeg.tif']);
 % imwrite(handles.data.DA_final, [savedir 'AxonSeg_DA_final.jpg']);
 
 
@@ -1203,7 +1250,11 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 % Create a set of classifiers for the given data for each possible
 % sensivity value
 [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Intensity_std', 'Intensity_mean','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+    {'EquivDiameter','Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+
+% [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+
 
 % Set slider_ROC_plot parameters depending on the DA analysis
 set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
@@ -1271,9 +1322,15 @@ function Smoothing_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 guidata(hObject,handles);
-axes(handles.plotseg);
 
-imshow(as_gaussian_smoothing(handles.data.img));
+show_pre_process(handles);
+ 
+% axes(handles.plotseg);
+% if get(handles.Smoothing,'Value')==1
+%     imshow(as_gaussian_smoothing(handles.data.img));
+% else
+%     imshow(handles.data.img);
+% end
 
 guidata(hObject,handles);
 
@@ -1556,7 +1613,7 @@ handles.data.DA_accepted = Accepted_axons_img;
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
-
+ 
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.

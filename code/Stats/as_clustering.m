@@ -13,8 +13,7 @@ img_BW = bwmorph(img_BW,'clean');
 
 [Stats_size, names] = as_stats_axons(img_BW);
 
-Stats_size_used = rmfield(Stats_size,setdiff(names, {'Area', 'Perimeter', 'EquivDiameter', 'Solidity', 'MajorAxisLength',...
-    'MinorAxisLength','Eccentricity'}));
+Stats_size_used = rmfield(Stats_size,setdiff(names, {'EquivDiameter'}));
 
 Stats_size_used = struct2array(Stats_size_used);
 

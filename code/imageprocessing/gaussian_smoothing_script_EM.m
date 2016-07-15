@@ -17,7 +17,7 @@ for size_f=2:1:5
         img_smooth = imfilter(img,H);
         subplot(cx,cy,c);
         title(['gaussian filter size : ' num2str(size_f) '  & std : ' num2str(std)]); 
-        imagesc(img_smooth);
+        imshow(img_smooth);
         hold on;
    
 

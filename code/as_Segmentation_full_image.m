@@ -54,18 +54,24 @@ img=as_improc_rm_overlap(img,blocksize,overlap);
 
 %% SAVE
 
-save([output 'myelin_seg_results.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 delete([output, 'bwmyelin_seg_results.mat'])
 
-gRatio_map=as_display_label(axonlist, size(img),'gRatio');
-axonEquivDiameter_map=as_display_label(axonlist, size(img),'axonEquivDiameter');
+% gRatio_map=as_display_label(axonlist, size(img),'gRatio');
 
-RGB = ind2rgb8(gRatio_map,hot(100));
-imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'gRatio_0_1.jpg'])
+axons_map=as_display_label(axonlist, size(img),'axonEquivDiameter','axon');
+axonEquivDiameter_map=as_display_label(axonlist, size(img),'axonEquivDiameter','myelin');
+
+% RGB = ind2rgb8(gRatio_map,hot(100));
+RGB = ind2rgb8(axons_map,hot(100));
+
 
 maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
+% imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'gRatio_0_1.jpg'])
+imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_(axons)_0µm_' num2str(maxdiam) 'µm.jpg'])
+
 RGB = ind2rgb8(axonEquivDiameter_map,hot(maxdiam*10));
-imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_0µm_' num2str(maxdiam) 'µm.jpg']);
+imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_(myelins)_0µm_' num2str(maxdiam) 'µm.jpg']);
 copyfile(which('colorbarhot.png'),output)
 
 function [im_out,AxSeg]=fullimage(im_in,segParam)

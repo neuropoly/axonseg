@@ -1,7 +1,7 @@
 function img_smooth=as_gaussian_smoothing(img)
-% Function that performs a gaussian denoise
+% Function that performs an averaging denoise
 
-H = fspecial('gaussian',3, 3);
+H = fspecial('average',3);
 img_smooth = imfilter(img,H);
 
 end
