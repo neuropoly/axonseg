@@ -1,5 +1,5 @@
 %-------------------------------------------------------------------------%
-% Name: AST_guideline_script.                                             %
+% Name: as_tutorial.                                                      %
 % Description: The purpose of this script is to help new users of AST     %
 % start exploring the functions and utilities.                            %
 %                                                                         %
@@ -20,7 +20,7 @@ figure; imshow(test);
 
 % Use SegmentationGUI to perform axon and myelin on test image
 
-SegmentationGUI;
+SegmentationGUI test_image_OM.tif;
 
 % Load the axonlist structure of the full image
 

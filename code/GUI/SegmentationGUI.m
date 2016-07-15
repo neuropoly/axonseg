@@ -825,6 +825,8 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0]
 % % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
+figure,imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
+    +sc(handles.data.Step1)));
 [c,r,~] = impixel;
 rm=diag(Label(r,c));
 
