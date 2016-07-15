@@ -910,7 +910,7 @@ if isfield(handles.data,'DA_accepted')
 backBW=handles.data.DA_accepted & ~tmp;
 
 else
-
+% 
 % img_path_2 = uigetimagefile;
 % img_BW_control = imread(img_path_2);    
 % handles.data.Step3_seg=img_BW_control;    

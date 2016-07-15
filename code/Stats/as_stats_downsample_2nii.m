@@ -3,6 +3,19 @@ function [stats_downsample, statsname]=as_stats_downsample_2nii(axonlist,matrixs
 % Create a folder "stats" in current directory and generate NIFTI with the
 % different statistics
 %
+% IN:   -axonlist (output structure from AxonSeg, containing axon & myelin
+%       info
+%       -matrixsize (size x and y of image in axonlist)      
+%       -PixelSize (size of one pixel, output of AxonSeg, comes with
+%       axonlist)
+%       -resolution (um value of downsampled image, i.e. you can take the
+%       resolution of your MRI image, can take different resolutions for x
+%       and y)
+%       -outputstats (true if you want the output stats)
+%
+%
+%--------------------------------------------------------------------------
+
 % EXAMPLE: as_stats_downsample_2nii(axonlist,size(img),PixelSize,150)
 
 [stats_downsample, statsname]=as_stats_downsample(axonlist,matrixsize,PixelSize,resolution);

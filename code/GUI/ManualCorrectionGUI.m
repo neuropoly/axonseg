@@ -35,7 +35,7 @@ function varargout = ManualCorrectionGUI(varargin)
 
 % Edit the above text to modify the response to help ManualCorrectionGUI
 
-% Last Modified by GUIDE v2.5 04-Jul-2016 17:06:32
+% Last Modified by GUIDE v2.5 05-Jul-2016 15:50:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -206,6 +206,8 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
 
 % 
 % bw_zoom=bw_zoom|bw_added;
+
+% handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
 
 handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
     handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
@@ -504,10 +506,25 @@ function region_growing_Callback(hObject, eventdata, handles)
 I = im2double(handles.current_img);
 
 [y,x]=getpts; 
-y=round(y(1)); 
-x=round(x(1));
+y=round(y); 
+x=round(x);
 
-J = regiongrowing(I,x,y); 
+if size(x)==1
+  J = regiongrowing(I,x,y);       
+else
+    J = regiongrowing(I,x(1),y(1));
+    
+    for i=2:size(x,1)
+        
+        J_i = regiongrowing(I,x(i),y(i));   
+        
+        J = J|J_i;
+    end
+    
+    
+    
+    
+end
 
 handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
 
@@ -539,9 +556,3 @@ update_display(hObject, eventdata, handles);
 
 % Hint: get(hObject,'Value') returns toggle state of undo
 guidata(hObject, handles);
-
-
-
-
-
-

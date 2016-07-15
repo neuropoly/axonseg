@@ -28,7 +28,7 @@ SegmentationGUI;
 %% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
 
 load('/Users/alzaia/axon_segmentation/code/data/results_full/myelin_seg_results.mat');
-
+load('axonlist.mat');
 % Extract a specific stat (axon diameters) for all axons in axonlist
 
 Axon_diameters = cat(1,axonlist.axonEquivDiameter);
@@ -88,11 +88,7 @@ imshow(display_4);
 
 % display both axon and myelin colorcoded for axon diameter
 
-bw_axonseg_1=as_display_label(axonlist,size(img),'axonEquivDiameter','axon'); 
-bw_axonseg_2=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin'); 
 
-display_4=sc(sc(bw_axonseg_1,'hot')+sc(bw_axonseg_2,'hot')+sc(img));
-imshow(display_4);
 
 
 % change colormap for same display

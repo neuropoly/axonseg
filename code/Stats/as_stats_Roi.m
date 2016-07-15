@@ -1,7 +1,7 @@
 function [Index, Stats]=as_stats_Roi(axonlist, img, mask )
-% [Index, Stats] = as_stats_Roi(axonlist, img)
+% [Index, Stats] = as_stats_Roi(axonlist, img);
 % [Index, Stats] = as_stats_Roi(axonlist, [], mask)
-% axonlist_ROI= axonlist(Index)
+% axonlist_ROI= axonlist(Index);
 
 if isempty(img)
     P=mask2poly(mask);

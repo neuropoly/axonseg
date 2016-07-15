@@ -1,10 +1,11 @@
 
 
-function [mean_gap_axon]=gap_axons(axonlist,nbr_of_neighbours)
-
+function [mean_gap_axon]=gap_axons(axonlist,PixelSize,nbr_of_neighbours)
+% [mean_gap_axon]=gap_axons(axonlist,PixelSize,7);
 
 for i=1:size(cat(1,axonlist.Centroid),1)
-    
+
+tic    
 origin_centroid=axonlist(i).Centroid;
 
 for j=1:size(cat(1,axonlist.Centroid),1)
@@ -20,7 +21,7 @@ end
 
 Sorted_distances=sortrows(dist_vector,2);    
     
-neighbour_axons=Sorted_distances(1:nbr_of_neighbours,:);
+neighbour_axons=Sorted_distances(1:nbr_of_neighbours+1,:);
 
 
 for k=2:size(neighbour_axons,1)
@@ -34,10 +35,11 @@ gap_axon(gap_axon<0)=0;
 end
 
 mean_gap_axon(i,1)=mean(gap_axon);
+toc
 
 
+hist(mean_gap_axon,50); title([num2str(nbr_of_neighbours),' neighbours, ' 'Mean=', num2str(mean(mean_gap_axon)), ' ,std= ', num2str(std(mean_gap_axon)), ' ,median= ', num2str(median(mean_gap_axon)), ]);
 end
-
 
 
 
