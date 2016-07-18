@@ -6,6 +6,7 @@ function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 % img_path_2 = uigetimagefile;
 % img_BW_control = imread(img_path_2);
 
+% img_BW_control=im2bw(img_BW_control,0);
 % 
 % img_BW_control=as_display_label(axonlist_control,size(img),'axonEquivDiameter','axon');
 % 
@@ -15,33 +16,11 @@ function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 
 % imshow(imfuse(img_BW_test,img_BW_control));
 
-
-
 if nargin<2
     error('Not enough input arguments');
 elseif nargin>2
     error('Too many arguments in input');
 end
-
-
-% if islogical(varargin{1})
-%     
-% 
-% 
-% 
-% 
-% if strfind(varargin{1},'.jpg')|
-%     
-%     
-%     
-%     
-% end
-
-
-
-
-
-
 
 %% STEP 1 --- INPUT VALIDATION
 
