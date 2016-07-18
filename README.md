@@ -3,7 +3,7 @@ Segment axon and myelin from microscopy data. Written in Matlab.
 
 ## Installation
 
-1 - Download the latest release of Axon Segmentation Toolbox : https://github.com/neuropoly/axon_segmentation/releases
+1 - Download the latest release of Axon Segmentation Toolbox : https://github.com/neuropoly/axonseg/releases/tag/v2.2
 
 2 - Add the folder *code* to your Matlab path
 
