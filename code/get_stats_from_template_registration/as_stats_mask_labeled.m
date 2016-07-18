@@ -17,13 +17,8 @@ max_regions = max(max(mask_reg_labeled));
 % [Index9, Stats9] = as_stats_Roi(axonlist, [], mask9);
 
 
-for i=5:7
+for i=1:max_regions
     
-% for i=1:2
-%     
-%     
-% i=4;
-
 tic
 P=mask2poly(mask_reg_labeled==i);
 toc
@@ -36,15 +31,15 @@ Centroidx=Centroid(:,1);
 % Get the y values of the centroids
 Centroidy=Centroid(:,2);
 % Get the x values of the polygon
-Px=P(:,2);
+Px=P(:,1);
 % Get the y values of the polygon
-Py=P(:,1);
+Py=P(:,2);
 
 % P_4=P;
 
-
-Px=downsample(Px,110);
-Py=downsample(Py,110);
+% % 
+% Px=downsample(Px,100);
+% Py=downsample(Py,100);
 
 
 % Verify if the axons defined by their centroids are included in the

@@ -27,7 +27,7 @@ SegmentationGUI test_image_OM.tif;
 
 %% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
 
-load('/Users/alzaia/axon_segmentation/code/data/results_full/myelin_seg_results.mat');
+
 load('axonlist.mat');
 % Extract a specific stat (axon diameters) for all axons in axonlist
 
@@ -149,6 +149,34 @@ img_BW_myelins=im2bw(bw_axonseg,0);
 myelin_area=sum(sum(img_BW_myelins));
 
 MVF=myelin_area/total_area;
+
+
+
+%% mask registration and stats extraction
+
+[mask_reg_labeled, P_color]=as_reg_mask(mask,img);
+
+indexes=as_stats_mask_labeled(axonlist, mask_reg_labeled);
+
+as_stats_barplot(axonlist,indexes,P_color);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

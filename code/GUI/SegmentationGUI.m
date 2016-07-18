@@ -966,6 +966,10 @@ imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_label
 AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
 imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
 
+bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
+img_BW_myelins=im2bw(bw_axonseg,0);
+imwrite(img_BW_myelins,[savedir 'Seg_mask_myelin.tif']);
+
 % imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_both.jpg']);
 
 %--------------------------------------------------------------------------
