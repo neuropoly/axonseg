@@ -680,6 +680,11 @@ function Solidity_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% set(findall(handles, '-property','Enable'), 'Enable', 'off');
+% InterfaceObj=findobj(handles,'Enable','on');
+% set(InterfaceObj,'Enable','off');
+% set(InterfaceObj,'Enable','on');
+
 tmp=handles.data.Step2_seg;
 metric=handles.stats_step2.Solidity;
 p=find(metric<get(handles.Solidity,'Value'));
@@ -692,6 +697,12 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
     +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
+
+
+
+% % 
+% set(InterfaceObj,'Enable','on');
+% set(findall(handles, '-property','Enable'), 'Enable', 'on');
 
 
 % 
@@ -1241,6 +1252,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 % {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
 
+
 % Get discriminant analysis type chosen by user
 if get(handles.Linear,'Value')
     type = 'linear';
@@ -1315,6 +1327,7 @@ fprintf('Discriminant analysis done. \n');
 axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
+
 
 guidata(hObject,handles);
 
