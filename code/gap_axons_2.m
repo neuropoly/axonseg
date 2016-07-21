@@ -1,7 +1,7 @@
 
 
 function [mean_gap_axon]=gap_axons_2(axonlist,PixelSize,nbr_of_neighbours,img)
-% [mean_gap_axon]=gap_axons(axonlist,PixelSize,7);
+% [mean_gap_axon]=gap_axons(axonlist,PixelSize,2);
 
 for i=1:size(cat(1,axonlist.Centroid),1)
 
