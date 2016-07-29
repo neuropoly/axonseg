@@ -829,14 +829,13 @@ axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 
-% 
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
-figure,imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
-    +sc(handles.data.Step1)));
-[c,r,~] = impixel;
+handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image];
+
+set(handleArray,'Enable','off')
+
+[c,r,err] = impixel; err = max(isnan(err),[],2);
+c = c(~err); r=r(~err);
 rm=diag(Label(r,c));
 
 rejected=im2bw(handles.data.Step3_seg-(~ismember(Label,[0;rm])));
@@ -859,6 +858,7 @@ axes(handles.plotseg);
 imshow(sc(get(handles.Transparency,'Value')*sc(rejected,[1 0.5 0],rejected)...
     +get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)+sc(handles.data.Step1)));
 
+set(handleArray,'Enable','on')
 guidata(hObject, handles);
 
 
@@ -1056,44 +1056,45 @@ function LoadSegParam_Callback(hObject, eventdata, handles)
 
 [FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
 segparam_filepath = [PathName FileName];
-load(segparam_filepath);
-
-% % Disable buttons in step 0 to keep only the segmentation parameters loaded
-% 
-% set(handles.invertColor,'Enable','off');
-% set(handles.histEq,'Enable','off');
-% set(handles.Deconv,'Enable','off');
-
-% Get parameters from a SegParameters file
-set(handles.invertColor,'Value',SegParameters.invertColor);
-set(handles.histEq,'Value',SegParameters.histEq);
-set(handles.Deconv,'Value',SegParameters.Deconv);
-set(handles.Smoothing,'Value',SegParameters.Smoothing);
-
-set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
-
-set(handles.initSeg,'Value',SegParameters.initSeg);
-set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
-set(handles.threshold,'Value',SegParameters.threshold);
-
-set(handles.minSize,'Value',SegParameters.minSize);
-set(handles.Circularity,'Value',SegParameters.Circularity);
-set(handles.Solidity,'Value',SegParameters.Solidity);
-% set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
-set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
-
-if isfield(SegParameters,'parameters')
+if FileName
+    load(segparam_filepath);
     
-% set(handles.parameters,'Value',SegParameters.parameters);
-% set(handles.parameters,'Value',SegParameters.parameters);
-
-handles.parameters=SegParameters.parameters;
-handles.classifier_final=SegParameters.DA_classifier;
-
+    % % Disable buttons in step 0 to keep only the segmentation parameters loaded
+    %
+    % set(handles.invertColor,'Enable','off');
+    % set(handles.histEq,'Enable','off');
+    % set(handles.Deconv,'Enable','off');
+    
+    % Get parameters from a SegParameters file
+    set(handles.invertColor,'Value',SegParameters.invertColor);
+    set(handles.histEq,'Value',SegParameters.histEq);
+    set(handles.Deconv,'Value',SegParameters.Deconv);
+    set(handles.Smoothing,'Value',SegParameters.Smoothing);
+    
+    set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+    set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+    set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+    
+    set(handles.initSeg,'Value',SegParameters.initSeg);
+    set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
+    set(handles.threshold,'Value',SegParameters.threshold);
+    
+    set(handles.minSize,'Value',SegParameters.minSize);
+    set(handles.Circularity,'Value',SegParameters.Circularity);
+    set(handles.Solidity,'Value',SegParameters.Solidity);
+    % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+    set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
+    
+    if isfield(SegParameters,'parameters')
+        
+        % set(handles.parameters,'Value',SegParameters.parameters);
+        % set(handles.parameters,'Value',SegParameters.parameters);
+        
+        handles.parameters=SegParameters.parameters;
+        handles.classifier_final=SegParameters.DA_classifier;
+        
+    end
 end
-
 % Update handles
 guidata(hObject,handles);
 
