@@ -151,15 +151,7 @@ function handles=invertColor_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% axes(handles.plotseg);
-
 show_pre_process(handles);
-
-% if get(handles.invertColor,'Value')==1
-%     imshow(imcomplement(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end)));
-% else
-%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
-% end
 
 guidata(hObject, handles);
 
@@ -190,17 +182,6 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 show_pre_process(handles);
-
-% 
-% 
-% if get(handles.histEq,'Value'), tmp=histeq(handles.data.img,1); else tmp=handles.data.img; end
-% 
-% axes(handles.plotseg);
-% if get(handles.histEq,'Value')==1
-%     imshow(tmp(1:handles.reducefactor:end,1:handles.reducefactor:end));
-% else
-%     imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
-% end
 
 guidata(hObject, handles);
 
@@ -313,6 +294,7 @@ handles.data.Step2_seg=step1(handles);
 
 axes(handles.plotseg);
 
+% -1-
 sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
 % sc(sc(handles.data.Step1)+sc(handles.data.Step2_seg,'y',handles.data.Step2_seg));
 
@@ -381,6 +363,7 @@ tmp=imfill(tmp,'holes'); %imshow(initialBW)
 %--------------------------------------------------------------------------
 axes(handles.plotseg)
 
+% -2-
 sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,tmp))
 guidata(hObject, handles);
@@ -426,6 +409,7 @@ tmp=initseg(handles.data.Step1, get(handles.diffMaxMin,'Value'));
 
 % Show updated axon segmentation on screen
 axes(handles.plotseg);
+% -3-
 sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,tmp));
 
@@ -442,6 +426,7 @@ function threshold_Callback(hObject, eventdata, handles)
 tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
 tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
 
+% -4-
 sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,tmp));
 
@@ -471,6 +456,7 @@ handles.data.DA_final = handles.data.Step3_seg;
 
 
 axes(handles.plotseg);
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 
@@ -526,6 +512,7 @@ function resetStep2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.plotseg);
 
+% -1-
 sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 % 
@@ -600,8 +587,11 @@ function maxSize_Callback(hObject, eventdata, handles)
 % hObject    handle to maxSize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
 handle.data.proc=maxSize(handles.data.Step2_seg,get(handles.maxSize,'Value'));
 axes(handles.plotseg)
+
 
 imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
@@ -646,6 +636,8 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
     +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
 
@@ -695,6 +687,8 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 % handles.state.Solidity = get(handles.Solidity,'Value'); % ajoutee
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
     +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
 
@@ -749,6 +743,8 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 % handles.state.minSize = get(handles.minSize,'Value'); % ajoutee
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
     +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
 
@@ -788,6 +784,8 @@ function Add_Callback(hObject, eventdata, handles)
 
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 % 
@@ -805,6 +803,8 @@ handles.data.DA_final = handles.data.Step3_seg;
 guidata(hObject, handles);
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 
@@ -826,6 +826,8 @@ function remove_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 
@@ -856,6 +858,8 @@ guidata(hObject, handles);
 %     +sc(handles.data.Step1)));
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(rejected,[1 0.5 0],rejected)...
     +get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)+sc(handles.data.Step1)));
 
@@ -1178,6 +1182,8 @@ tmp(ismember(handles.stats_cc,p)==1)=0;
 
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
     +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
 
@@ -1325,6 +1331,8 @@ fprintf('Discriminant analysis done. \n');
 
 % Display axon discrimination result
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
 
@@ -1342,12 +1350,6 @@ guidata(hObject,handles);
 
 show_pre_process(handles);
  
-% axes(handles.plotseg);
-% if get(handles.Smoothing,'Value')==1
-%     imshow(as_gaussian_smoothing(handles.data.img));
-% else
-%     imshow(handles.data.img);
-% end
 
 guidata(hObject,handles);
 
@@ -1427,6 +1429,8 @@ handles.data.Step2_seg = im2bw(handles.data.Step2_seg+CH_object);
 guidata(hObject, handles);
 
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
     +sc(handles.data.Step1)));
 % 
@@ -1628,6 +1632,8 @@ handles.data.DA_accepted = Accepted_axons_img;
 
 % Update the axon discrimination display depending on the classifier used
 axes(handles.plotseg);
+
+% -1-
 imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
  
