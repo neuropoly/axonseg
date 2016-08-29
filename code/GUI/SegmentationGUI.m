@@ -87,9 +87,6 @@ set(handles.Transparency,'Value',0.7);
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes SegmentationGUI wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = SegmentationGUI_OutputFcn(hObject, eventdata, handles)
@@ -145,6 +142,30 @@ imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 
 
+%%%-------------- PRE-PROCESSING TOOLS ---------------------------------%%%
+
+function show_pre_process(handles)
+% function that controls the pre-processing options of the GUI and updates
+% the displays
+
+im_pre=handles.data.img;
+
+if get(handles.invertColor,'Value')==1
+    im_pre=imcomplement(handles.data.img);
+end
+
+if get(handles.histEq,'Value')==1
+    im_pre=histeq(im_pre,1);
+end
+
+if get(handles.Smoothing,'Value')==1
+    im_pre=as_gaussian_smoothing(im_pre);   
+end
+
+    axes(handles.plotseg);
+    imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
+
+
 % --- Executes on button press in invertColor.
 function handles=invertColor_Callback(hObject, eventdata, handles)
 % hObject    handle to invertColor (see GCBO)
@@ -155,26 +176,6 @@ show_pre_process(handles);
 
 guidata(hObject, handles);
 
-
-function show_pre_process(handles)
-
-im_pre=handles.data.img;
-
-if get(handles.invertColor,'Value')==1
-    im_pre=imcomplement(handles.data.img);
-end
-if get(handles.histEq,'Value')==1
-    im_pre=histeq(im_pre,1);
-end
-if get(handles.Smoothing,'Value')==1
-    im_pre=as_gaussian_smoothing(im_pre);   
-end
-    axes(handles.plotseg);
-    imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
-
-
-
-
 % --- Executes on button press in histEq.
 function handles=histEq_Callback(hObject, eventdata, handles)
 % hObject    handle to histEq (see GCBO)
@@ -184,6 +185,19 @@ function handles=histEq_Callback(hObject, eventdata, handles)
 show_pre_process(handles);
 
 guidata(hObject, handles);
+
+% --- Executes on button press in Smoothing.
+function Smoothing_Callback(hObject, eventdata, handles)
+% hObject    handle to Smoothing (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% guidata(hObject,handles);
+
+show_pre_process(handles);
+ 
+
+guidata(hObject,handles);
 
     
 % --- Executes on slider movement.
@@ -210,6 +224,12 @@ guidata(hObject, handles);
 
 
 
+
+
+
+
+
+
 % --- Executes on button press in roi_add.
 function roi_add_Callback(hObject, eventdata, handles)
 % hObject    handle to roi_add (see GCBO)
@@ -233,6 +253,16 @@ handles.data.img(roi)=0;
 axes(handles.plotseg)
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
+
+
+
+
+
+
+
+
+
+
 
 % --- Executes on button press in Go_0_to_1.
 function Go_0_to_1_Callback(hObject, eventdata, handles)
@@ -1340,18 +1370,7 @@ imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 
 guidata(hObject,handles);
 
 
-% --- Executes on button press in Smoothing.
-function Smoothing_Callback(hObject, eventdata, handles)
-% hObject    handle to Smoothing (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-guidata(hObject,handles);
-
-show_pre_process(handles);
- 
-
-guidata(hObject,handles);
 
 
 % --- Executes on button press in LevelSet_step1.
