@@ -99,6 +99,33 @@ function varargout = SegmentationGUI_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
+
+
+
+
+%%%-------------- STEP 0  ----------------------------------------------%%%
+
+% --- Executes on slider movement.
+function Transparency_Callback(hObject, eventdata, handles)
+% hObject    handle to Transparency (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function Transparency_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Transparency (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
 function PixelSize_Callback(hObject, eventdata, handles)
 % hObject    handle to PixelSize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -130,6 +157,23 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
+% --- Executes on button press in PixelSize_button.
+function PixelSize_button_Callback(hObject, eventdata, handles)
+% hObject    handle to PixelSize_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+PixelSize=as_improc_pixelsize/handles.reducefactor;
+if PixelSize
+    set(handles.PixelSize,'String',PixelSize);
+    set(handles.PixelSize,'Value',PixelSize);
+end
+
+
+handles.segParam.PixelSize=get(handles.PixelSize,'Value');
+
+guidata(hObject, handles);
+
 % --- Executes on button press in cropImage.
 function cropImage_Callback(hObject, eventdata, handles)
 % hObject    handle to cropImage (see GCBO)
@@ -141,8 +185,6 @@ handles.reducefactor=max(1,floor(size(handles.data.img,1)/1000));   % Max 1000 p
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 
-
-%%%-------------- PRE-PROCESSING TOOLS ---------------------------------%%%
 
 function show_pre_process(handles)
 % function that controls the pre-processing options of the GUI and updates
@@ -223,12 +265,16 @@ guidata(hObject, handles);
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
+% --- Executes during object creation, after setting all properties.
+function Deconv_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Deconv (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
 
-
-
-
-
-
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
 
 % --- Executes on button press in roi_add.
 function roi_add_Callback(hObject, eventdata, handles)
@@ -241,8 +287,6 @@ axes(handles.plotseg)
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
 
-
-
 % --- Executes on button press in cut_greymatter.
 function roi_substract_Callback(hObject, eventdata, handles)
 % hObject    handle to cut_greymatter (see GCBO)
@@ -253,16 +297,6 @@ handles.data.img(roi)=0;
 axes(handles.plotseg)
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 guidata(hObject, handles);
-
-
-
-
-
-
-
-
-
-
 
 % --- Executes on button press in Go_0_to_1.
 function Go_0_to_1_Callback(hObject, eventdata, handles)
@@ -285,10 +319,98 @@ set(handles.uipanel1, 'Visible', 'on');
 set(handles.uipanel0, 'Visible', 'off');
 guidata(hObject, handles);
 
+% --- Executes on button press in resetStep0.
+function resetStep0_Callback(hObject, eventdata, handles)
+% hObject    handle to resetStep0 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SegmentationGUI_OpeningFcn(hObject, eventdata, handles, handles.varargin)
+
+
+
+
+% --- Executes on button press in LoadSegParam.
+function LoadSegParam_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadSegParam (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Select segmentation parameters file to load
+
+[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+segparam_filepath = [PathName FileName];
+load(segparam_filepath);
+
+% % Disable buttons in step 0 to keep only the segmentation parameters loaded
+% 
+% set(handles.invertColor,'Enable','off');
+% set(handles.histEq,'Enable','off');
+% set(handles.Deconv,'Enable','off');
+
+% Get parameters from a SegParameters file
+set(handles.invertColor,'Value',SegParameters.invertColor);
+set(handles.histEq,'Value',SegParameters.histEq);
+set(handles.Deconv,'Value',SegParameters.Deconv);
+set(handles.Smoothing,'Value',SegParameters.Smoothing);
+
+set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+
+set(handles.initSeg,'Value',SegParameters.initSeg);
+set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
+set(handles.threshold,'Value',SegParameters.threshold);
+
+set(handles.minSize,'Value',SegParameters.minSize);
+set(handles.Circularity,'Value',SegParameters.Circularity);
+set(handles.Solidity,'Value',SegParameters.Solidity);
+% set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
+
+if isfield(SegParameters,'parameters')
+    
+% set(handles.parameters,'Value',SegParameters.parameters);
+% set(handles.parameters,'Value',SegParameters.parameters);
+
+handles.parameters=SegParameters.parameters;
+handles.classifier_final=SegParameters.DA_classifier;
+
+end
+
+% Update handles
+guidata(hObject,handles);
+
+
+
+%%%------------------- STEP 1 ------------------------------------------%%%
+
+
+
+% --- Executes on slider movement.
+function initSeg_Callback(hObject, eventdata, handles)
+% hObject    handle to initSeg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%--------------------------------------------------------------------------
+tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
+tmp=imfill(tmp,'holes'); %imshow(initialBW)
+
+%--------------------------------------------------------------------------
+axes(handles.plotseg)
+
+% -1-
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp))
+guidata(hObject, handles);
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min')  and get(hObject,'Max') to determine range of slider
+
 
 % --- Executes during object creation, after setting all properties.
-function Deconv_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Deconv (see GCBO)
+function initSeg_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to initSeg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -298,12 +420,82 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
-% --- Executes on button press in resetStep0.
-function resetStep0_Callback(hObject, eventdata, handles)
-% hObject    handle to resetStep0 (see GCBO)
+% Function initseg that 
+function im_out=initseg(im_in,heigthThresh)
+
+% im_out1 = imextendedmin(im_in,distThresh);
+% im_out2 = imextendedmin(im_in,distThresh-5);
+% im_out3 = imextendedmin(im_in,distThresh+5);
+% im_out=im_out1 | im_out2 | im_out3;
+% im_out=adaptivethreshold(im_in,7,distThresh);
+
+% Performs initial segmentation of axons & outputs the resulting image
+% (binary image with axon separation vs background)
+[im_out, handles.data.initialRejectBW] = axonInitialSegmentation(im_in, heigthThresh);
+
+
+% --- Executes when user moves the diffmaxMin slider
+function diffMaxMin_Callback(hObject, eventdata, handles)
+% hObject    handle to diffMaxMin (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-SegmentationGUI_OpeningFcn(hObject, eventdata, handles, handles.varargin)
+
+% Perform initial segmentation of the axons based on diffMaxMin value
+tmp=initseg(handles.data.Step1, get(handles.diffMaxMin,'Value'));
+
+% Show updated axon segmentation on screen
+axes(handles.plotseg);
+% -1-
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp));
+
+% Update handles
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function diffMaxMin_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to diffMaxMin (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function threshold_Callback(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
+tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
+
+% -4-
+sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
+% imshow(imfuse(handles.data.Step1,tmp));
+
+
+% --- Executes during object creation, after setting all properties.
+function threshold_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+
+
+
+
+
+
 
 % --- Executes on button press in Go_1_to_2.
 function Go_1_to_2_Callback(hObject, eventdata, handles)
@@ -380,85 +572,21 @@ set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
 
 
-% --- Executes on slider movement.
-function initSeg_Callback(hObject, eventdata, handles)
-% hObject    handle to initSeg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%--------------------------------------------------------------------------
-tmp=initseg(handles.data.Step1, get(handles.initSeg,'Value'));
-tmp=imfill(tmp,'holes'); %imshow(initialBW)
-
-%--------------------------------------------------------------------------
-axes(handles.plotseg)
-
-% -2-
-sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
-% imshow(imfuse(handles.data.Step1,tmp))
-guidata(hObject, handles);
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min')  and get(hObject,'Max') to determine range of slider
 
 
-% --- Executes during object creation, after setting all properties.
-function initSeg_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to initSeg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 
-% Function initseg that 
-function im_out=initseg(im_in,heigthThresh)
-
-% im_out1 = imextendedmin(im_in,distThresh);
-% im_out2 = imextendedmin(im_in,distThresh-5);
-% im_out3 = imextendedmin(im_in,distThresh+5);
-% im_out=im_out1 | im_out2 | im_out3;
-% im_out=adaptivethreshold(im_in,7,distThresh);
-
-% Performs initial segmentation of axons & outputs the resulting image
-% (binary image with axon separation vs background)
-[im_out, handles.data.initialRejectBW] = axonInitialSegmentation(im_in, heigthThresh);
+%%%------------------- STEP 2 ------------------------------------------%%%
 
 
-% --- Executes when user moves the diffmaxMin slider
-function diffMaxMin_Callback(hObject, eventdata, handles)
-% hObject    handle to diffMaxMin (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Perform initial segmentation of the axons based on diffMaxMin value
-tmp=initseg(handles.data.Step1, get(handles.diffMaxMin,'Value'));
-
-% Show updated axon segmentation on screen
-axes(handles.plotseg);
-% -3-
-sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
-% imshow(imfuse(handles.data.Step1,tmp));
-
-% Update handles
-guidata(hObject, handles);
 
 
-% --- Executes on slider movement.
-function threshold_Callback(hObject, eventdata, handles)
-% hObject    handle to threshold (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-tmp=handles.data.Step1<prctile(handles.data.Step1(:),100*get(handles.threshold,'Value'));
-tmp=bwmorph(tmp,'fill'); tmp=bwmorph(tmp,'close'); tmp=bwmorph(tmp,'hbreak'); tmp = bwareaopen(tmp,5); %imshow(tmp)
 
-% -4-
-sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1));
-% imshow(imfuse(handles.data.Step1,tmp));
+
+
+
+
 
 
 
@@ -555,21 +683,7 @@ set(handles.text_legend, 'Visible','off');
 guidata(hObject, handles);
 
 
-% --- Executes on button press in PixelSize_button.
-function PixelSize_button_Callback(hObject, eventdata, handles)
-% hObject    handle to PixelSize_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-PixelSize=as_improc_pixelsize/handles.reducefactor;
-if PixelSize
-    set(handles.PixelSize,'String',PixelSize);
-    set(handles.PixelSize,'Value',PixelSize);
-end
 
-
-handles.segParam.PixelSize=get(handles.PixelSize,'Value');
-
-guidata(hObject, handles);
 
 
 % --- Executes on slider movement.
@@ -584,10 +698,6 @@ imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',ha
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
 
-
-
-
-
 % --- Executes during object creation, after setting all properties.
 function circularity_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to circularity (see GCBO)
@@ -601,16 +711,7 @@ end
 
 
 
-% --- Executes during object creation, after setting all properties.
-function diffMaxMin_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to diffMaxMin (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 % --- Executes on slider movement.
 function maxSize_Callback(hObject, eventdata, handles)
@@ -622,7 +723,7 @@ function maxSize_Callback(hObject, eventdata, handles)
 handle.data.proc=maxSize(handles.data.Step2_seg,get(handles.maxSize,'Value'));
 axes(handles.plotseg)
 
-
+%-1-
 imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
 % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
 guidata(hObject, handles);
@@ -801,6 +902,143 @@ function minSize_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on slider movement.
+function AreaRatio_Callback(hObject, eventdata, handles)
+% hObject    handle to AreaRatio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Only select axons that validate the circularity criterion defined by user
+
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.AAchRatio;
+p=find(metric<get(handles.AreaRatio,'Value'));
+tmp(ismember(handles.stats_cc,p)==0)=0;
+
+% tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
+% tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+axes(handles.plotseg)
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function AreaRatio_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to AreaRatio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function Ellipticity_Callback(hObject, eventdata, handles)
+% hObject    handle to Ellipticity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+tmp=handles.data.Step2_seg;
+metric=handles.stats_step2.MinorMajorRatio;
+p=find(metric<get(handles.Ellipticity,'Value'));
+tmp(ismember(handles.stats_cc,p)==1)=0;
+
+% Only select axons that validate the circularity criterion defined by user
+% tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.Ellipticity,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+
+
+axes(handles.plotseg);
+
+% -1-
+imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
+    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
+
+% 
+% axes(handles.plotseg)
+% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+% 
+% % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function Ellipticity_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Ellipticity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function MajorAxis_Callback(hObject, eventdata, handles)
+% hObject    handle to MajorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+% Only select axons that validate the circularity criterion defined by user
+tmp = axonValidateMajorAxis(handles.data.Step2_seg, get(handles.MajorAxis,'Value'));
+
+% Show side-by-side segmentation obtained after step 2 VS segmentation
+% corrected by the circularity criterion
+axes(handles.plotseg)
+
+imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
+
+% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
+
+% handles.state.Circularity = get(handles.Circularity,'Value'); 
+
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function MajorAxis_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to MajorAxis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+
+
+
+%%%----------------- STEP 3 --------------------------------------------%%%
+
+
+
+
+
+
 
 
 
@@ -1059,16 +1297,7 @@ function text20_CreateFcn(hObject, eventdata, handles)
 
 
 
-% --- Executes during object creation, after setting all properties.
-function threshold_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to threshold (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
@@ -1080,56 +1309,6 @@ function text20_ButtonDownFcn(hObject, eventdata, handles)
 
 
 
-% --- Executes on button press in LoadSegParam.
-function LoadSegParam_Callback(hObject, eventdata, handles)
-% hObject    handle to LoadSegParam (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Select segmentation parameters file to load
-
-[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
-segparam_filepath = [PathName FileName];
-load(segparam_filepath);
-
-% % Disable buttons in step 0 to keep only the segmentation parameters loaded
-% 
-% set(handles.invertColor,'Enable','off');
-% set(handles.histEq,'Enable','off');
-% set(handles.Deconv,'Enable','off');
-
-% Get parameters from a SegParameters file
-set(handles.invertColor,'Value',SegParameters.invertColor);
-set(handles.histEq,'Value',SegParameters.histEq);
-set(handles.Deconv,'Value',SegParameters.Deconv);
-set(handles.Smoothing,'Value',SegParameters.Smoothing);
-
-set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
-
-set(handles.initSeg,'Value',SegParameters.initSeg);
-set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
-set(handles.threshold,'Value',SegParameters.threshold);
-
-set(handles.minSize,'Value',SegParameters.minSize);
-set(handles.Circularity,'Value',SegParameters.Circularity);
-set(handles.Solidity,'Value',SegParameters.Solidity);
-% set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
-set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
-
-if isfield(SegParameters,'parameters')
-    
-% set(handles.parameters,'Value',SegParameters.parameters);
-% set(handles.parameters,'Value',SegParameters.parameters);
-
-handles.parameters=SegParameters.parameters;
-handles.classifier_final=SegParameters.DA_classifier;
-
-end
-
-% Update handles
-guidata(hObject,handles);
 
 
 % % --- Executes on button press in LevelSetSeg.
@@ -1150,129 +1329,7 @@ guidata(hObject,handles);
 % % imshow(tmp)
 % guidata(hObject, handles);
 
-% --- Executes on slider movement.
-function AreaRatio_Callback(hObject, eventdata, handles)
-% hObject    handle to AreaRatio (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Only select axons that validate the circularity criterion defined by user
-
-tmp=handles.data.Step2_seg;
-metric=handles.stats_step2.AAchRatio;
-p=find(metric<get(handles.AreaRatio,'Value'));
-tmp(ismember(handles.stats_cc,p)==0)=0;
-
-% tmp = axonValidateEllipsity(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
-% tmp = axonValidatePerimeterRatio(handles.data.Step2_seg, get(handles.AreaRatio,'Value'));
-
-% Show side-by-side segmentation obtained after step 2 VS segmentation
-% corrected by the circularity criterion
-axes(handles.plotseg)
-
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
-
-% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
-
-% handles.state.Circularity = get(handles.Circularity,'Value'); 
-
-guidata(hObject,handles);
-
-
-
-
-% --- Executes during object creation, after setting all properties.
-function AreaRatio_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to AreaRatio (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
-% --- Executes on slider movement.
-function Ellipticity_Callback(hObject, eventdata, handles)
-% hObject    handle to Ellipticity (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-tmp=handles.data.Step2_seg;
-metric=handles.stats_step2.MinorMajorRatio;
-p=find(metric<get(handles.Ellipticity,'Value'));
-tmp(ismember(handles.stats_cc,p)==1)=0;
-
-% Only select axons that validate the circularity criterion defined by user
-% tmp = axonValidateMinorAxis(handles.data.Step2_seg, get(handles.Ellipticity,'Value'));
-
-% Show side-by-side segmentation obtained after step 2 VS segmentation
-% corrected by the circularity criterion
-
-
-axes(handles.plotseg);
-
-% -1-
-imshow(sc(get(handles.Transparency,'Value')*sc(im2bw(handles.data.Step2_seg-tmp),[1 0.5 0],im2bw(handles.data.Step2_seg-tmp))...
-    +get(handles.Transparency,'Value')*sc(tmp,[0 0.75 0],tmp)+sc(handles.data.Step1)));
-
-% 
-% axes(handles.plotseg)
-% imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
-% 
-% % imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
-
-% handles.state.Circularity = get(handles.Circularity,'Value'); 
-
-guidata(hObject,handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function Ellipticity_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Ellipticity (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
-% --- Executes on slider movement.
-function MajorAxis_Callback(hObject, eventdata, handles)
-% hObject    handle to MajorAxis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-% Only select axons that validate the circularity criterion defined by user
-tmp = axonValidateMajorAxis(handles.data.Step2_seg, get(handles.MajorAxis,'Value'));
-
-% Show side-by-side segmentation obtained after step 2 VS segmentation
-% corrected by the circularity criterion
-axes(handles.plotseg)
-
-imshowpair(sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1)),sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)),'montage');
-
-% imshowpair(imfuse(handles.data.Step1,handles.data.Step2_seg),imfuse(handles.data.Step1,tmp),'montage')
-
-% handles.state.Circularity = get(handles.Circularity,'Value'); 
-
-guidata(hObject,handles);
-
-% --- Executes during object creation, after setting all properties.
-function MajorAxis_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to MajorAxis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 % --- Executes on button press in DiscriminantAnalysis.
 function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
@@ -1395,26 +1452,6 @@ function LevelSet_step1_Callback(hObject, eventdata, handles)
 guidata(hObject,handles);
 
 
-% --- Executes on slider movement.
-function Transparency_Callback(hObject, eventdata, handles)
-% hObject    handle to Transparency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function Transparency_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Transparency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 
 % --- Executes on button press in remove_concavity.
