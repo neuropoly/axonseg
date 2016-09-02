@@ -27,7 +27,7 @@ Old tutorials:
 ## Post-Processing tools
 ![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/fig.png)
 
-**Reference**: Bégin, S., Dupont-Therrien, O., Bélanger, E., Daradich, A., Laffray, S., De Koninck, Y., Côté, D.C., 2014. Automated method for the segmentation and morphometry of nerve fibers in large-scale CARS images of spinal cord tissue. Biomed. Opt. Express, BOE 5, 4145–4161.
+**Reference**: [Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037](http://journal.frontiersin.org/article/10.3389/fninf.2016.00037/abstract)
 
 Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
 
