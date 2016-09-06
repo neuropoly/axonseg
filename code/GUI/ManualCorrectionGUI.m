@@ -70,6 +70,7 @@ function ManualCorrectionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 % Input 1 expected to be the image
+if length(varargin)<1, [varargin{1}, PathName]=uigetfile({'*.jpg;*.tif;*.png;*.gif','All Image Files';'*.nii;*.nii.gz','NIFTI files'}); varargin{1} = [PathName, varargin{1}]; end
 if strfind(varargin{1},'.nii')
     handles.img = load_nii_data(varargin{1});
 else
