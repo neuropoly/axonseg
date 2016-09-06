@@ -2,6 +2,8 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 %[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric);
 %[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric, displaytype, writeimg?);
 % metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
+% Units: gRatio in percents / axonEquivDiameter in  um x 10 /
+% myelinThickness in um x 10
 % displaytype {'axon' | 'myelin'} = 'myelin'
 % writeimg {img,0} = 0
 %
