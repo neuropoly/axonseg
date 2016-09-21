@@ -4,10 +4,10 @@ function varargout = ManualCorrectionGUI(varargin)
 %
 % path_img = uigetimagefile;
 % img_BW_test = imread(path_img);
-% 
+%
 % path_ctrl = uigetimagefile;
 % img_BW_control = imread(path_ctrl);
-% 
+%
 % ManualCorrectionGUI(path_img,path_ctrl);
 %
 %--------------------------------------------------------------------------
@@ -40,11 +40,11 @@ function varargout = ManualCorrectionGUI(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @ManualCorrectionGUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @ManualCorrectionGUI_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @ManualCorrectionGUI_OpeningFcn, ...
+    'gui_OutputFcn',  @ManualCorrectionGUI_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -70,22 +70,38 @@ function ManualCorrectionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 % Input 1 expected to be the image
+if length(varargin)<1, [varargin{1}, PathName]=uigetfile({'*.jpg;*.tif;*.png;*.gif','All Image Files';'*.nii;*.nii.gz','NIFTI files'}); varargin{1} = [PathName, varargin{1}]; end
 if strfind(varargin{1},'.nii')
     handles.img = load_nii_data(varargin{1});
 else
-    handles.img = imread(varargin{1});
+    handles.img = rgb2gray(imread(varargin{1}));
 end
 
 % Image is enhanced to help manual segmentation
 handles.img=adapthisteq(handles.img);
 
 % Input 2 expected to be initial binary mask
-handles.axsegfname=varargin{2};
-if strfind(handles.axsegfname,'.nii')
-    handles.bw_axonseg = load_nii_data(handles.axsegfname);
+if length(varargin)>1,
+    handles.axsegfname=varargin{2};
+    
+    
+    if strfind(handles.axsegfname,'.nii')
+        handles.bw_axonseg = load_nii_data(handles.axsegfname);
+    else
+        handles.bw_axonseg = imread(handles.axsegfname);
+    end
 else
-    handles.bw_axonseg = imread(handles.axsegfname);
+    [path, filename, ext]=fileparts(varargin{1});
+    handles.axsegfname = [path, filename, '_ManualSeg', ext];
+    handles.bw_axonseg = false(size(handles.img));
 end
+
+% Initialize variables:
+handles.length_y = size(handles.img,1);
+handles.length_x = size(handles.img,2);
+handles.current_mask = handles.bw_axonseg;
+handles.current_img = handles.img;
+handles.mask_position = [1 handles.length_y 1 handles.length_x];
 
 % Display image and initial mask on GUI
 axes(handles.axes1);
@@ -103,7 +119,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = ManualCorrectionGUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = ManualCorrectionGUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -163,27 +179,27 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
     try
         
         if get(handles.freehand,'Value')==1
-        roi_free=imfreehand;
+            roi_free=imfreehand;
         elseif get(handles.polygon,'Value')==1
-        roi_free=impoly;
-%         elseif get(handles.ellipse,'Value')==1
-%         roi_free=imellipse;
+            roi_free=impoly;
+            %         elseif get(handles.ellipse,'Value')==1
+            %         roi_free=imellipse;
         end
         
         coords=roi_free.getPosition;
         
         %%
         
-%         if isfield(handles, 'current_mask')
+        %         if isfield(handles, 'current_mask')
         
         % binary mask of the new axon in zoomed image
         bw_added=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
         
-%         else
-%             
-%         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-%         
-%         end
+        %         else
+        %
+        %         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+        %
+        %         end
         
         %%
         roi_free.delete
@@ -191,53 +207,53 @@ while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value')
         break
     end
     
-
-% bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-
-% if handles.zoom_value==1
-%     bw=bw_zoom;
-% else
-
-% if isfield(handles, 'current_mask')
-% bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
-% end
-
-% end
-
-% 
-% bw_zoom=bw_zoom|bw_added;
-
-% handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
-
-handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
-    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
-
-% handles.bw_axonseg=handles.bw_axonseg | bw;
-
-
-% alpha_Callback(hObject, eventdata, handles)
-
-guidata(hObject, handles);
-
-if isfield(handles, 'current_mask')
-
-length_y=handles.length_y;
-length_x=handles.length_x;
-
-display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
-sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
-
-else
     
-display_img=handles.img;
-display_mask=handles.bw_axonseg;
-sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
-
-end
-
-
-
+    % bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
+    
+    % if handles.zoom_value==1
+    %     bw=bw_zoom;
+    % else
+    
+    % if isfield(handles, 'current_mask')
+    % bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
+    % end
+    
+    % end
+    
+    %
+    % bw_zoom=bw_zoom|bw_added;
+    
+    % handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
+    
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
+        handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
+    
+    % handles.bw_axonseg=handles.bw_axonseg | bw;
+    
+    
+    % alpha_Callback(hObject, eventdata, handles)
+    
+    guidata(hObject, handles);
+    
+    if isfield(handles, 'current_mask')
+        
+        length_y=handles.length_y;
+        length_x=handles.length_x;
+        
+        display_img=handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
+        display_mask=handles.bw_axonseg(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+length_x);
+        sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+        
+    else
+        
+        display_img=handles.img;
+        display_mask=handles.bw_axonseg;
+        sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+        
+    end
+    
+    
+    
 end
 set(handles.add,'Value',0)
 
@@ -250,10 +266,10 @@ function remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume
-BW2=bwmorph(handles.bw_axonseg,'shrink',3);
-sc(handles.img,'r',BW2);
+BW2=bwmorph(handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)),'shrink',3);
+sc(handles.img(get(handles.slider_x,'Value')+1:get(handles.slider_x,'Value')+handles.length_y,get(handles.slider_y,'Value')+1:get(handles.slider_y,'Value')+handles.length_x),'r',BW2);
 try
-    handles.bw_axonseg=as_obj_remove(handles.bw_axonseg);
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=as_obj_remove(handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)));
 end
 alpha_Callback(hObject, eventdata, handles)
 guidata(hObject, handles);
@@ -288,23 +304,23 @@ function show_grid_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if get(handles.show_grid,'Value')==1
-    grid_size=3;    
+    grid_size=3;
     grid_row=round(length(handles.img2(:,1))/grid_size);
     grid_col=round(length(handles.img2(1,:))/grid_size);
-    handles.img2(grid_row:grid_row:end,:,:)=255;       
-    handles.img2(:,grid_col:grid_col:end,:)=255;       
+    handles.img2(grid_row:grid_row:end,:,:)=255;
+    handles.img2(:,grid_col:grid_col:end,:)=255;
     sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'copper')+sc(handles.img2))
 end
 guidata(hObject, handles);
 
 
-% 
-% if handles.Grid ==1 
-%     grid_size = 3;    
+%
+% if handles.Grid ==1
+%     grid_size = 3;
 %     grid_row = round(length(handles.img2(:,1))/grid_size);
 %     grid_col = round(length(handles.img2(1,:))/grid_size);
 %     handles.img2(grid_row:grid_row:end,:,:) = 255;       %# creat 3x3 grid over image to facilitate segmentation process
-%     handles.img2(:,grid_col:grid_col:end,:) = 255;       
+%     handles.img2(:,grid_col:grid_col:end,:) = 255;
 %     sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'copper')+sc(handles.img2))
 % else
 %     grid_size = 1;
@@ -348,11 +364,11 @@ length_x=round(size(handles.img,2)/zoom_val);
 
 handles.length_x=length_x;
 handles.length_y=length_y;
-  
-% 
+
+%
 % display_img=handles.img(1:round(end/zoom_val),1:round(end/zoom_val));
 % display_mask=handles.bw_axonseg(1:round(end/zoom_val),1:round(end/zoom_val));
-% 
+%
 
 
 % sc(get(handles.alpha,'Value')*sc(display_mask,'copper')+sc(display_img));
@@ -362,32 +378,32 @@ handles.length_y=length_y;
 
 
 if zoom_val>1
-
-set(handles.slider_x, 'Visible','on');
-set(handles.slider_y, 'Visible','on');
-set(handles.text3, 'Visible','on');
-set(handles.text4, 'Visible','on');
-
-set(handles.slider_x,'Max',size(handles.img,1)-length_y);
-set(handles.slider_x, 'SliderStep', [1/(size(handles.img,1)-length_y) , 20/(size(handles.img,1)-length_y) ]);   
-set(handles.slider_x,'Value',0);
-
-set(handles.slider_y,'Max',size(handles.img,2)-length_x);
-set(handles.slider_y, 'SliderStep', [1/(size(handles.img,2)-length_x) , 20/(size(handles.img,2)-length_x) ]);   
-set(handles.slider_y,'Value',0);
-
-update_display(hObject, eventdata, handles);
-
+    
+    set(handles.slider_x, 'Visible','on');
+    set(handles.slider_y, 'Visible','on');
+    set(handles.text3, 'Visible','on');
+    set(handles.text4, 'Visible','on');
+    
+    set(handles.slider_x,'Max',size(handles.img,1)-length_y);
+    set(handles.slider_x, 'SliderStep', [1/(size(handles.img,1)-length_y) , 20/(size(handles.img,1)-length_y) ]);
+    set(handles.slider_x,'Value',0);
+    
+    set(handles.slider_y,'Max',size(handles.img,2)-length_x);
+    set(handles.slider_y, 'SliderStep', [1/(size(handles.img,2)-length_x) , 20/(size(handles.img,2)-length_x) ]);
+    set(handles.slider_y,'Value',0);
+    
+    update_display(hObject, eventdata, handles);
+    
 else
     
-set(handles.slider_x, 'Visible','off');
-set(handles.slider_y, 'Visible','off');
-set(handles.text3, 'Visible','off');
-set(handles.text4, 'Visible','off');
+    set(handles.slider_x, 'Visible','off');
+    set(handles.slider_y, 'Visible','off');
+    set(handles.text3, 'Visible','off');
+    set(handles.text4, 'Visible','off');
     
-display_img=handles.img;
-display_mask=handles.bw_axonseg;
-sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+    display_img=handles.img;
+    display_mask=handles.bw_axonseg;
+    sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
     
 end
 
@@ -505,18 +521,18 @@ function region_growing_Callback(hObject, eventdata, handles)
 
 I = im2double(handles.current_img);
 
-[y,x]=getpts; 
-y=round(y); 
+[y,x]=getpts;
+y=round(y);
 x=round(x);
 
 if size(x)==1
-  J = regiongrowing(I,x,y);       
+    J = as_regiongrowing(I,x,y);
 else
-    J = regiongrowing(I,x(1),y(1));
+    J = as_regiongrowing(I,x(1),y(1));
     
     for i=2:size(x,1)
         
-        J_i = regiongrowing(I,x(i),y(i));   
+        J_i = as_regiongrowing(I,x(i),y(i));
         
         J = J|J_i;
     end
