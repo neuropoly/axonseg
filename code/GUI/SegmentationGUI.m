@@ -1960,9 +1960,26 @@ end
 
 % Call the slider_ROC_plot callback function to update classifier, ROC plot
 % & axon discrimination display
+
+
+handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
+               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.Quadratic, handles.Linear, handles.MyelinSeg];
+
+set(handleArray,'Enable','off');
+drawnow;
+
+
 slider_ROC_plot_Callback(hObject, eventdata, handles);
 
+set(handleArray,'Enable','on');
+
+
 guidata(hObject,handles);
+
+
+
+
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu_ROC_CreateFcn(hObject, eventdata, handles)
@@ -1985,6 +2002,13 @@ function slider_ROC_plot_Callback(hObject, eventdata, handles)
 % hObject    handle to slider_ROC_plot (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
+               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.Quadratic, handles.Linear, handles.MyelinSeg];
+
+set(handleArray,'Enable','off');
+drawnow;
 
 % Make sure the slider value is an integer
 float_value=get(handles.slider_ROC_plot,'Value');
@@ -2031,6 +2055,8 @@ GUI_display(2,get(handles.Transparency,'Value'), handles.data.Step1, handles.dis
 % -1-
 % imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
 %     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
+
+set(handleArray,'Enable','on');
  
 guidata(hObject,handles);
 
