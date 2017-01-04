@@ -74,7 +74,7 @@ if length(varargin)<1, [varargin{1}, PathName]=uigetfile({'*.jpg;*.tif;*.png;*.g
 if strfind(varargin{1},'.nii')
     handles.img = load_nii_data(varargin{1});
 else
-    handles.img = rgb2gray(imread(varargin{1}));
+    handles.img =imread(varargin{1});
 end
 
 % Image is enhanced to help manual segmentation
