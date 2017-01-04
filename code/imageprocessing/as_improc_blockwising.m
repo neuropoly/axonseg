@@ -38,7 +38,7 @@ for block=1:n_blocki*n_blockj
         block2=j:j+blocksize;
     end
     
-    if length(block1)>30 && length(block2)>30
+    if 1%length(block1)>30 && length(block2)>30
         imgcrop=img(block1,block2,:);
         
         im_cropProc=fun(imgcrop);
@@ -49,7 +49,7 @@ end
 
 
 im_array=im_array';
-j_progress('done..')
+disp('done..')
 
 function patch=sparcification(im_cropProc,imgcrop)
         patch.seg=sparse(im_cropProc(:));
