@@ -1388,7 +1388,7 @@ handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAna
                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
                handles.Quadratic, handles.Linear, handles.MyelinSeg];
 
-set(handleArray,'Enable','off');
+%set(handleArray,'Enable','off');
 drawnow;
 
 
@@ -1419,10 +1419,7 @@ backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1,get(handles.PixelSize,'Value'));
-handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
-
-handles.data.Step3_seg = as_myelinseg_to_axonseg(handles.data.seg);
+[~,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1,2/3,0,get(handles.PixelSize,'Value'));
 
 axes(handles.plotseg);
 sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper')+sc(border_removed_mask,[0.5 0.4 0.4], border_removed_mask));
@@ -1507,8 +1504,8 @@ drawnow;
 
 %------------------
 
-blocksize=500;
-overlap=round(0.1*blocksize);
+blocksize=100/get(handles.PixelSize,'Value');
+overlap=10/get(handles.PixelSize,'Value');
 
 %------------------
 

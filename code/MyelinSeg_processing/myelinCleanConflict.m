@@ -1,5 +1,10 @@
-function [myelinArray,myelinObjAboveThreshIdx] = myelinCleanConflict(myelinArray, im, conflictThresh)
-verbose = false;
+function [myelinArray,myelinObjAboveThreshIdx] = myelinCleanConflict(myelinArray, conflictThresh, im)
+if ~exist(im,'var')
+    verbose = false;
+else
+    verbose = true;
+end
+
 if nargin < 2
     conflictThresh = 0.1;
 end

@@ -1,6 +1,5 @@
 function segment=as_myelinseg2axonlist(seg,Pixelsize)
 % list=as_myelinseg_bw2list(seg,Pixelsize)
-disp(size(seg,3))
 emptyseg = find(~sum(sum(seg,1),2)); if ~isempty(emptyseg), seg(:,:,emptyseg)=[]; end
 stats=as_stats(seg,Pixelsize);
 if isempty(seg)

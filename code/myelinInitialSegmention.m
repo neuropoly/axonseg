@@ -1,10 +1,13 @@
-function [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off)
+function [axonlist, MyelinMask, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off,PixelSize)
 % [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
 % exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
 if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end
+if ~exist('conflictThresh','var'), conflictThresh=0.5; end
+
+
 maxi=max(max(max(im)));
 im=double(im);
 
@@ -21,8 +24,10 @@ im=sum(im,3);
 axonProp = regionprops(axonLabel, 'EquivDiameter');
 
 % numAxon = 10;
-initialArray = false(size(im, 1), size(im, 2), max(numAxon,1));
+ConflictsRatio = zeros(1,max(1,numAxon));
+MyelinMask = false(size(im, 1), size(im, 2), 1);
 throwIdx = false(numAxon, 1);
+axonlist = as_myelinseg2axonlist(MyelinMask,PixelSize);
 
 %% Parameters
 
@@ -36,7 +41,7 @@ if ~exist('khomo_off','var'),  khomo_off=0; end % homogeneous thickness 0
 % Meshgrid for computing the radial profiles
 [X,Y] = meshgrid(1:size(im, 2),1:size(im, 1));
 j_progress('Loop over axons...')
-for currentAxonLabel = 1:numAxon
+for currentAxonLabel = 1:50:numAxon
     j_progress(currentAxonLabel/numAxon)
     if verbose && mod(currentAxonLabel, 50) == 0
         fprintf('InitialSegmentation: processing object %i/%i\n', currentAxonLabel, numAxon);
@@ -204,7 +209,7 @@ for currentAxonLabel = 1:numAxon
     currentMyelinBWFilled = imfill(currentMyelinBW, 'holes');
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
     
-    initialArray(:, :, currentAxonLabel) = currentMyelinBW;
+    
     if verbose, figure(67), imagesc(imfuse(currentMyelinBW,im)); end
     %% Clean Up
     cc = bwconncomp(currentMyelinBW, 4);
@@ -213,8 +218,17 @@ for currentAxonLabel = 1:numAxon
     if cc.NumObjects > nObjToKeep || sum(sum(currentAxonBW & currentMyelinBW)) > 0
         throwIdx(currentAxonLabel) = true;
     end
-
     
+    axonlist(currentAxonLabel) = as_myelinseg2axonlist(currentMyelinBW,PixelSize);
+    %% Compute conflicts
+    Conflicts = MyelinMask & currentMyelinBW;
+    ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
+    
+    MyelinMask = MyelinMask | currentMyelinBW;
+end
+
+for currentAxonLabel = 1:length(axonlist)
+    axonlist(currentAxonLabel).conflict = ConflictsRatio(currentAxonLabel) ;
 end
 
 j_progress('elapsed')

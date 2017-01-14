@@ -42,20 +42,17 @@ end
 %% SEGMENTATION
 
 disp('Starting segmentation..')
-myelin_seg_results=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,1);
-% clean conflicts
-myelin_seg_results=as_blockwise_fun(@(x,y) myelinCleanConflict(x,y,0.5),myelin_seg_results, 1,0);
+axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
 
-save([output, 'bwmyelin_seg_results'], 'myelin_seg_results', 'blocksize', 'overlap', 'PixelSize', '-v7.3')
-[ axonlist ] = as_myelinseg_blocks_bw2list( myelin_seg_results, PixelSize, blocksize, overlap);
-img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
-img=as_improc_rm_overlap(img,blocksize,overlap);
+[ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap);
+img = handles.data.img;
+% img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
+% img=as_improc_rm_overlap(img,blocksize,overlap);
 
 
 %% SAVE
 % save axonlist
 save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
-delete([output, 'bwmyelin_seg_results.mat'])
 
 
 % save jpeg
@@ -72,7 +69,7 @@ RGB = ind2rgb8(myelin_map,hot(maxdiam*10));
 imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_(myelins)_0µm_' num2str(maxdiam) 'µm.jpg']);
 copyfile(which('colorbarhot.png'),output)
 
-function [im_out,AxSeg]=fullimage(im_in,segParam)
+function [axonlist,AxSeg]=fullimage(im_in,segParam)
 
 % Apply initial parameters (invertion, histogram equalization, convolution)
 % to the full image
@@ -109,4 +106,4 @@ end
 %Myelin Segmentation
 [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
 backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-[im_out] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1);
+[axonlist] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1,2/3,0,segParam.PixelSize);
