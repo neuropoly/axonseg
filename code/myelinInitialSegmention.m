@@ -41,7 +41,7 @@ if ~exist('khomo_off','var'),  khomo_off=0; end % homogeneous thickness 0
 % Meshgrid for computing the radial profiles
 [X,Y] = meshgrid(1:size(im, 2),1:size(im, 1));
 j_progress('Loop over axons...')
-for currentAxonLabel = 1:50:numAxon
+for currentAxonLabel = 1:numAxon
     j_progress(currentAxonLabel/numAxon)
     if verbose && mod(currentAxonLabel, 50) == 0
         fprintf('InitialSegmentation: processing object %i/%i\n', currentAxonLabel, numAxon);

@@ -1504,7 +1504,7 @@ drawnow;
 
 %------------------
 
-blocksize=100/get(handles.PixelSize,'Value');
+blocksize=300/get(handles.PixelSize,'Value');
 overlap=10/get(handles.PixelSize,'Value');
 
 %------------------
