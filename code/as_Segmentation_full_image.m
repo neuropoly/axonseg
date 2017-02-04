@@ -109,4 +109,4 @@ end
 %Myelin Segmentation
 [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
 backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-[axonlist] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1,2/3,0,segParam.PixelSize);
+[axonlist] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1,2/3,segParam.Regularize,segParam.PixelSize);

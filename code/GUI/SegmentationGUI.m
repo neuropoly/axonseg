@@ -23,7 +23,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 19-Sep-2016 16:10:00
+% Last Modified by GUIDE v2.5 03-Feb-2017 21:02:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -386,6 +386,7 @@ load(segparam_filepath);
 % set(handles.Deconv,'Enable','off');
 
 % Get parameters from a SegParameters file
+set(handles.PixelSize,'String',PixelSize)
 set(handles.invertColor,'Value',SegParameters.invertColor);
 set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
@@ -740,7 +741,7 @@ handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
 % handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
 handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
-
+handles.segParam.Regularize=get(handles.Regularize,'Value');
 % handles.segParam.parameters=get(handles.parameters,'Value');
 % handles.segParam.DA_classifier=get(handles.DA_classifier,'Value');
 
@@ -1393,7 +1394,7 @@ drawnow;
 
 
 %---
-
+handles.segParam = get(handles.Regularize,'value');
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
@@ -1419,7 +1420,7 @@ backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[~,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1,2/3,0,get(handles.PixelSize,'Value'));
+[~,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,get(handles.Regularize,'Value'),2/3,0,get(handles.PixelSize,'Value'));
 
 axes(handles.plotseg);
 sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper')+sc(border_removed_mask,[0.5 0.4 0.4], border_removed_mask));
@@ -1497,10 +1498,17 @@ cla(handles.ROC_curve);
 
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear];
+               handles.Quadratic, handles.Linear, handles.Regularize];
 
 set(handleArray,'Enable','off');
 drawnow;
+
+handles.segParam.Regularize = get(handles.Regularize,'value');
+SegParameters=handles.segParam; 
+PixelSize=get(handles.PixelSize,'Value');
+handles.segParam.PixelSize=PixelSize;
+
+save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
 %------------------
 
@@ -1641,7 +1649,7 @@ fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear];
+               handles.Quadratic, handles.Linear, handles.Regularize];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -2115,3 +2123,12 @@ function edit_test_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in Regularize.
+function Regularize_Callback(hObject, eventdata, handles)
+% hObject    handle to Regularize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Regularize
