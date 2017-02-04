@@ -401,7 +401,6 @@ set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
 set(handles.threshold,'Value',SegParameters.threshold);
 
 set(handles.minSize,'Value',SegParameters.minSize);
-set(handles.Circularity,'Value',SegParameters.Circularity);
 set(handles.Solidity,'Value',SegParameters.Solidity);
 % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
 set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
@@ -737,7 +736,6 @@ handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
 handles.segParam.threshold=get(handles.threshold,'Value');
 
 handles.segParam.minSize=get(handles.minSize,'Value');
-handles.segParam.Circularity=get(handles.Circularity,'Value');
 handles.segParam.Solidity=get(handles.Solidity,'Value');
 % handles.segParam.AreaRatio=get(handles.AreaRatio,'Value');
 handles.segParam.Ellipticity=get(handles.Ellipticity,'Value');
@@ -1394,7 +1392,7 @@ drawnow;
 
 
 %---
-handles.segParam = get(handles.Regularize,'value');
+handles.segParam.Regularize = get(handles.Regularize,'value');
 SegParameters=handles.segParam; 
 PixelSize=get(handles.PixelSize,'Value');
 save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
