@@ -25,9 +25,7 @@ axonProp = regionprops(axonLabel, 'EquivDiameter');
 
 % numAxon = 10;
 ConflictsRatio = zeros(1,max(1,numAxon));
-MyelinMask = false(size(im, 1), size(im, 2), 1);
 throwIdx = false(numAxon, 1);
-axonlist = as_myelinseg2axonlist(MyelinMask,PixelSize);
 
 %% Parameters
 
@@ -196,21 +194,13 @@ for currentAxonLabel = 1:numAxon
     yyppext = ppval(ppext, linspace(2*pi,4*pi,100))';
     yyppint = ppval(ppint, linspace(2*pi,4*pi,100))';
     %% Transform polygon to binary image
-    currentMyelinBW = imfill(poly2mask(yyppext(:, 1), yyppext(:, 2), size(im, 1), size(im, 2)), 'holes');
-    currentAxonBW = imfill(poly2mask(yyppint(:, 1), yyppint(:, 2), size(im, 1), size(im, 2)), 'holes');
-    %     currentMyelinBW = bwmorph(currentMyelinBW, 'majority');
-    %     currentMyelinBW = bwmorph(currentMyelinBW, 'close');
-    %     currentMyelinBW = bwmorph(currentMyelinBW, 'thicken', 1);
-    currentMyelinBW = xor(currentMyelinBW, currentAxonBW);
-    
-    currentMyelinBW = bwmorph(currentMyelinBW, 'diag');
-    
-    % Fill holes except for the axon
-    currentMyelinBWFilled = imfill(currentMyelinBW, 'holes');
+    minyyppext = min(yyppext,[],1);     maxyyppext = max(yyppext,[],1);
+    masksize = ceil(maxyyppext - minyyppext);
+    currentMyelinBWFilled = imfill(poly2mask(yyppext(:, 1) - minyyppext(1), yyppext(:, 2) - minyyppext(2), masksize(2), masksize(1)), 'holes');
+    currentAxonBW = imfill(poly2mask(yyppint(:, 1) - minyyppext(1), yyppint(:, 2) - minyyppext(2), masksize(2), masksize(1)), 'holes');
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
-    
-    
-    if verbose, figure(67), imagesc(imfuse(currentMyelinBW,im)); end
+        
+    if verbose, figure(67), imagesc(imfuse(currentMyelinBW,im(minyyppext(2):(minyyppext(2)+masksize(2)),minyyppext(1):(minyyppext(1)+masksize(1))))); end
     %% Clean Up
     cc = bwconncomp(currentMyelinBW, 4);
     nObjToKeep = 1;
@@ -220,11 +210,19 @@ for currentAxonLabel = 1:numAxon
     end
     
     axonlist(currentAxonLabel) = as_myelinseg2axonlist(currentMyelinBW,PixelSize);
-    %% Compute conflicts
-    Conflicts = MyelinMask & currentMyelinBW;
-    ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
-    
-    MyelinMask = MyelinMask | currentMyelinBW;
+    axonlist(currentAxonLabel) = as_axonlist_changeorigin(axonlist(currentAxonLabel),round(minyyppext(1,[2 1])));
+
+%     %% Compute conflicts
+%     Conflicts = MyelinMask & currentMyelinBW;
+%     ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
+     
+end
+
+% for currentAxonLabel = 1:length(axonlist)
+%     axonlist(currentAxonLabel).conflict = ConflictsRatio(currentAxonLabel) ;
+% end
+if nargout>1
+    MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'myelin');
 end
 
 for currentAxonLabel = 1:length(axonlist)
