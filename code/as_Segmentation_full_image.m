@@ -60,13 +60,16 @@ save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 axons_map=as_display_label(axonlist, size(img),'axonEquivDiameter','axon');
 maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
 RGB = ind2rgb8(axons_map,hot(maxdiam*10));
-img_diam=0.5*RGB+0.5*repmat(img,[1 1 3]); img_diam=img_diam(1:2:end,1:2:end,:); % divide resolution by two --> some bugs in large images: https://www.mathworks.com/matlabcentral/answers/299662-imwrite-generates-incorrect-files-by-mixing-up-colors
+img_diam=0.5*RGB+0.5*repmat(img,[1 1 3]);
+reducefactor=max(1,floor(max(size(img))/25000));   img_diam=img_diam(1:reducefactor:end,1:reducefactor:end,:); % reduce resolution to Max 25000 pixels --> some bugs in large images: https://www.mathworks.com/matlabcentral/answers/299662-imwrite-generates-incorrect-files-by-mixing-up-colors
 imwrite(img_diam,[output 'axonEquivDiameter_(axons)_0µm_' num2str(maxdiam) 'µm.jpg'])
 
 % save myelin display
 myelin_map=as_display_label(axonlist, size(img),'axonEquivDiameter','myelin');
 RGB = ind2rgb8(myelin_map,hot(maxdiam*10));
-imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_(myelins)_0µm_' num2str(maxdiam) 'µm.jpg']);
+img_diam = 0.5*RGB+0.5*repmat(img,[1 1 3]);
+reducefactor=max(1,floor(max(size(img))/25000));   img_diam=img_diam(1:reducefactor:end,1:reducefactor:end,:); % reduce resolution to Max 25000 pixels --> some bugs in large images: https://www.mathworks.com/matlabcentral/answers/299662-imwrite-generates-incorrect-files-by-mixing-up-colors
+imwrite(img_diam,[output 'axonEquivDiameter_(myelins)_0µm_' num2str(maxdiam) 'µm.jpg']);
 copyfile(which('colorbarhot.png'),output)
 
 function [axonlist,AxSeg]=fullimage(im_in,segParam)
