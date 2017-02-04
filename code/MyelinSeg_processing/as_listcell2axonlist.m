@@ -1,5 +1,5 @@
-function [ axonlist ] = as_listcell2axonlist( listcell, blocksize, overlap)
-% as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap)
+function [ axonlist ] = as_listcell2axonlist( listcell, blocksize, overlap, PixelSize)
+% as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap, PixelSize)
 
 % change origin of each block
 for nb=1:length(listcell(:))
@@ -20,7 +20,7 @@ if ~isempty(centroids)
     rm=false(length(axonlist),1);
     for x=1:size(axonlistcell,1)
         for y=1:size(axonlistcell,2)
-            rm(axonlistcell{x,y})=as_axonlist_distance_closerthandiameter(axonlist(axonlistcell{x,y}),0.5);
+            rm(axonlistcell{x,y})=as_axonlist_distance_closerthandiameter(axonlist(axonlistcell{x,y}),0.5,PixelSize);
         end
     end
     axonlist(rm)=[]; % if axons have been segmented twice.. careful

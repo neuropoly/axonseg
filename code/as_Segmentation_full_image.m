@@ -44,7 +44,7 @@ end
 disp('Starting segmentation..')
 axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
 
-[ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap);
+[ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
 img = imadjust(handles.data.img);
 % img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
 % img=as_improc_rm_overlap(img,blocksize,overlap);
