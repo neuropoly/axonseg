@@ -5,7 +5,6 @@ if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end
-if ~exist('conflictThresh','var'), conflictThresh=0.5; end
 
 
 maxi=max(max(max(im)));
@@ -24,7 +23,6 @@ im=sum(im,3);
 axonProp = regionprops(axonLabel, 'EquivDiameter');
 
 % numAxon = 10;
-ConflictsRatio = zeros(1,max(1,numAxon));
 throwIdx = false(numAxon, 1);
 
 %% Parameters
@@ -77,14 +75,14 @@ for currentAxonLabel = 1:numAxon
     [radialProfileStartpoint, radialProfileEndpoint] = computeProfileEndpoint(fliplr(currentAxonBoundary{1}), radialProfileLength, numAnglesRadialProfile);
     
     %% Compute the radial profiles on the images
-    allOtherAxonBW = xor(axonBW, currentAxonBW);
+    allOtherAxonBW = xor(axonBW, currentAxonBW) | backBW;
     % Thicken all the axon but the current one to prevent oversegmenting
     %allOtherAxonBW = bwmorph(allOtherAxonBW, 'thicken', 20);
     for i=1:numAnglesRadialProfile
         xCoord(:, i) = linspace(radialProfileStartpoint(i, 1),radialProfileEndpoint(i, 1), radialProfileNumPix)';
         yCoord(:, i) = linspace(radialProfileStartpoint(i, 2),radialProfileEndpoint(i, 2), radialProfileNumPix)';
         imRadialProfile(i, :) = qinterp2(X,Y,im,xCoord(:, i)',yCoord(:, i)', 2);
-        maskRadialProfile(i, :) = qinterp2(X,Y,(allOtherAxonBW | backBW),xCoord(:, i)',yCoord(:, i)', 0);
+        maskRadialProfile(i, :) = qinterp2(X,Y,allOtherAxonBW,xCoord(:, i)',yCoord(:, i)', 0);
     end
     for thick_times=1:3
         maskRadialProfile=bwmorph(maskRadialProfile,'thicken');
