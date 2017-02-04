@@ -225,8 +225,15 @@ if nargout>1
     MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'myelin');
 end
 
-for currentAxonLabel = 1:length(axonlist)
-    axonlist(currentAxonLabel).conflict = ConflictsRatio(currentAxonLabel) ;
+%% Compute conflicts
+[~,Mclose] = as_axonlist_distance_closerthandiameter(axonlist,2,PixelSize);
+for iax = 1:length(axonlist)
+    otheraxonsdata = cat(1,axonlist(Mclose(:,iax)).data);
+    if ~isempty(otheraxonsdata)
+        axonlist(iax).conflict = sum(ismember(axonlist(iax).data,otheraxonsdata,'rows'))./size(axonlist(iax).data,1);
+    else
+        axonlist(iax).conflict = [];
+    end
 end
 
 j_progress('elapsed')
