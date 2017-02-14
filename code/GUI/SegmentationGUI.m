@@ -1419,7 +1419,7 @@ backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1,get(handles.PixelSize,'Value'));
+[handles.data.seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,1);
 handles.data.seg = myelinCleanConflict(handles.data.seg,1,0.5);
 
 handles.data.Step3_seg = as_myelinseg_to_axonseg(handles.data.seg);

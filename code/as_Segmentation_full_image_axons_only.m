@@ -1,4 +1,4 @@
-function as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output)
+function as_Segmentation_full_image_axons_only(im_fname,SegParameters,blocksize,overlap,output)
 % as_Segmentation_full_image(im_fname,SegParameters,blocksize (# of pixels),overlap,output)
 % as_Segmentation_full_image('Control_2.tif', 'SegParameters.mat',2000,100,'Control_2_results')
 %
@@ -42,15 +42,13 @@ end
 %% SEGMENTATION
 
 disp('Starting segmentation..')
-Seg_results=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,1);
-if SegParameters.do_myelin
-    % clean conflicts
-    Seg_results=as_blockwise_fun(@(x,y) myelinCleanConflict(x,y,0.5),Seg_results, 1,0);
-end
+AxSeg=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,1);
+% clean conflicts
+%AxSeg=as_blockwise_fun(@(x,y) myelinCleanConflict(x,y,0.5),AxSeg, 1,0);
 
-save([output, 'bwmyelin_seg_results'], 'Seg_results', 'blocksize', 'overlap', 'PixelSize', '-v7.3')
-[ axonlist ] = as_myelinseg_blocks_bw2list( Seg_results, PixelSize, blocksize, overlap, SegParameters.do_myelin);
-img=cell2mat(cellfun(@(x) x.img, Seg_results,'Uniformoutput',0));
+save([output, 'bwmyelin_seg_results'], 'myelin_seg_results', 'blocksize', 'overlap', 'PixelSize', '-v7.3')
+[ axonlist ] = as_myelinseg_blocks_bw2list( AxSeg, PixelSize, blocksize, overlap);
+img=cell2mat(cellfun(@(x) x.img, AxSeg,'Uniformoutput',0));
 img=as_improc_rm_overlap(img,blocksize,overlap);
 
 
@@ -84,20 +82,8 @@ if segParam.histEq, im_in=histeq(im_in,segParam.histEq); end;
 if segParam.Deconv,im_in=Deconv(im_in,segParam.Deconv); end;
 if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
 
-% Step1 - initial axon segmentation using the 3 parameters given
-
-% if segParam.LevelSet
-%     
-%     LevelSet_results=as_LevelSet_method(im_in);
-%     AxSeg=LevelSet_results.img;
-% 
-% else
-    
 AxSeg=step1_full(im_in,segParam);    
     
-% end
-
-
 % Step 2 - discrimination for axon segmentation
 
 if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
@@ -106,12 +92,9 @@ else
     AxSeg=step2_full(AxSeg,segParam);
 end
 
+[im_out]=AxSeg;
 
-if segParam.do_myelin==0
-    im_out = AxSeg;
-else
-    %Myelin Segmentation
-    [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
-    backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-    [im_out] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1);
-end
+% %Myelin Segmentation
+% [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
+% backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
+% [im_out] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1);

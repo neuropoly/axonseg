@@ -2,11 +2,11 @@ function  img_array=as_blockwise_fun(fun,img_array,im_input, verbose)
 % st=as_blockwise_fun(fun,img_array,im_input,verbose?)
 dbstop if error
 sparcity=issparse(img_array{1,1}.seg); % for sparse 3D blocks
-disp('loop over blocks')
+disp('Loop over blocks.')
 nb=size(img_array,1)*size(img_array,2);
 tic
 for i=1:nb
-    disp(['process block #' num2str(i) ' over ' num2str(nb)]);
+    disp(['Process block #' num2str(i) ' over ' num2str(nb)]);
         if issparse(img_array{i}.seg) % for sparse 3D blocks
             seg=as_improc_reshape_patch(img_array{i});
         else % for 2D segmentation blocks
@@ -29,4 +29,4 @@ for i=1:nb
         %        end
 end
 toc
-disp('merci')
+disp('Done.')

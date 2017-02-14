@@ -10,7 +10,7 @@ if ~exist('sparsify','var'), sparsify=1; end
 n_blocki=length(1:(blocksize-overlap):m);
 n_blockj=length(1:(blocksize-overlap):n);
 
-disp(['loop over blocks of ' num2str(blocksize) ' pixels (' num2str(n_blocki*n_blockj) ' blocks in total) :'])
+disp(['Loop over blocks of ' num2str(blocksize) ' pixels (' num2str(n_blocki*n_blockj) ' blocks in total) :'])
 im_array=cell(n_blockj,n_blocki);
 
 if isdeployed && license('checkout','Distrib_Computing_Toolbox') && n_blocki*n_blockj>10
@@ -21,7 +21,7 @@ for block=1:n_blocki*n_blockj
     j=1+(blocksize-overlap)*(mod(block-1,n_blockj));
     i=1+(blocksize-overlap)*(block-mod(block-1,n_blockj)-1)/n_blockj;
     
-    disp(['processing block #' num2str(block) ' over ' num2str(n_blocki*n_blockj) ' blocks'])
+    disp(['Processing block #' num2str(block) ' over ' num2str(n_blocki*n_blockj) ' blocks'])
     
     if i+blocksize>m && j+blocksize>n
         block1=i:m;
@@ -49,7 +49,7 @@ end
 
 
 im_array=im_array';
-j_progress('done..')
+j_progress('Done.')
 
 function patch=sparcification(im_cropProc,imgcrop)
         patch.seg=sparse(im_cropProc(:));

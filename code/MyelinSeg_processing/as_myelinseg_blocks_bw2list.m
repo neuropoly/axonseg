@@ -1,8 +1,10 @@
-function [ axonlist ] = as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap)
-% as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap)
+function [ axonlist ] = as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap, myelin)
+% as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap, myelin)
+
+if ~exist('myelin','var'), myelin=1; end
 
 %% Extract metrics from segmentation:
-listcell=as_blockwise_fun(@(x) as_myelinseg2axonlist(x,PixelSize),myelin_seg_results,0,0);
+listcell=as_blockwise_fun(@(x) as_myelinseg2axonlist(x,PixelSize, myelin),myelin_seg_results,0,0);
 
 %% Post processing
 % change origin of each block
@@ -15,7 +17,13 @@ end
 % list of cell 2 one list only
 axonlist(length(listcell(:)))=listcell{end};
 [axonlist.seg]=deal(listcell{:});
-axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(logical([axonlist.myelinAera])); % weird but works (fast).. keep everything
+axonlist=cat(2,axonlist.seg);
+
+
+
+
+axonlist=cat(1,axonlist.seg); 
+axonlist=axonlist(logical([axonlist.myelinAera])); % weird but works (fast).. keep everything
 
 % remove axons that have been segmented twice
 centroids=cat(1,axonlist.Centroid);

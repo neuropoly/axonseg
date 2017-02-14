@@ -1,5 +1,8 @@
-function [AXstat, MorphoStat]=as_stats(myelinseg,pixelSize)
+function AXstat =as_stats(myelinseg,pixelSize,myelin)
 % statis=as_stats(myelinseg,pixelSize)
+if ~exist('myelin','var'), myelin=1; end
+
+
 myelinseg=reshape2D(myelinseg,1);
 cc = bwconncomp(myelinseg, 4);
 prop =regionprops(cc, {'Area', 'FilledArea'});
@@ -12,21 +15,31 @@ if ~isempty(prop)
     % Area gives myelin area & FilledArea gives (myelin+axon) area
     area = [[prop.Area]' [prop.FilledArea]'-[prop.Area]'];
     % Calculate myelin area by using pixel size
-    AXstat.myelinArea = single(area(:, 1).*pixelSize^2);
+    if myelin
+        AXstat.myelinArea = single(area(:, 1).*pixelSize^2);
+    end
     % Calculate axon area by using pixel size
-    AXstat.axonArea = single(area(:, 2).*pixelSize^2);
+    if myelin
+        AXstat.axonArea = single(area(:, 2).*pixelSize^2);
+    else
+        AXstat.axonArea = single(area(:, 1).*pixelSize^2);
+    end
     % Myelin equiv. diameter = sqrt(4*TotalArea/pi)
-    AXstat.myelinEquivDiameter = single(sqrt(4*(AXstat.myelinArea + AXstat.axonArea)/pi));
+    if myelin
+        AXstat.myelinEquivDiameter = single(sqrt(4*(AXstat.myelinArea + AXstat.axonArea)/pi));
+    end
     % Axon equiv. diameter = sqrt(4*AxonArea/pi)
     AXstat.axonEquivDiameter = single(sqrt(4*AXstat.axonArea/pi));
     % Calculate gRatio
-    AXstat.gRatio = single(AXstat.axonEquivDiameter ./ AXstat.myelinEquivDiameter);
-    % Myelin thickness = (MyelinDiam - AxonDiam)/2
-    AXstat.myelinThickness = single((AXstat.myelinEquivDiameter - AXstat.axonEquivDiameter) / 2);
+    if myelin
+        AXstat.gRatio = single(AXstat.axonEquivDiameter ./ AXstat.myelinEquivDiameter);
+        % Myelin thickness = (MyelinDiam - AxonDiam)/2
+        AXstat.myelinThickness = single((AXstat.myelinEquivDiameter - AXstat.axonEquivDiameter) / 2);
+    end
     
-%     if nargout>0
-%         MorphoStat.circularity=;
-%     end
+    %     if nargout>0
+    %         MorphoStat.circularity=;
+    %     end
 end
 
 

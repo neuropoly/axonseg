@@ -91,13 +91,15 @@ bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
 img_BW_axons=im2bw(bw_axonseg,0);
 imshow(img_BW_axons);
 
+imwrite(img_BW_axons,'AxonMask_AxonSeg.tif');
+
 % Get the binary image of myelin objects
 
 bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
 img_BW_myelins=im2bw(bw_axonseg,0);
 imshow(img_BW_myelins);
 
-imwrite(img_BW_myelins,'myelins_masked.tif');
+imwrite(img_BW_myelins,'MyelinMask_AxonSeg.tif');
 
 % Get the binary image of entire fibers (axon + myelin)
 
@@ -132,7 +134,7 @@ MVF=myelin_area/total_area;
 
 % create and load a RGB mask with different ROIs
 
-mask=imread('mask.png');
+mask=imread('mask_2.png');
 imshow(mask);
 
 % Register the mask on the image
@@ -142,15 +144,22 @@ imshow(mask);
 % Get indexes of axons belonging to each ROI of the mask in order to
 % compute statistics
 
-indexes=as_stats_mask_labeled(axonlist, mask_reg_labeled);
+[indexes,mask_stats]=as_stats_mask_labeled_2(axonlist, mask_reg_labeled,0.1);
 
 % Compute statistics for each ROI and plot results
+as_stats_barplot_2(mask_stats,P_color);
+
+
+
+
+
 
 as_stats_barplot(axonlist,indexes,P_color);
 
 
 
 
+[mean_gap_axon]=gap_axons(axonlist,PixelSize,3);
 
 
 
