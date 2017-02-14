@@ -1,16 +1,9 @@
-function [mask_reg_labeled, P_color]=as_reg_mask(mask,img)
+function [mask_reg_labeled, P_color]=as_reg_mask_2(mask,img)
 % For a given mask & an image, the function finds the registration between
 % the two. The outputs are the registered & labeled mask (each region of
 % the mask has a different label according to the labeling done by the
 % user. The second output is the color vector giving the color for each
 % labeled region.
-%
-
-% img_path_1 = uigetimagefile;
-% mask = imread(img_path_1);
-% 
-% img_path_2 = uigetimagefile;
-% img = imread(img_path_2);
 %
 % Ex: [mask_reg_labeled, P_color]=as_reg_mask(mask,img);
 
@@ -36,6 +29,8 @@ P_color = impixel(mask_reg(:,:,:));
 % mask_reg = repmat(mask_reg,[1 1 3]);
 
 mask_reg_labeled=int8(false(size(mask_reg,1),size(mask_reg,2)));
+
+
 m=5;
 for il=1:size(P_color,1)
 mask_reg_labeled=mask_reg_labeled+il*int8(mask_reg(:,:,1)>P_color(il,1)-m & mask_reg(:,:,1)<P_color(il,1)+m ...
@@ -51,5 +46,3 @@ imwrite(uint8(mask_reg_labeled),'Mask_labeled.tif');
 imshow(mask_reg_labeled);
 
 end
-
-
