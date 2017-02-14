@@ -224,6 +224,8 @@ if nargout>1
 end
 
 %% Compute conflicts
+rm = find(cellfun(@isempty,{axonlist.Centroid}));
+axonlist(rm)=[];
 [~,Mclose] = as_axonlist_distance_closerthandiameter(axonlist,2,PixelSize);
 for iax = 1:length(axonlist)
     otheraxonsdata = cat(1,axonlist(Mclose(:,iax)).data);
