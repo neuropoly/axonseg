@@ -1,5 +1,5 @@
 # AxonSeg: Axon Segmentation Toolbox
-Segment axon and myelin from microscopy data. Written in Matlab.
+Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 
 ## Installation
 
@@ -22,10 +22,11 @@ Old tutorials:
   * **myelinInitialSegmention** : Segment myelin using axon segmentation as input -->  https://drive.google.com/open?id=0B2Xe6kvfjHHncWVRMG5mS3JZQUE
 
 ## Segment any type of histology
-![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/fig_intro.png)
+![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/various_modalities.png)
 
 ## Post-Processing tools
-![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/fig.png)
+![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/stats_extraction.png)
+![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/histo_MRI.png)
 
 **Reference**: [Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037](http://journal.frontiersin.org/article/10.3389/fninf.2016.00037/abstract)
 

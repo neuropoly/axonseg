@@ -77,13 +77,13 @@ for x=1:length(Xcoords)
                 myelinseg=~~as_display_label(as_axonlist_changeorigin(axonlist(inpixel),-[Xcoords(x) Ycoords(y)]),cellsize,'axonEquivDiameter','myelin',0,0);
                 % Calculate myelin volume fraction = myelin pixels / total
                 % pixels of cell
-                MTV=sum(myelinseg(:))/(cellsize(1)*cellsize(2));
+                MVF=sum(myelinseg(:))/(cellsize(1)*cellsize(2));
                 % Another stat added = MTV in each downsample cell
-                stats_downsample(x,y,end-1)=MTV;
+                stats_downsample(x,y,end-1)=MVF;
                 % Get axon display of current cell
                 axonseg=~~as_display_label(as_axonlist_changeorigin(axonlist(inpixel),-[Xcoords(x) Ycoords(y)]),cellsize,'axonEquivDiameter','axon',0,0);
                 % calculate fr = AVF/(1-MVF) and add it as stat
-                fr=sum(axonseg(:))/(cellsize(1)*cellsize(2))/(1-MTV);
+                fr=sum(axonseg(:))/(cellsize(1)*cellsize(2))/(1-MVF);
                 stats_downsample(x,y,end)=fr;
             end
         end
@@ -94,7 +94,7 @@ end
 sFields{end+1}='Number_axons';
 sFields{end+1}='axonEquivDiameter_std';
 sFields{end+1}='axonEquivDiameter_axonvolumeCorrected';
-sFields{end+1}='MTV';
+sFields{end+1}='MVF';
 sFields{end+1}='fr';
 
 % if outputstats true

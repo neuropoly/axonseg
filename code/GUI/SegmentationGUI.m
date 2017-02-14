@@ -1541,8 +1541,6 @@ function text20_ButtonDownFcn(hObject, eventdata, handles)
 
 % 
 % 
-% <<<<<<< HEAD
-% =======
 % --- Executes on button press in LoadSegParam.
 function LoadSegParam_Callback(hObject, eventdata, handles)
 % hObject    handle to LoadSegParam (see GCBO)
@@ -1594,7 +1592,6 @@ if FileName
 end
 % Update handles
 guidata(hObject,handles);
-% >>>>>>> b9397d0ebc725f27a00cabafb1f722c7fb566f8e
 
 
 % % --- Executes on button press in LevelSetSeg.
