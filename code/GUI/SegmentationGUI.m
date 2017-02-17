@@ -84,6 +84,10 @@ imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 set(handles.histEq,'Value',0);
 set(handles.Transparency,'Value',0.7);
 
+% undock figure
+set(gcf,'windowstyle','modal');
+set(gcf,'windowstyle','normal');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1348,9 +1352,9 @@ set(handles.text_slider_ROC_plot, 'Visible','off');
 
 set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','on');
-set(handles.ROC_panel, 'Visible','off');
+set(handles.text_legend, 'Visible','on');
 
-set(handles.ROC_curve, 'Visible','off');
+set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
@@ -1378,8 +1382,7 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 
 set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','off');
-set(handles.ROC_panel, 'Visible','off');
-set(handles.ROC_curve, 'Visible','off');
+set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
@@ -1488,8 +1491,7 @@ function go_full_image_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 set(handles.panel_select_ROC, 'Visible','off');
-set(handles.ROC_panel, 'Visible','off');
-set(handles.ROC_curve, 'Visible','off');
+set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
@@ -1704,8 +1706,8 @@ save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 % set(handles.Specificity,'String',num2str(ROC_stats(2)));
 
 % Update visibility of widgets
-set(handles.ROC_panel, 'Visible','on');
-set(handles.ROC_curve, 'Visible','on');
+set(handles.ROC_Panel, 'Visible','on');
+set(handles.text_legend, 'Visible','off');
 % set(handles.panel_select_ROC, 'Visible','on');
 
 if size(ROC_values,1)~=1
@@ -2025,12 +2027,6 @@ handles.classifier_final=handles.classifiers{get(handles.slider_ROC_plot,'Value'
 [ROC_stats] = ROC_calculate(Classification);
 set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
 set(handles.Specificity,'String',num2str(ROC_stats(2)));
-
-% set(handles.ROC_panel, 'Visible','on');
-% set(handles.ROC_curve, 'Visible','on');
-% set(handles.panel_select_ROC, 'Visible','on');
-% 
-% set(handles.slider_ROC_plot, 'Visible','on');
 
 % Update ROC plot by displaying the current ROC value
 axes(handles.ROC_curve);
