@@ -64,7 +64,7 @@ function SegmentationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.varargin=varargin{1};
 handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
 if ~isfield(handles,'data') || ~isfield(handles.data,'raw')
-    handles.data.raw=imresize(imread(handles.varargin),2);
+    handles.data.raw=imread(handles.varargin);
 end
 handles.data.img=handles.data.raw;
 
