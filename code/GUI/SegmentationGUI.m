@@ -60,15 +60,11 @@ function SegmentationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 %            command line (see VARARGIN)
 
 % Choose default command line output for SegmentationGUI
-if isempty(varargin)
-handles.varargin = uigetfile;
-end
 
-handles.output = hObject;
 handles.varargin=varargin{1};
-handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir='./'; else handles.outputdir = [handles.outputdir, filesep]; end
+handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
 if ~isfield(handles,'data') || ~isfield(handles.data,'raw')
-    handles.data.raw=imread(handles.varargin);
+    handles.data.raw=imresize(imread(handles.varargin),2);
 end
 handles.data.img=handles.data.raw;
 
@@ -89,18 +85,19 @@ set(gcf,'windowstyle','modal');
 set(gcf,'windowstyle','normal');
 
 % Update handles structure
+set(gcf,'windowStyle','normal');
+movegui(gcf,'center')
 guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = SegmentationGUI_OutputFcn(hObject, eventdata, handles)
+function SegmentationGUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
 
 
 
