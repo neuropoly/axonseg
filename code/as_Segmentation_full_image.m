@@ -90,20 +90,21 @@ if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
 %     AxSeg=LevelSet_results.img;
 % 
 % else
-    
-AxSeg=step1_full(im_in,segParam);    
+
+AxSeg=step1_full(imresize(im_in,2),segParam);    
     
 % end
 
 
 % Step 2 - discrimination for axon segmentation
-
+% 
 if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
     AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
 else
     AxSeg=step2_full(AxSeg,segParam);
 end
 
+AxSeg = imresize(AxSeg,0.5);
 
 
 %Myelin Segmentation
