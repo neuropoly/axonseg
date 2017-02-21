@@ -1,15 +1,19 @@
 function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg, verbose)
-%[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric);
-%[im_out,AxStats]=as_display_label(axonlist, matrixsize, metric, displaytype, writeimg?);
-% metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
-% Units: gRatio in percents / axonEquivDiameter in  um x 10 /
-% myelinThickness in um x 10
-% displaytype {'axon' | 'myelin'} = 'myelin'
-% writeimg {img,0} = 0
+%[im_out,AxStats]=AS_DISPLAY_LABEL(axonlist, matrixsize, metric);
+%[im_out,AxStats]=AS_DISPLAY_LABEL(axonlist, matrixsize, metric, displaytype, writeimg?);
 %
+% --------------------------------------------------------------------------------
+% INPUTS:   
+%   metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
+%   Units: gRatio in percents / axonEquivDiameter in  um x 10 /
+%   myelinThickness in um x 10
+%   displaytype {'axon' | 'myelin'} = 'myelin'
+%   writeimg {img,0} = 0
+%
+% --------------------------------------------------------------------------------
 % EXAMPLE:
-% bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-% sc(sc(bw_axonseg,'hot')+sc(img))
+%   bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+%   sc(sc(bw_axonseg,'hot')+sc(img))
 
 
 dbstop error
@@ -62,6 +66,9 @@ for i=Naxon:-1:1
                     im_out(ind)=uint8(AxStats(i).myelinThickness(1)*10);
                 case 'axon number'
                     im_out(ind)=i;
+                otherwise
+                    im_out = double(im_out);
+                    im_out(ind)=AxStats(i).(metric);
             end
             
         end
