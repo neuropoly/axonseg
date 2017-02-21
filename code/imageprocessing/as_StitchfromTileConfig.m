@@ -4,7 +4,7 @@ function Panorama = as_StitchfromTileConfig
 % and stitch images to create matrix Panorama
 %
 % display Panorama using:
-% AS_DISPLAY_LARGEIMAGE(Panorama)
+% AS_DISPLAY_LARGEIMAGE(Panorama);
 
 
 [fname,ColPos,RowPos] = ImportTileConfiguration('TileConfiguration.registered.txt');
@@ -15,7 +15,7 @@ ColPos = round(ColPos-min(ColPos));
 
 Panorama = zeros(round(max(RowPos)+Msize(1)+1),round(max(RowPos)+Msize(2)+1));
 for ff = 1:length(fname)
-    Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=imread(fname{ff});
+    Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=rgb2gray(imread(fname{ff}));
 end
 
 as_display_LargeImage(Panorama);
