@@ -1,15 +1,15 @@
-function [ axonlist ] = as_listcell2axonlist( listcell, blocksize, overlap, PixelSize)
-% as_myelinseg_blocks_bw2list( myelin_seg_results , PixelSize, blocksize, overlap, PixelSize)
+function [ axonlist ] = as_listcell2axonlist( axonlistcell, blocksize, overlap, PixelSize)
+% as_myelinseg_blocks_bw2list( listcell , PixelSize, blocksize, overlap, PixelSize)
 
 % change origin of each block
-for nb=1:length(listcell(:))
-    [X,Y]=ind2sub(size(listcell),nb);
-    rm=find(cellfun(@isempty,{listcell{nb}.Centroid}));
-    if ~isempty(rm), listcell{nb}(rm)=[]; end
-    listcell_seg{nb}.seg=as_axonlist_changeorigin(listcell{nb},[(X-1)*(blocksize-overlap) (Y-1)*(blocksize-overlap)]);
+for nb=1:length(axonlistcell(:))
+    [X,Y]=ind2sub(size(axonlistcell),nb);
+    rm=find(cellfun(@isempty,{axonlistcell{nb}.axonlist.Centroid}));
+    if ~isempty(rm), axonlistcell{nb}(rm)=[]; end
+    listcell_seg{nb}.seg=as_axonlist_changeorigin(axonlistcell{nb}.axonlist,[(X-1)*(blocksize(min(end,nb),1)-overlap) (Y-1)*(blocksize(min(end,nb),min(end,2))-overlap)]);
 end
 % list of cell 2 one list only
-axonlist(length(listcell(:)))=listcell_seg{end};
+axonlist(length(axonlistcell(:)))=listcell_seg{end};
 [axonlist.seg]=deal(listcell_seg{:});
 axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(logical([axonlist.myelinAera])); % weird but works (fast).. keep everything
 
