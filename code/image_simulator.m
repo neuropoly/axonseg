@@ -1,4 +1,12 @@
 
+
+simulation_properties.axon_value=25;
+simulation_properties.myelin_value=200;
+simulation_properties.background_value=150;
+
+
+
+
 %% synthetic images from axon packing
 
 a=uigetimagefile;
