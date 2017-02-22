@@ -38,7 +38,7 @@ if nargin && ischar(varargin{1})
 end
 
 if ~nargin
-    FileName= uigetimagefile;
+    FileName= uigetimagefile_v2;
     varargin{1}=FileName;
 end
 
@@ -1347,7 +1347,6 @@ end
 set(handles.slider_ROC_plot, 'Visible','off');
 set(handles.text_slider_ROC_plot, 'Visible','off');
 
-set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','on');
 set(handles.text_legend, 'Visible','on');
 
@@ -1377,7 +1376,6 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %% Launch Seg
 
-set(handles.panel_select_ROC, 'Visible','off');
 set(handles.Panel_manual_modifs, 'Visible','off');
 set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
@@ -1418,7 +1416,7 @@ backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[~,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,get(handles.Regularize,'Value'),2/3,0,get(handles.PixelSize,'Value'));
+[axonlist,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,get(handles.Regularize,'Value'),2/3,0,get(handles.PixelSize,'Value'));
 
 axes(handles.plotseg);
 sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper')+sc(border_removed_mask,[0.5 0.4 0.4], border_removed_mask));
@@ -1437,7 +1435,6 @@ mkdir(savedir);
 
 % axonlist structure
 
-axonlist=as_myelinseg2axonlist(handles.data.seg,get(handles.PixelSize,'Value'));
 
 % clean axonlist (if 0 gRatio & 0 axon diameter)
 axonlist=axonlist([axonlist.gRatio]~=0);
