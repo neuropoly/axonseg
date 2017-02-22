@@ -744,13 +744,6 @@ handles.segParam.Regularize=get(handles.Regularize,'Value');
 % handles.segParam.parameters=get(handles.parameters,'Value');
 % handles.segParam.DA_classifier=get(handles.DA_classifier,'Value');
 
-SegParameters=handles.segParam; 
-PixelSize=get(handles.PixelSize,'Value');
-handles.segParam.PixelSize=PixelSize;
-
-save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
-
-
 fprintf('Step 2 Done \n');
 
 set(handles.uipanel3, 'Visible', 'on');
@@ -1385,15 +1378,9 @@ handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAna
                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
                handles.Quadratic, handles.Linear, handles.MyelinSeg];
 
-%set(handleArray,'Enable','off');
+set(handleArray,'Enable','off');
 drawnow;
 
-
-%---
-handles.segParam.Regularize = get(handles.Regularize,'value');
-SegParameters=handles.segParam; 
-PixelSize=get(handles.PixelSize,'Value');
-save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
 
 %---
 
@@ -1484,39 +1471,43 @@ function go_full_image_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(handles.panel_select_ROC, 'Visible','off');
-set(handles.ROC_Panel, 'Visible','off');
-legend(handles.ROC_curve, 'hide');
-cla(handles.ROC_curve);
+[FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
 
-
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.Regularize];
-
-set(handleArray,'Enable','off');
-drawnow;
-
-handles.segParam.Regularize = get(handles.Regularize,'value');
-SegParameters=handles.segParam; 
-PixelSize=get(handles.PixelSize,'Value');
-handles.segParam.PixelSize=PixelSize;
-
-save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
-
-%------------------
-
-blocksize=300/get(handles.PixelSize,'Value');
-overlap=10/get(handles.PixelSize,'Value');
-
-%------------------
-
-
-savedir=[handles.outputdir, 'results_full', filesep];
-mkdir(savedir);
-as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
-
-set(handleArray,'Enable','on');
+if FileName
+    set(handles.ROC_Panel, 'Visible','off');
+    legend(handles.ROC_curve, 'hide');
+    cla(handles.ROC_curve);
+    
+    
+    handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
+        handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+        handles.Quadratic, handles.Linear, handles.Regularize];
+    
+    set(handleArray,'Enable','off');
+    drawnow;
+    
+    
+    handles.segParam.Regularize = get(handles.Regularize,'value');
+    SegParameters=handles.segParam;
+    PixelSize=get(handles.PixelSize,'Value');
+    handles.segParam.PixelSize=PixelSize;
+    
+    save([PathName FileName], 'SegParameters', 'PixelSize');
+    
+    %------------------
+    
+    blocksize=300/get(handles.PixelSize,'Value');
+    overlap=10/get(handles.PixelSize,'Value');
+    
+    %------------------
+    
+    
+    savedir=[handles.outputdir, 'results_full', filesep];
+    mkdir(savedir);
+    as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
+    
+    set(handleArray,'Enable','on');
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1689,20 +1680,9 @@ handles.data.DA_accepted = Accepted_axons_img;
 handles.segParam.parameters=handles.parameters;
 handles.segParam.DA_classifier=handles.classifier_final;
 
-% Save the SegParameters struct
-SegParameters=handles.segParam; 
-PixelSize=get(handles.PixelSize,'Value');
-save([handles.outputdir 'SegParameters.mat'], 'SegParameters', 'PixelSize');
-
-% % Display current sensitivity & specificity values
-% [ROC_stats] = ROC_calculate(Classification);
-% set(handles.Sensitivity,'String',num2str(ROC_stats(1)));
-% set(handles.Specificity,'String',num2str(ROC_stats(2)));
-
 % Update visibility of widgets
 set(handles.ROC_Panel, 'Visible','on');
 set(handles.text_legend, 'Visible','off');
-% set(handles.panel_select_ROC, 'Visible','on');
 
 if size(ROC_values,1)~=1
 set(handles.slider_ROC_plot, 'Visible','on');
@@ -1723,12 +1703,6 @@ handles.display.seg2=Rejected_axons_img;
 handles.display.type=2;
 
 GUI_display(2,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
-
-% -1-
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
-%     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
-
-
 
 
 set(handleArray,'Enable','on');
