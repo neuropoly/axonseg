@@ -21,9 +21,10 @@ fname(rm)=[]; ColPos(rm)=[]; RowPos(rm)=[];
 load([fname{1} filesep 'axonlist_full_image.mat']);
 axonlist = cell(length(fname),1);
 for iff = 1:length(fname)
-    axonlist{iff} = load([fname{iff} filesep 'axonlist_full_image.mat'],'axonlist');
-    axonlist{iff}.axonlist([axonlist{iff}.axonlist.conflict]>0.5)=[];
-    axonlist{iff}.axonlist([axonlist{iff}.axonlist.axonEquivDiameter]>12)=[];
+    tmp = load([fname{iff} filesep 'axonlist_full_image.mat'],'axonlist');
+    axonlist{iff} = tmp.axonlist;
+    axonlist{iff}([axonlist{iff}.conflict]>0.5)=[];
+    axonlist{iff}([axonlist{iff}.axonEquivDiameter]>12)=[];
 
 end
 
