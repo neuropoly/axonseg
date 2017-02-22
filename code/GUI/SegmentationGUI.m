@@ -615,7 +615,7 @@ GUI_display(1,get(handles.Transparency,'Value'), handles.data.Step1, handles.dis
 guidata(hObject, handles);
 fprintf('Step 1 Done \n');
 
-set(handles.panel_LS, 'Visible', 'off');
+% set(handles.panel_LS, 'Visible', 'off');
 set(handles.uipanel2, 'Visible', 'on');
 set(handles.uipanel1, 'Visible', 'off');
 set(handles.text_legend, 'Visible','on');
@@ -657,7 +657,7 @@ function resetStep1_Callback(hObject, eventdata, handles)
 axes(handles.plotseg);
 imshow(handles.data.img);
 
-set(handles.panel_LS, 'Visible', 'off')
+% set(handles.panel_LS, 'Visible', 'off')
 set(handles.uipanel0, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
@@ -728,9 +728,9 @@ handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
-handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
-handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
+% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+% handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1487,10 +1487,11 @@ if FileName
     drawnow;
     
     
-    handles.segParam.Regularize = get(handles.Regularize,'value');
-    SegParameters=handles.segParam;
+%     handles.segParam.Regularize = get(handles.Regularize,'value');
+%     SegParameters=handles.segParam;
     PixelSize=get(handles.PixelSize,'Value');
     handles.segParam.PixelSize=PixelSize;
+    SegParameters=handles.segParam;
     
     save([PathName FileName], 'SegParameters', 'PixelSize');
     
@@ -1504,7 +1505,7 @@ if FileName
     
     savedir=[handles.outputdir, 'results_full', filesep];
     mkdir(savedir);
-    as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
+    as_Segmentation_full_image(handles.varargin,[PathName FileName],blocksize,overlap,savedir);
     
     set(handleArray,'Enable','on');
 end
