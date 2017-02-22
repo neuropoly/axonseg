@@ -59,14 +59,19 @@ for i=Naxon:-1:1
         if ~isempty(AxStats(i))
             switch metric
                 case 'gRatio'
-                    im_out(ind)=uint8(AxStats(i).gRatio(1)*100);
+                    scale = 100; unit = '';
+                    im_out(ind)=uint8(AxStats(i).gRatio(1)*scale);
                 case 'axonEquivDiameter'
-                    im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*10);
+                    scale = 10; unit = 'µm';
+                    im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*scale);
                 case 'myelinThickness'
-                    im_out(ind)=uint8(AxStats(i).myelinThickness(1)*10);
+                    scale = 10; unit = 'µm';
+                    im_out(ind)=uint8(AxStats(i).myelinThickness(1)*scale);
                 case 'axon number'
+                    scale = 1; unit = '';
                     im_out(ind)=i;
                 otherwise
+                    scale = 1; unit = '';
                     im_out = double(im_out);
                     im_out(ind)=AxStats(i).(metric);
             end
@@ -84,5 +89,5 @@ if ~isempty(writeimg)
     maxval=ceil(prctile(im_out(im_out>0),99));
     RGB = ind2rgb8(im_out,hot(maxval));
     reducefactor=max(1,ceil(max(size(writeimg))/25000));   
-    imwrite(0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_0_' num2str(maxval) '.jpg'])
+    imwrite(0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
 end

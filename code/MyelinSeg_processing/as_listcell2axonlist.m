@@ -1,12 +1,19 @@
 function [ axonlist ] = as_listcell2axonlist( axonlistcell, blocksize, overlap, PixelSize)
-% as_myelinseg_blocks_bw2list( listcell , PixelSize, blocksize, overlap, PixelSize)
+% as_listcell2axonlist( axonlistcell, blocksize, overlap, PixelSize)
+% as_listcell2axonlist( axonlistcell, neworiginmatrix, [], PixelSize)
+
 
 % change origin of each block
 for nb=1:length(axonlistcell(:))
     [X,Y]=ind2sub(size(axonlistcell),nb);
     rm=find(cellfun(@isempty,{axonlistcell{nb}.axonlist.Centroid}));
     if ~isempty(rm), axonlistcell{nb}(rm)=[]; end
-    listcell_seg{nb}.seg=as_axonlist_changeorigin(axonlistcell{nb}.axonlist,[(X-1)*(blocksize(min(end,nb),1)-overlap) (Y-1)*(blocksize(min(end,nb),min(end,2))-overlap)]);
+    if max(size(blocksize))==1 % blocksize
+        neworigin = [(X-1)*(blocksize-overlap) (Y-1)*(blocksize-overlap)];
+    else
+        neworigin = blocksize(nb,:); % neworiginmatrix
+    end
+    listcell_seg{nb}.seg=as_axonlist_changeorigin(axonlistcell{nb}.axonlist,neworigin);
 end
 % list of cell 2 one list only
 axonlist(length(axonlistcell(:)))=listcell_seg{end};
