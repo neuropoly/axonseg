@@ -21,7 +21,7 @@ dbstop error
 % If no displaytype specified in argument, 'myelin' by default
 if nargin<4; displaytype='myelin';end
 % If writeimg not specified in input, false
-if ~exist('writeimg','var'), writeimg=[]; end
+if max(writeimg(:))==0 || ~exist('writeimg','var'), writeimg=[]; end
 if ~exist('verbose','var'), verbose=1; end
 
 % Init. output image
@@ -89,5 +89,5 @@ if ~isempty(writeimg)
     maxval=ceil(prctile(im_out(im_out>0),99));
     RGB = ind2rgb8(im_out,hot(maxval));
     reducefactor=max(1,ceil(max(size(writeimg))/25000));   
-    imwrite(0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
+    imwrite(0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+uint8(0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3])),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
 end
