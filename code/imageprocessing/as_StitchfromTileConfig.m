@@ -15,18 +15,11 @@ ColPos = round(ColPos-min(ColPos));
 
 Panorama = uint8(zeros(round(max(RowPos)+Msize(1)+1),round(max(RowPos)+Msize(2)+1)));
 for ff = 1:length(fname)
-% <<<<<<< HEAD
-%     a=imread(fname{ff}); 
-%     a=rgb2gray(a);
-%     Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=a;
-% =======
-    Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=rgb2gray(imread(fname{ff}));
-% >>>>>>> 779e3ec6a6aab02a94afcd39745039f9af47e10d
+    tmp = imread(fname{ff}); if size(tmp,3)==3, tmp = rgb2gray(tmp); end
+    Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=tmp;
 end
 
-
-Panorama=uint8(Panorama);
-%as_display_LargeImage(Panorama);
+as_display_LargeImage(Panorama);
 
 function [fname,ColPos,RowPos] = ImportTileConfiguration(filename, startRow, endRow)
 %IMPORTFILE Import numeric data from a text file as column vectors.

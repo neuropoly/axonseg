@@ -393,9 +393,9 @@ set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
-set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+% set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+% set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+% set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -1533,56 +1533,56 @@ function text20_ButtonDownFcn(hObject, eventdata, handles)
 % 
 % 
 % --- Executes on button press in LoadSegParam.
-function LoadSegParam_Callback(hObject, eventdata, handles)
-% hObject    handle to LoadSegParam (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Select segmentation parameters file to load
-
-[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
-segparam_filepath = [PathName FileName];
-if FileName
-    load(segparam_filepath);
-    
-    % % Disable buttons in step 0 to keep only the segmentation parameters loaded
-    %
-    % set(handles.invertColor,'Enable','off');
-    % set(handles.histEq,'Enable','off');
-    % set(handles.Deconv,'Enable','off');
-    
-    % Get parameters from a SegParameters file
-    set(handles.invertColor,'Value',SegParameters.invertColor);
-    set(handles.histEq,'Value',SegParameters.histEq);
-    set(handles.Deconv,'Value',SegParameters.Deconv);
-    set(handles.Smoothing,'Value',SegParameters.Smoothing);
-    
-    set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-    set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-    set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
-    
-    set(handles.initSeg,'Value',SegParameters.initSeg);
-    set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
-    set(handles.threshold,'Value',SegParameters.threshold);
-    
-    set(handles.minSize,'Value',SegParameters.minSize);
-    set(handles.Circularity,'Value',SegParameters.Circularity);
-    set(handles.Solidity,'Value',SegParameters.Solidity);
-    % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
-    set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
-    
-    if isfield(SegParameters,'parameters')
-        
-        % set(handles.parameters,'Value',SegParameters.parameters);
-        % set(handles.parameters,'Value',SegParameters.parameters);
-        
-        handles.parameters=SegParameters.parameters;
-        handles.classifier_final=SegParameters.DA_classifier;
-        
-    end
-end
-% Update handles
-guidata(hObject,handles);
+% function LoadSegParam_Callback(hObject, eventdata, handles)
+% % hObject    handle to LoadSegParam (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Select segmentation parameters file to load
+% 
+% [FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+% segparam_filepath = [PathName FileName];
+% if FileName
+%     load(segparam_filepath);
+%     
+%     % % Disable buttons in step 0 to keep only the segmentation parameters loaded
+%     %
+%     % set(handles.invertColor,'Enable','off');
+%     % set(handles.histEq,'Enable','off');
+%     % set(handles.Deconv,'Enable','off');
+%     
+%     % Get parameters from a SegParameters file
+%     set(handles.invertColor,'Value',SegParameters.invertColor);
+%     set(handles.histEq,'Value',SegParameters.histEq);
+%     set(handles.Deconv,'Value',SegParameters.Deconv);
+%     set(handles.Smoothing,'Value',SegParameters.Smoothing);
+%     
+%     set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+%     set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+%     set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+%     
+%     set(handles.initSeg,'Value',SegParameters.initSeg);
+%     set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
+%     set(handles.threshold,'Value',SegParameters.threshold);
+%     
+%     set(handles.minSize,'Value',SegParameters.minSize);
+%     set(handles.Circularity,'Value',SegParameters.Circularity);
+%     set(handles.Solidity,'Value',SegParameters.Solidity);
+%     % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+%     set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
+%     
+%     if isfield(SegParameters,'parameters')
+%         
+%         % set(handles.parameters,'Value',SegParameters.parameters);
+%         % set(handles.parameters,'Value',SegParameters.parameters);
+%         
+%         handles.parameters=SegParameters.parameters;
+%         handles.classifier_final=SegParameters.DA_classifier;
+%         
+%     end
+% end
+% % Update handles
+% guidata(hObject,handles);
 
 
 % % --- Executes on button press in LevelSetSeg.
@@ -1620,7 +1620,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
 
 
-
+if get(handles.DiscriminantAnalysis,'Value')==1
 
 
 % Get discriminant analysis type chosen by user
@@ -1678,8 +1678,12 @@ popupmenu_ROC_Callback(hObject, eventdata, handles);
 handles.data.DA_accepted = Accepted_axons_img;
 
 % Add classifier chosen & parameters to the segmentation parameters struct
-handles.segParam.parameters=handles.parameters;
-handles.segParam.DA_classifier=handles.classifier_final;
+
+    handles.segParam.parameters=handles.parameters;
+    handles.segParam.DA_classifier=handles.classifier_final;
+
+
+
 
 % Update visibility of widgets
 set(handles.ROC_Panel, 'Visible','on');
@@ -1707,6 +1711,12 @@ GUI_display(2,get(handles.Transparency,'Value'), handles.data.Step1, handles.dis
 
 
 set(handleArray,'Enable','on');
+
+else
+    handles.segParam=rmfield(handles.segParam,'parameters');
+    handles.segParam=rmfield(handles.segParam,'DA_classifier');
+    
+end
 
 guidata(hObject,handles);
 
