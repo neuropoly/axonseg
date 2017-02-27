@@ -20,6 +20,7 @@ colormap gray; axis image
 guidata(76,Data)
 uicontrol('Style','pushbutton','String','reset','Callback',@(src,event) resestimg)
 uicontrol('Style','pushbutton','String','zoom','Callback',@(src,event) displayimg,'Position',[90 20 60 20])
+set(gcf,'toolbar','figure');
 
 end
 
