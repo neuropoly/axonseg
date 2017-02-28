@@ -393,9 +393,9 @@ set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
 set(handles.Smoothing,'Value',SegParameters.Smoothing);
 
-set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+% set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+% set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+% set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
 
 set(handles.initSeg,'Value',SegParameters.initSeg);
 set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
@@ -615,7 +615,7 @@ GUI_display(1,get(handles.Transparency,'Value'), handles.data.Step1, handles.dis
 guidata(hObject, handles);
 fprintf('Step 1 Done \n');
 
-set(handles.panel_LS, 'Visible', 'off');
+% set(handles.panel_LS, 'Visible', 'off');
 set(handles.uipanel2, 'Visible', 'on');
 set(handles.uipanel1, 'Visible', 'off');
 set(handles.text_legend, 'Visible','on');
@@ -657,7 +657,7 @@ function resetStep1_Callback(hObject, eventdata, handles)
 axes(handles.plotseg);
 imshow(handles.data.img);
 
-set(handles.panel_LS, 'Visible', 'off')
+% set(handles.panel_LS, 'Visible', 'off')
 set(handles.uipanel0, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
@@ -728,9 +728,9 @@ handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
 
-handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
-handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
+% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
+% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
+% handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -1374,11 +1374,11 @@ set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.MyelinSeg];
-
-set(handleArray,'Enable','off');
+% handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
+%                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+%                handles.Quadratic, handles.Linear, handles.MyelinSeg];
+% 
+% set(handleArray,'Enable','off');
 drawnow;
 
 
@@ -1487,10 +1487,11 @@ if FileName
     drawnow;
     
     
-    handles.segParam.Regularize = get(handles.Regularize,'value');
-    SegParameters=handles.segParam;
+%     handles.segParam.Regularize = get(handles.Regularize,'value');
+%     SegParameters=handles.segParam;
     PixelSize=get(handles.PixelSize,'Value');
     handles.segParam.PixelSize=PixelSize;
+    SegParameters=handles.segParam;
     
     save([PathName FileName], 'SegParameters', 'PixelSize');
     
@@ -1504,7 +1505,7 @@ if FileName
     
     savedir=[handles.outputdir, 'results_full', filesep];
     mkdir(savedir);
-    as_Segmentation_full_image(handles.varargin,[handles.outputdir 'SegParameters.mat'],blocksize,overlap,savedir);
+    as_Segmentation_full_image(handles.varargin,[PathName FileName],blocksize,overlap,savedir);
     
     set(handleArray,'Enable','on');
 end
@@ -1532,56 +1533,56 @@ function text20_ButtonDownFcn(hObject, eventdata, handles)
 % 
 % 
 % --- Executes on button press in LoadSegParam.
-function LoadSegParam_Callback(hObject, eventdata, handles)
-% hObject    handle to LoadSegParam (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Select segmentation parameters file to load
-
-[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
-segparam_filepath = [PathName FileName];
-if FileName
-    load(segparam_filepath);
-    
-    % % Disable buttons in step 0 to keep only the segmentation parameters loaded
-    %
-    % set(handles.invertColor,'Enable','off');
-    % set(handles.histEq,'Enable','off');
-    % set(handles.Deconv,'Enable','off');
-    
-    % Get parameters from a SegParameters file
-    set(handles.invertColor,'Value',SegParameters.invertColor);
-    set(handles.histEq,'Value',SegParameters.histEq);
-    set(handles.Deconv,'Value',SegParameters.Deconv);
-    set(handles.Smoothing,'Value',SegParameters.Smoothing);
-    
-    set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
-    set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
-    set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
-    
-    set(handles.initSeg,'Value',SegParameters.initSeg);
-    set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
-    set(handles.threshold,'Value',SegParameters.threshold);
-    
-    set(handles.minSize,'Value',SegParameters.minSize);
-    set(handles.Circularity,'Value',SegParameters.Circularity);
-    set(handles.Solidity,'Value',SegParameters.Solidity);
-    % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
-    set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
-    
-    if isfield(SegParameters,'parameters')
-        
-        % set(handles.parameters,'Value',SegParameters.parameters);
-        % set(handles.parameters,'Value',SegParameters.parameters);
-        
-        handles.parameters=SegParameters.parameters;
-        handles.classifier_final=SegParameters.DA_classifier;
-        
-    end
-end
-% Update handles
-guidata(hObject,handles);
+% function LoadSegParam_Callback(hObject, eventdata, handles)
+% % hObject    handle to LoadSegParam (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Select segmentation parameters file to load
+% 
+% [FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+% segparam_filepath = [PathName FileName];
+% if FileName
+%     load(segparam_filepath);
+%     
+%     % % Disable buttons in step 0 to keep only the segmentation parameters loaded
+%     %
+%     % set(handles.invertColor,'Enable','off');
+%     % set(handles.histEq,'Enable','off');
+%     % set(handles.Deconv,'Enable','off');
+%     
+%     % Get parameters from a SegParameters file
+%     set(handles.invertColor,'Value',SegParameters.invertColor);
+%     set(handles.histEq,'Value',SegParameters.histEq);
+%     set(handles.Deconv,'Value',SegParameters.Deconv);
+%     set(handles.Smoothing,'Value',SegParameters.Smoothing);
+%     
+%     set(handles.LevelSet_step1,'Value',SegParameters.LevelSet);
+%     set(handles.Only_LevelSet,'Value',SegParameters.Only_LevelSet);
+%     set(handles.LevelSet_slider,'Value',SegParameters.LevelSet_iter);
+%     
+%     set(handles.initSeg,'Value',SegParameters.initSeg);
+%     set(handles.diffMaxMin,'Value',SegParameters.diffMaxMin);
+%     set(handles.threshold,'Value',SegParameters.threshold);
+%     
+%     set(handles.minSize,'Value',SegParameters.minSize);
+%     set(handles.Circularity,'Value',SegParameters.Circularity);
+%     set(handles.Solidity,'Value',SegParameters.Solidity);
+%     % set(handles.AreaRatio,'Value',SegParameters.AreaRatio);
+%     set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
+%     
+%     if isfield(SegParameters,'parameters')
+%         
+%         % set(handles.parameters,'Value',SegParameters.parameters);
+%         % set(handles.parameters,'Value',SegParameters.parameters);
+%         
+%         handles.parameters=SegParameters.parameters;
+%         handles.classifier_final=SegParameters.DA_classifier;
+%         
+%     end
+% end
+% % Update handles
+% guidata(hObject,handles);
 
 
 % % --- Executes on button press in LevelSetSeg.
@@ -1619,7 +1620,7 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 % {'EquivDiameter', 'Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'}
 
 
-
+if get(handles.DiscriminantAnalysis,'Value')==1
 
 
 % Get discriminant analysis type chosen by user
@@ -1677,8 +1678,12 @@ popupmenu_ROC_Callback(hObject, eventdata, handles);
 handles.data.DA_accepted = Accepted_axons_img;
 
 % Add classifier chosen & parameters to the segmentation parameters struct
-handles.segParam.parameters=handles.parameters;
-handles.segParam.DA_classifier=handles.classifier_final;
+
+    handles.segParam.parameters=handles.parameters;
+    handles.segParam.DA_classifier=handles.classifier_final;
+
+
+
 
 % Update visibility of widgets
 set(handles.ROC_Panel, 'Visible','on');
@@ -1706,6 +1711,12 @@ GUI_display(2,get(handles.Transparency,'Value'), handles.data.Step1, handles.dis
 
 
 set(handleArray,'Enable','on');
+
+else
+    handles.segParam=rmfield(handles.segParam,'parameters');
+    handles.segParam=rmfield(handles.segParam,'DA_classifier');
+    
+end
 
 guidata(hObject,handles);
 

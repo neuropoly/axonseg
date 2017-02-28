@@ -9,7 +9,7 @@ initSeg=segParam.initSeg;
 diffMaxMin=segParam.diffMaxMin;
 threshold=segParam.threshold;
 
-iter=segParam.LevelSet_iter;
+% iter=segParam.LevelSet_iter;
 
 im1 = axonInitialSegmentation(im_in, initSeg);
 im1=imfill(im1,'holes'); %imshow(initialBW)
@@ -24,17 +24,17 @@ im3 = bwareaopen(im3,5); %imshow(im3)
  
 
 
-if segParam.Only_LevelSet
-    
-im4=as_LevelSet_method(im_in,iter);
-im_out=im4.img;
-
-elseif segParam.LevelSet
-
-im4=as_LevelSet_method(im_in,iter);
-im_out= im1 | im2 | im3 | im4.img;
-
-else
+% if segParam.Only_LevelSet
+%     
+% im4=as_LevelSet_method(im_in,iter);
+% im_out=im4.img;
+% 
+% elseif segParam.LevelSet
+% 
+% im4=as_LevelSet_method(im_in,iter);
+% im_out= im1 | im2 | im3 | im4.img;
+% 
+% else
     
 im_out= im1 | im2 | im3;
 

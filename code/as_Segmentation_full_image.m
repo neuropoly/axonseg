@@ -99,7 +99,7 @@ AxSeg=step1_full(imresize(im_in,2),segParam);
 % Step 2 - discrimination for axon segmentation
 % 
 if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
-    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
+    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,imresize(im_in,2));
 else
     AxSeg=step2_full(AxSeg,segParam);
 end
