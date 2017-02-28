@@ -21,7 +21,7 @@ dbstop error
 % If no displaytype specified in argument, 'myelin' by default
 if nargin<4; displaytype='myelin';end
 % If writeimg not specified in input, false
-if max(writeimg(:))==0 || ~exist('writeimg','var'), writeimg=[]; end
+if ~exist('writeimg','var') || max(writeimg(:))==0, writeimg=[]; end
 if ~exist('verbose','var'), verbose=1; end
 
 % Init. output image
