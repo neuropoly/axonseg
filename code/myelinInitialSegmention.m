@@ -6,7 +6,7 @@ if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end
 
-
+axonlist = struct();
 maxi=max(max(max(im)));
 im=double(im);
 
@@ -223,24 +223,26 @@ if nargout>1
     MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'myelin');
 end
 
-%% Compute conflicts
-rm = find(cellfun(@isempty,{axonlist.Centroid}));
-axonlist(rm)=[];
-kk=pdist(cat(1,axonlist.Centroid));
-maxdiam = max(cat(1,axonlist.axonEquivDiameter));
-conflictmat = false(length(axonlist),length(axonlist));
-mline = 1;
-Nax = length(axonlist);
-for iax = 1:Nax
-    indexconflicts = kk(mline:(mline+Nax-1-iax))<maxdiam/PixelSize*1.5;
-    mline = mline+Nax-iax;
-    conflictmat(iax,(iax+1):end) = indexconflicts;
-    conflictindex = find([conflictmat(1:iax,iax); indexconflicts(:)]);
-    otheraxonsdata = cat(1,axonlist(conflictindex).data);
-    if ~isempty(otheraxonsdata)
-        axonlist(iax).conflict = sum(ismember(axonlist(iax).data,otheraxonsdata,'rows'))./size(axonlist(iax).data,1);
-    else
-        axonlist(iax).conflict = [];
+if ~isempty(fieldnames(axonlist)) % if no axons
+    %% Compute conflicts
+    rm = find(cellfun(@isempty,{axonlist.Centroid}));
+    axonlist(rm)=[];
+    kk=pdist(cat(1,axonlist.Centroid));
+    maxdiam = max(cat(1,axonlist.axonEquivDiameter));
+    conflictmat = false(length(axonlist),length(axonlist));
+    mline = 1;
+    Nax = length(axonlist);
+    for iax = 1:Nax
+        indexconflicts = kk(mline:(mline+Nax-1-iax))<maxdiam/PixelSize*1.5;
+        mline = mline+Nax-iax;
+        conflictmat(iax,(iax+1):end) = indexconflicts;
+        conflictindex = find([conflictmat(1:iax,iax); indexconflicts(:)]);
+        otheraxonsdata = cat(1,axonlist(conflictindex).data);
+        if ~isempty(otheraxonsdata)
+            axonlist(iax).conflict = sum(ismember(axonlist(iax).data,otheraxonsdata,'rows'))./size(axonlist(iax).data,1);
+        else
+            axonlist(iax).conflict = [];
+        end
     end
 end
 
