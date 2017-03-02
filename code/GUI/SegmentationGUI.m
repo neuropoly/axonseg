@@ -1374,11 +1374,11 @@ set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-% handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-%                handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-%                handles.Quadratic, handles.Linear, handles.MyelinSeg];
+handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
+               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.Quadratic, handles.Linear, handles.MyelinSeg];
 % 
-% set(handleArray,'Enable','off');
+set(handleArray,'Enable','off');
 drawnow;
 
 
