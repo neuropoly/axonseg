@@ -1,12 +1,13 @@
 function [axonlist, MyelinMask, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off,PixelSize)
-% [initialArray, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
-% exemple: [AxonArray] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
+% [axonlist, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
+% exemple: [axonlist] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
 if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end
 
-axonlist = struct();
+% initialize params
+axonlist = as_myelinseg2axonlist(false(size(axonBW)),1);
 maxi=max(max(max(im)));
 im=double(im);
 
@@ -104,11 +105,11 @@ for currentAxonLabel = 1:numAxon
         title('radial intensity')
     end
     %% Compute horizontal gradient of the profile using Sobel filter
-%     % detect bordure
-%     [~,Problematiclength]=find(imRadialProfile==0); Problematiclength=min(min(Problematiclength));
-%     if (isempty(Problematiclength)) || (Problematiclength<4)
-%         Problematiclength=radialProfileNumPix;
-%     end
+    %     % detect bordure
+    %     [~,Problematiclength]=find(imRadialProfile==0); Problematiclength=min(min(Problematiclength));
+    %     if (isempty(Problematiclength)) || (Problematiclength<4)
+    %         Problematiclength=radialProfileNumPix;
+    %     end
     % compute gradient
     [imRadialProfileGrad, ~] = imgradientxy(imRadialProfile, 'Sobel');
     % Image normalisation Scale between 0 and 1
@@ -197,7 +198,7 @@ for currentAxonLabel = 1:numAxon
     currentMyelinBWFilled = imfill(poly2mask(yyppext(:, 1) - minyyppext(1), yyppext(:, 2) - minyyppext(2), masksize(2), masksize(1)), 'holes');
     currentAxonBW = imfill(poly2mask(yyppint(:, 1) - minyyppext(1), yyppint(:, 2) - minyyppext(2), masksize(2), masksize(1)), 'holes');
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
-        
+    
     if verbose, figure(67), imagesc(imfuse(currentMyelinBW,im(minyyppext(2):(minyyppext(2)+masksize(2)),minyyppext(1):(minyyppext(1)+masksize(1))))); end
     %% Clean Up
     cc = bwconncomp(currentMyelinBW, 4);
@@ -209,11 +210,11 @@ for currentAxonLabel = 1:numAxon
     
     axonlist(currentAxonLabel) = as_myelinseg2axonlist(currentMyelinBW,PixelSize);
     axonlist(currentAxonLabel) = as_axonlist_changeorigin(axonlist(currentAxonLabel),round(minyyppext(1,[2 1])));
-
-%     %% Compute conflicts
-%     Conflicts = MyelinMask & currentMyelinBW;
-%     ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
-     
+    
+    %     %% Compute conflicts
+    %     Conflicts = MyelinMask & currentMyelinBW;
+    %     ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
+    
 end
 
 % for currentAxonLabel = 1:length(axonlist)
@@ -223,28 +224,27 @@ if nargout>1
     MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'myelin');
 end
 
-if ~isempty(fieldnames(axonlist)) % if no axons
-    %% Compute conflicts
-    rm = find(cellfun(@isempty,{axonlist.Centroid}));
-    axonlist(rm)=[];
-    kk=pdist(cat(1,axonlist.Centroid));
-    maxdiam = max(cat(1,axonlist.axonEquivDiameter));
-    conflictmat = false(length(axonlist),length(axonlist));
-    mline = 1;
-    Nax = length(axonlist);
-    for iax = 1:Nax
-        indexconflicts = kk(mline:(mline+Nax-1-iax))<maxdiam/PixelSize*1.5;
-        mline = mline+Nax-iax;
-        conflictmat(iax,(iax+1):end) = indexconflicts;
-        conflictindex = find([conflictmat(1:iax,iax); indexconflicts(:)]);
-        otheraxonsdata = cat(1,axonlist(conflictindex).data);
-        if ~isempty(otheraxonsdata)
-            axonlist(iax).conflict = sum(ismember(axonlist(iax).data,otheraxonsdata,'rows'))./size(axonlist(iax).data,1);
-        else
-            axonlist(iax).conflict = [];
-        end
+%% Compute conflicts
+rm = find(cellfun(@isempty,{axonlist.Centroid}));
+axonlist(rm)=[];
+kk=pdist(cat(1,axonlist.Centroid));
+maxdiam = max(cat(1,axonlist.axonEquivDiameter));
+conflictmat = false(length(axonlist),length(axonlist));
+mline = 1;
+Nax = length(axonlist);
+for iax = 1:Nax
+    indexconflicts = kk(mline:(mline+Nax-1-iax))<maxdiam/PixelSize*1.5;
+    mline = mline+Nax-iax;
+    conflictmat(iax,(iax+1):end) = indexconflicts;
+    conflictindex = find([conflictmat(1:iax,iax); indexconflicts(:)]);
+    otheraxonsdata = cat(1,axonlist(conflictindex).data);
+    if ~isempty(otheraxonsdata)
+        axonlist(iax).conflict = sum(ismember(axonlist(iax).data,otheraxonsdata,'rows'))./size(axonlist(iax).data,1);
+    else
+        axonlist(iax).conflict = [];
     end
 end
+
 
 j_progress('elapsed')
 %initialArray(:, :, throwIdx) = [];
