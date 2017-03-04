@@ -1498,7 +1498,7 @@ if FileName
     %------------------
     
     blocksize=300/get(handles.PixelSize,'Value');
-    overlap=10/get(handles.PixelSize,'Value');
+    overlap=30/get(handles.PixelSize,'Value');
     
     %------------------
     
