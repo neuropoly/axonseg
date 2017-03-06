@@ -1417,6 +1417,19 @@ end
 
 %% SAVE
 
+% save SegParam
+[FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
+
+PixelSize=get(handles.PixelSize,'Value');
+handles.segParam.PixelSize=PixelSize;
+SegParameters=handles.segParam;
+
+
+
+    
+save([PathName FileName], 'SegParameters', 'PixelSize');
+
+
 savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
 
