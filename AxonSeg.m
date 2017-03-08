@@ -1,36 +1,23 @@
-function varargout = SegmentationGUI(varargin)
+function varargout = AxonSeg(varargin)
 
-%SEGMENTATIONGUI M-file for SegmentationGUI.fig
-%      SEGMENTATIONGUI, by itself, creates a new SEGMENTATIONGUI or raises the existing
-%      singleton*.
+% AxonSeg: Axon Segmentation Toolbox
+%   AxonSeg() starts the Graphical User Interface
 %
-%      H = SEGMENTATIONGUI returns the handle to a new SEGMENTATIONGUI or the handle to
-%      the existing singleton*.
+% Reference: Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037
+% Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
 %
-%      SEGMENTATIONGUI('Property','Value',...) creates a new SEGMENTATIONGUI using the
-%      given property value pairs. Unrecognized properties are passed via
-%      varargin to SegmentationGUI_OpeningFcn.  This calling syntax produces a
-%      warning when there is an existing singleton*.
-%
-%      SEGMENTATIONGUI('CALLBACK') and SEGMENTATIONGUI('CALLBACK',hObject,...) call the
-%      local function named CALLBACK in SEGMENTATIONGUI.M with the given input
-%      arguments.
-%
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
-%
-% See also: GUIDE, GUIDATA, GUIHANDLES
+% See Also : as_Segmentation_full_image, myelinInitialSegmention
 
-% Edit the above text to modify the response to help SegmentationGUI
+% Edit the above text to modify the response to help AxonSeg
 
-% Last Modified by GUIDE v2.5 03-Feb-2017 21:02:38
+% Last Modified by GUIDE v2.5 08-Mar-2017 16:03:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
-    'gui_OpeningFcn', @SegmentationGUI_OpeningFcn, ...
-    'gui_OutputFcn',  @SegmentationGUI_OutputFcn, ...
+    'gui_OpeningFcn', @AxonSeg_OpeningFcn, ...
+    'gui_OutputFcn',  @AxonSeg_OutputFcn, ...
     'gui_LayoutFcn',  [], ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -50,8 +37,8 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before SegmentationGUI is made visible.
-function SegmentationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before AxonSeg is made visible.
+function AxonSeg_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -59,7 +46,7 @@ function SegmentationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   unrecognized PropertyName/PropertyValue pairs from the
 %            command line (see VARARGIN)
 
-% Choose default command line output for SegmentationGUI
+% Choose default command line output for AxonSeg
 
 handles.varargin=varargin{1};
 handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
@@ -91,7 +78,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function SegmentationGUI_OutputFcn(hObject, eventdata, handles)
+function AxonSeg_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -363,7 +350,7 @@ function resetStep0_Callback(hObject, eventdata, handles)
 % hObject    handle to resetStep0 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-SegmentationGUI_OpeningFcn(hObject, eventdata, handles, handles.varargin)
+AxonSeg_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
 
 
@@ -1420,16 +1407,12 @@ end
 % save SegParam
 [FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
 
-PixelSize=get(handles.PixelSize,'Value');
-handles.segParam.PixelSize=PixelSize;
-SegParameters=handles.segParam;
-
-
-
-    
-save([PathName FileName], 'SegParameters', 'PixelSize');
-
-
+if FileName
+    PixelSize=get(handles.PixelSize,'Value');
+    handles.segParam.PixelSize=PixelSize;
+    SegParameters=handles.segParam;
+    save([PathName FileName], 'SegParameters', 'PixelSize');
+end
 savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
 
