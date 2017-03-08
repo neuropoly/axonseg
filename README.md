@@ -21,9 +21,6 @@ Link to video demo (SegmentationGUI.m): https://github.com/neuropoly/axonseg/rel
 
 After installation, run the ```as_tutorial.m``` script line by line to get a better understanding of AxonSeg.
 
-Old tutorials:
-  * **SegmentationGUI**: Segment using Graphical interface --> https://drive.google.com/open?id=0B2Xe6kvfjHHnLVE1N2lMYktWMGM
-  * **myelinInitialSegmention** : Segment myelin using axon segmentation as input -->  https://drive.google.com/open?id=0B2Xe6kvfjHHncWVRMG5mS3JZQUE
 
 ## Segment any type of histology
 ![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/various_modalities.png)
