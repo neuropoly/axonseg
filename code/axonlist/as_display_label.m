@@ -86,8 +86,9 @@ if verbose
 end
 
 if ~isempty(writeimg)
+    writeimg = imadjust(uint8(writeimg));
     maxval=ceil(prctile(im_out(im_out>0),99));
-    RGB = ind2rgb8(im_out,hot(maxval));
     reducefactor=max(1,ceil(max(size(writeimg))/25000));   
-    imwrite(0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+uint8(0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3])),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
+    RGB = ind2rgb8(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval));
+    imwrite(0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
 end
