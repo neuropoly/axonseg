@@ -87,7 +87,12 @@ end
 
 if ~isempty(writeimg)
     writeimg = imadjust(uint8(writeimg));
-    maxval=ceil(prctile(im_out(im_out>0),99));
+    im_out_NZ = im_out(im_out>0);
+    if ~isempty(im_out_NZ)
+        maxval=ceil(prctile(im_out(im_out>0),99));
+    else
+        maxval = 1; scale =1; unit = '_NoAxonsDetected';
+    end
     reducefactor=max(1,ceil(max(size(writeimg))/25000));   
     RGB = ind2rgb8(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval));
     imwrite(0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
