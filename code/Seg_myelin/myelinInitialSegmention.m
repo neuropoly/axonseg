@@ -67,7 +67,7 @@ for currentAxonLabel = 1:numAxon
     % Arrays
     xCoord = zeros(radialProfileNumPix, numAnglesRadialProfile);
     yCoord = zeros(radialProfileNumPix, numAnglesRadialProfile);
-    imRadialProfile = zeros(numAnglesRadialProfile, radialProfileNumPix, 'uint8');
+    imRadialProfile = zeros(numAnglesRadialProfile, radialProfileNumPix);
     maskRadialProfile = false(numAnglesRadialProfile, radialProfileNumPix);
     
     %% Compute radial profiles start and end points from axon boundary
@@ -112,6 +112,7 @@ for currentAxonLabel = 1:numAxon
     %     end
     % compute gradient
     [imRadialProfileGrad, ~] = imgradientxy(imRadialProfile, 'Sobel');
+    if max(imRadialProfileGrad(:))==0, continue; end
     % Image normalisation Scale between 0 and 1
     imRadialProfileGrad = (imRadialProfileGrad - min(imRadialProfileGrad(:)))./(max(imRadialProfileGrad(:)) - min(imRadialProfileGrad(:)));
     if 0
