@@ -52,6 +52,7 @@ img = imadjust(handles.data.img);
 
 %% SAVE
 % save axonlist
+PixelSize = SegParameters.PixelSize;
 save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 
 
