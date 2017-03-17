@@ -20,11 +20,12 @@ end
 load(SegParameters);
 
 if ~exist('blocksize','var') || isempty(blocksize)
-    blocksize=1000;
+    blocksize=4097;
 end
 if ~exist('overlap','var') || isempty(overlap)
     overlap=100;
 end
+blocksize = blocksize + overlap;
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
     output=[name '_Segmentation'];
@@ -58,6 +59,7 @@ save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
 
 % save jpeg
 % save axon display
+img = uint8(imadjust(img));
 axons_map=as_display_label(axonlist, size(img),'axonEquivDiameter','axon');
 maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
 RGB = ind2rgb8(axons_map,hot(maxdiam*10));

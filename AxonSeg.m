@@ -8,11 +8,6 @@ function varargout = AxonSeg(varargin)
 %
 % See Also : as_Segmentation_full_image, myelinInitialSegmention
 
-% Edit the above text to modify the response to help AxonSeg
-
-% Last Modified by GUIDE v2.5 08-Mar-2017 16:03:50
-
-% Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
@@ -39,15 +34,6 @@ end
 
 % --- Executes just before AxonSeg is made visible.
 function AxonSeg_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% varargin   unrecognized PropertyName/PropertyValue pairs from the
-%            command line (see VARARGIN)
-
-% Choose default command line output for AxonSeg
-
 handles.varargin=varargin{1};
 handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
 if ~isfield(handles,'data') || ~isfield(handles.data,'raw')
@@ -63,10 +49,6 @@ axes(handles.plotseg);
 handles.reducefactor=max(1,floor(size(handles.data.img,1)/1000));
 imshow(handles.data.img(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
-% set some default parameters
-set(handles.histEq,'Value',0);
-set(handles.Transparency,'Value',0.7);
-
 % undock figure
 set(gcf,'windowstyle','modal');
 set(gcf,'windowstyle','normal');
@@ -79,54 +61,20 @@ guidata(hObject, handles);
 
 % --- Outputs from this function are returned to the command line.
 function AxonSeg_OutputFcn(hObject, eventdata, handles)
-% varargout  cell array for returning output args (see VARARGOUT);
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Get default command line output from handles structure
-
-
-
-
-%%% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%-------------- STEP 0  ----------------------------------------------%%%
-%%% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
 % --- Executes on slider movement.
 function Transparency_Callback(hObject, eventdata, handles)
-% hObject    handle to Transparency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 if handles.display.type==2
     GUI_display(2,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
 else
     GUI_display(1,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
 end
-
 guidata(hObject, handles);
 
-% --- Executes during object creation, after setting all properties.
-function Transparency_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Transparency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
 
 
 function PixelSize_Callback(hObject, eventdata, handles)
-% hObject    handle to PixelSize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of PixelSize as text
-%        str2double(get(hObject,'String')) returns contents of PixelSize as a double
 px_tmp=str2double(get(hObject,'String'));
 if isnan(px_tmp) %if text --> put default value
     set(hObject,'String',num2str(get(hObject,'Value')));
@@ -141,12 +89,6 @@ guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function PixelSize_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to PixelSize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -239,15 +181,7 @@ guidata(hObject, handles);
 
 % --- Executes on button press in Smoothing.
 function Smoothing_Callback(hObject, eventdata, handles)
-% hObject    handle to Smoothing (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% guidata(hObject,handles);
-
 show_pre_process(handles);
- 
-
 guidata(hObject,handles);
 
     
@@ -326,10 +260,6 @@ guidata(hObject, handles);
 
 % --- Executes on button press in Go_0_to_1.
 function Go_0_to_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Go_0_to_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 handles.data.Step1=handles.data.img;
 
 if get(handles.invertColor,'Value'), handles.data.Step1=imcomplement(handles.data.Step1); end
@@ -374,7 +304,7 @@ load(segparam_filepath);
 % set(handles.Deconv,'Enable','off');
 
 % Get parameters from a SegParameters file
-set(handles.PixelSize,'String',PixelSize)
+set(handles.PixelSize,'String',SegParameters.PixelSize)
 set(handles.invertColor,'Value',SegParameters.invertColor);
 set(handles.histEq,'Value',SegParameters.histEq);
 set(handles.Deconv,'Value',SegParameters.Deconv);
@@ -399,8 +329,9 @@ if isfield(SegParameters,'parameters')
 % set(handles.parameters,'Value',SegParameters.parameters);
 
 handles.parameters=SegParameters.parameters;
-handles.classifier_final=SegParameters.DA_classifier;
-
+if isfield(SegParameters,'DA_classifier')
+    handles.classifier_final=SegParameters.DA_classifier;
+end
 end
 
 % Update handles
@@ -569,19 +500,8 @@ end
 
 % --- Executes on button press in Go_1_to_2.
 function Go_1_to_2_Callback(hObject, eventdata, handles)
-% hObject    handle to Go_1_to_2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-
-%--------------------------------------------------------------------------
-% if get(handles.LevelSet_step1,'Value')==1
-% %     test=double(handles.data.Step1);
-%     LevelSet_results=as_LevelSet_method(handles.data.Step1, get(handles.LevelSet_slider,'Value'));
-%     
-%     handles.data.Step2_seg=LevelSet_results.img;
-% else
     
 handles.data.Step2_seg=step1(handles);    
-% end
 %--------------------------------------------------------------------------
 
 axes(handles.plotseg);
@@ -611,23 +531,6 @@ set(handles.text_legend, 'Visible','on');
 [handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
 
 
-
-% Set max & initial values for step 2 sliders
-
-set(handles.minSize,'Max',max(cat(1,handles.stats_step2.EquivDiameter)));
-set(handles.Ellipticity,'Max',max(cat(1,handles.stats_step2.MinorMajorRatio)));
-set(handles.Solidity,'Max',max(cat(1,handles.stats_step2.Solidity)));
-
-% Axon min diameter set to 0.8 um for slider
-
-min_pixels=round(0.8/get(handles.PixelSize,'Value'));
-set(handles.minSize,'Value',min_pixels);
-% set(handles.minSize,'Value',0.1*get(handles.minSize,'Max'));
-
-set(handles.Ellipticity,'Value',0.4*get(handles.Ellipticity,'Max'));
-set(handles.Solidity,'Value',0.7*get(handles.Solidity,'Max'));
-
-
 guidata(hObject, handles);
 
 
@@ -636,15 +539,9 @@ guidata(hObject, handles);
 
 % --- Executes on button press in resetStep1.
 function resetStep1_Callback(hObject, eventdata, handles)
-% hObject    handle to resetStep1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
 axes(handles.plotseg);
 imshow(handles.data.img);
 
-% set(handles.panel_LS, 'Visible', 'off')
 set(handles.uipanel0, 'Visible', 'on')
 set(handles.uipanel1, 'Visible', 'off')
 guidata(hObject, handles);
@@ -670,14 +567,6 @@ guidata(hObject, handles);
 
 % --- Executes on button press in Go_2_to_3.
 function Go_2_to_3_Callback(hObject, eventdata, handles)
-% hObject    handle to Go_2_to_3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% handles.state.minSize=get(handles.minSize,'Value');
-% handles.state.Circularity=get(handles.Circularity,'Value');
-% handles.state.Solidity=get(handles.Solidity,'Value');
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
@@ -689,8 +578,6 @@ handles.data.DA_final = handles.data.Step3_seg;
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
-
-
 axes(handles.plotseg);
 
 handles.display.opt1=[0 0.75 0];
@@ -699,25 +586,12 @@ handles.display.type=1;
 
 GUI_display(1,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
 
-
-% -1-
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
-%     +sc(handles.data.Step1)));
-
-% 
-% sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1));
-% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg))
-
 % Segmentation parameters to save for future use (full image seg.)---------
 
 handles.segParam.invertColor=get(handles.invertColor,'Value');
 handles.segParam.histEq=get(handles.histEq,'Value');
 handles.segParam.Deconv=get(handles.Deconv,'Value');
 handles.segParam.Smoothing=get(handles.Smoothing,'Value');
-
-% handles.segParam.LevelSet=get(handles.LevelSet_step1,'Value');
-% handles.segParam.Only_LevelSet=get(handles.Only_LevelSet,'Value');
-% handles.segParam.LevelSet_iter=get(handles.LevelSet_slider,'Value');
 
 handles.segParam.initSeg=get(handles.initSeg,'Value');
 handles.segParam.diffMaxMin=get(handles.diffMaxMin,'Value');
@@ -754,12 +628,6 @@ handles.display.type=1;
 
 GUI_display(1,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
 
-
-% -1-
-% sc(get(handles.Transparency,'Value')*sc(handles.data.Step2_seg,'y',handles.data.Step2_seg)+sc(handles.data.Step1));
-% imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
-% 
-% set(handles.panel_LS, 'Visible', 'on');
 set(handles.uipanel1, 'Visible', 'on');
 set(handles.uipanel2, 'Visible', 'off');
 
@@ -1411,7 +1279,7 @@ if FileName
     PixelSize=get(handles.PixelSize,'Value');
     handles.segParam.PixelSize=PixelSize;
     SegParameters=handles.segParam;
-    save([PathName FileName], 'SegParameters', 'PixelSize');
+    save([PathName FileName], 'SegParameters');
 end
 savedir=[handles.outputdir 'results_cropped' filesep];
 mkdir(savedir);
@@ -2033,71 +1901,21 @@ guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function slider_ROC_plot_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider_ROC_plot (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-
-
-% --- Executes on selection change in listbox_step0.
 function listbox_step0_Callback(hObject, eventdata, handles)
-% hObject    handle to listbox_step0 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns listbox_step0 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from listbox_step0
-
-
-% --- Executes during object creation, after setting all properties.
 function listbox_step0_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to listbox_step0 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-
-% set(handles.listbox_step0,'Value', 1);
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
 function edit_test_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_test (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_test as text
-%        str2double(get(hObject,'String')) returns contents of edit_test as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function edit_test_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_test (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on button press in Regularize.
 function Regularize_Callback(hObject, eventdata, handles)
-% hObject    handle to Regularize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of Regularize
+function Transparency_CreateFcn(hObject, eventdata, handles)
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end

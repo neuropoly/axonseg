@@ -10,24 +10,6 @@ initSeg=get(handles.initSeg,'Value');
 diffMaxMin=get(handles.diffMaxMin,'Value');
 threshold=get(handles.threshold,'Value');
 
-% %% markov
-% 
-% I=double(im_in);
-% 
-% class_number=2;
-% potential=0.5;
-% maxIter=40;
-% 
-% im3=ICM(I,class_number,potential,maxIter);
-% im3=mat2gray(im3);
-% im3=im2bw(im3);
-% 
-
-
-
-% im3=imcomplement(im3);
-% im3=imfill(im3,'holes');
-
 
 %%
 
@@ -49,23 +31,8 @@ im3=bwmorph(im3,'close');
 im3=bwmorph(im3,'hbreak'); 
 im3 = bwareaopen(im3,5); %imshow(im3)
  
-
-% if get(handles.Only_LevelSet,'Value')
-%     
-% im4=as_LevelSet_method(im_in,get(handles.LevelSet_slider,'Value'));
-% im_out=im4.img;
-% 
-% elseif get(handles.LevelSet_step1,'Value')
-% 
-% im4=as_LevelSet_method(im_in,get(handles.LevelSet_slider,'Value'));
-% im_out= im1 | im2 | im3 | im4.img;
-% 
-% else
     
 im_out= im1 | im2 | im3;
-
-% im3=imcomplement(im3);
-% im_out= im3;
 
 end
 
