@@ -21,6 +21,7 @@ end
 
 if ~nargin
     FileName= uigetimagefile_v2;
+    if isempty(FileName), return; end
     varargin{1}=FileName;
 end
 
@@ -82,7 +83,7 @@ else
     set(hObject,'Value',px_tmp);
 end
 
-handles.segParam.PixelSize=get(handles.PixelSize,'Value');
+handles.segParam.PixelSize=str2num(get(handles.PixelSize,'String'));
 
 guidata(hObject, handles);
 
@@ -106,7 +107,7 @@ if PixelSize
 end
 
 
-handles.segParam.PixelSize=get(handles.PixelSize,'Value');
+handles.segParam.PixelSize=str2num(get(handles.PixelSize,'String'));
 
 guidata(hObject, handles);
 
@@ -1213,7 +1214,7 @@ drawnow;
 
 if isfield(handles.data,'DA_accepted')
 
-[tmp,border_removed_mask]=RemoveBorder(handles.data.DA_accepted,get(handles.PixelSize,'Value'));
+[tmp,border_removed_mask]=RemoveBorder(handles.data.DA_accepted,str2num(get(handles.PixelSize,'String')));
 % tmp=RemoveBorder(handles.data.DA_accepted);
 backBW=handles.data.DA_accepted & ~tmp;
 
@@ -1224,13 +1225,13 @@ else
 % handles.data.Step3_seg=img_BW_control;    
     
     
-[tmp,border_removed_mask]=RemoveBorder(handles.data.Step3_seg,get(handles.PixelSize,'Value'));
+[tmp,border_removed_mask]=RemoveBorder(handles.data.Step3_seg,str2num(get(handles.PixelSize,'String')));
 % tmp=RemoveBorder(handles.data.Step3_seg);
 backBW=handles.data.Step3_seg & ~tmp;
 
 end
 
-[axonlist,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,get(handles.Regularize,'Value'),2/3,0,get(handles.PixelSize,'Value'));
+[axonlist,handles.data.seg,handles.data.Step3_seg] = myelinInitialSegmention(handles.data.Step1, tmp, backBW,0,get(handles.Regularize,'Value'),2/3,0,str2num(get(handles.PixelSize,'String')));
 
 axes(handles.plotseg);
 sc(sc(handles.data.Step1)+sc(sum(handles.data.seg,3),'copper')+sc(border_removed_mask,[0.5 0.4 0.4], border_removed_mask));
@@ -1248,7 +1249,7 @@ end
 [FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
 
 if FileName
-    PixelSize=get(handles.PixelSize,'Value');
+    PixelSize=str2num(get(handles.PixelSize,'String'));
     handles.segParam.PixelSize=PixelSize;
     SegParameters=handles.segParam;
     save([PathName FileName], 'SegParameters');
@@ -1263,12 +1264,12 @@ mkdir(savedir);
 axonlist=axonlist([axonlist.gRatio]~=0);
 axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
 
-PixelSize = get(handles.PixelSize,'Value');
+PixelSize = str2num(get(handles.PixelSize,'String'));
 img=handles.data.img;
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
 
 % excel
-handles.stats = as_stats(handles.data.seg,get(handles.PixelSize,'Value'));
+handles.stats = as_stats(handles.data.seg,str2num(get(handles.PixelSize,'String')));
 handles.stats = struct2table(handles.stats);
 writetable(handles.stats,[savedir 'Stats.csv'])
 
@@ -1329,8 +1330,8 @@ if FileName
     
     %------------------
     
-    blocksize=300/get(handles.PixelSize,'Value');
-    overlap=30/get(handles.PixelSize,'Value');
+    blocksize=300/str2num(get(handles.PixelSize,'String'));
+    overlap=30/str2num(get(handles.PixelSize,'String'));
     
     %------------------
     
