@@ -327,7 +327,11 @@ function [hdr, orient] = change_hdr(hdr, tolerance, preferredForm)
       if det(R) == 0 | ~isequal(R(find(R)), sum(R)')
          hdr.hist.old_affine = [ [R;[0 0 0]] [T;1] ];
          R_sort = sort(abs(R(:)));
-         R( find( abs(R) < tolerance*min(R_sort(end-2:end)) ) ) = 0;
+         if tolerance == 1
+             R(~diag([1 1 1]))=0;
+         else
+             R( find( abs(R) < tolerance*min(R_sort(end-2:end)) ) ) = 0;
+         end
          hdr.hist.new_affine = [ [R;[0 0 0]] [T;1] ];
 
          if det(R) == 0 | ~isequal(R(find(R)), sum(R)')

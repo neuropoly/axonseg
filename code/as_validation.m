@@ -1,4 +1,6 @@
 function [Validation_results] = as_validation(img_BW_control,img_BW_test)
+% as_validation computes specificity, sensitivity, true prositive, true
+% negatives ...
 
 % img_path_1 = uigetimagefile;
 % img_BW_test = imread(img_path_1);

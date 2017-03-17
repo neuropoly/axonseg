@@ -15,6 +15,7 @@ MRIref=imref2d(size(MRI));
 histo(isnan(histo))=0;
 img3=imwarp(histo,tform,'outputview',MRIref);
 
+figure
 sc(img3)
 figure
 sc(MRI)

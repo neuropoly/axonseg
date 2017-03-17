@@ -1,10 +1,15 @@
 function [Index, Stats]=as_stats_Roi(axonlist, img, mask )
 % [Index, Stats] = as_stats_Roi(axonlist, img);
 % [Index, Stats] = as_stats_Roi(axonlist, [], mask)
+% [Index, Stats] = as_stats_Roi(axonlist, [], Poly) --> poly: Two dimentional [N,2] matrix with coordinates 
 % axonlist_ROI= axonlist(Index);
 
 if isempty(img)
-    P=mask2poly(mask);
+    if size(mask,2)>2
+        P=mask2poly(mask);
+    else
+        P=mask;
+    end
 else
     % polygon obtained manually
     P=as_tools_getroi(img);

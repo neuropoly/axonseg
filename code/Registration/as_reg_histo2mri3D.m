@@ -11,19 +11,19 @@ if ~exist('iT','var'), iT=1; end
 nii_ref=load_nii(ref);
 nii_src=load_nii(src);
 
-src_reg=zeros([size(nii_ref.img,1),size(nii_ref.img,2),nii_ref.dims(3),nii_src.dims(4)]);
+src_reg=zeros([size(nii_ref.img,1),size(nii_ref.img,2)]);
 
 if ~exist('tform','var')
-    for iz=1:nii_ref.dims(3)
+    for iz=1:size(nii_ref.img,3)
         tform{iz}=as_reg_histo2mri(nii_src.img(:,:,min(iz,end),iT),nii_ref.img(:,:,iz));
     end
     save transform tform
 end
 
 % apply
-MRIref=imref2d(nii_ref.dims(1:2));
-for iz=1:nii_ref.dims(3)
-    for istat=1:nii_src.dims(4)
+MRIref=imref2d(size(src_reg));
+for iz=1:size(nii_ref.img,3)
+    for istat=1:size(nii_src.img,4)
         nii_src.img(:,:,min(iz,end),istat)=fillnans(nii_src.img(:,:,min(iz,end),istat));
         src_reg(:,:,iz,istat)=imwarp(nii_src.img(:,:,min(iz,end),istat),tform{iz},'outputview',MRIref);
     end
