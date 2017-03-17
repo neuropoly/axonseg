@@ -555,16 +555,6 @@ guidata(hObject, handles);
 %%% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-
-
-
-
-
-
-
-
-
-
 % --- Executes on button press in Go_2_to_3.
 function Go_2_to_3_Callback(hObject, eventdata, handles)
 
@@ -1350,14 +1340,10 @@ if FileName
     set(handleArray,'Enable','off');
     drawnow;
     
-    
-%     handles.segParam.Regularize = get(handles.Regularize,'value');
-%     SegParameters=handles.segParam;
-    PixelSize=get(handles.PixelSize,'Value');
     handles.segParam.PixelSize=PixelSize;
     SegParameters=handles.segParam;
     
-    save([PathName FileName], 'SegParameters', 'PixelSize');
+    save([PathName FileName], 'SegParameters');
     
     %------------------
     
