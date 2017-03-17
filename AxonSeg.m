@@ -152,45 +152,27 @@ if get(handles.Smoothing,'Value')==1
     im_pre=as_gaussian_smoothing(im_pre);   
 end
 
-    axes(handles.plotseg);
-    imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
-%     
-%     handles.im_pre=im_pre;
-%     guidata(handles);
+axes(handles.plotseg);
+imshow(im_pre(1:handles.reducefactor:end,1:handles.reducefactor:end));
 
 
 % --- Executes on button press in invertColor.
 function handles=invertColor_Callback(hObject, eventdata, handles)
-% hObject    handle to invertColor (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 show_pre_process(handles);
-
 guidata(hObject, handles);
 
 % --- Executes on button press in histEq.
 function handles=histEq_Callback(hObject, eventdata, handles)
-% hObject    handle to histEq (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 show_pre_process(handles);
-
 guidata(hObject, handles);
 
 % --- Executes on button press in Smoothing.
 function Smoothing_Callback(hObject, eventdata, handles)
 show_pre_process(handles);
 guidata(hObject,handles);
-
     
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
-% hObject    handle to Deconv (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
                 handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.cropImage];
 
