@@ -24,7 +24,6 @@ else
     listcell_seg(rm)=[];
 end
 
-if isempty(listcell_seg), axonlist = as_myelinseg2axonlist(0,0);
 % list of cell 2 one list only
 axonlist(length(axonlistcell(:)))=listcell_seg{end};
 [axonlist.seg]=deal(listcell_seg{:});
