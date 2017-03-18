@@ -13,8 +13,18 @@ for nb=1:length(axonlistcell(:))
     else
         neworigin = blocksize(nb,:); % neworiginmatrix
     end
+    
     listcell_seg{nb}.seg=as_axonlist_changeorigin(axonlistcell{nb},neworigin);
 end
+% remove empty 
+rm = ~cellfun(@length,axonlistcell);
+if min(rm) % no axons in any block
+    axonlist = axonlistcell{1}; return
+else
+    listcell_seg(rm)=[];
+end
+
+if isempty(listcell_seg), axonlist = as_myelinseg2axonlist(0,0);
 % list of cell 2 one list only
 axonlist(length(axonlistcell(:)))=listcell_seg{end};
 [axonlist.seg]=deal(listcell_seg{:});
