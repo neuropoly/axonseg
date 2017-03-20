@@ -13,7 +13,8 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 % --------------------------------------------------------------------------------
 % EXAMPLE:
 %   bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-%   sc(sc(bw_axonseg,'hot')+sc(img))
+%   RGB = ind2rgb8(bw_axonseg,hot(150)); % create rgb mask [0 15um].
+%   as_display_LargeImage(RGB+repmat(img,[1 1 3])); % DISPLAY!
 
 
 dbstop error
