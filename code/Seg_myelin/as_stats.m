@@ -1,7 +1,7 @@
 function [AXstat, MorphoStat]=as_stats(myelinseg,pixelSize)
 % statis=as_stats(myelinseg,pixelSize)
 myelinseg=reshape2D(myelinseg,1);
-cc = bwconncomp(myelinseg, 4);
+cc = bwconncomp(myelinseg, 8);
 prop =regionprops(cc, {'Area', 'FilledArea'});
 
 % Creation of a struct var for the stats
