@@ -3,7 +3,7 @@ function axonlist=as_myelinseg2axonlist(seg,Pixelsize)
 emptyseg = find(~sum(sum(seg,1),2)); if ~isempty(emptyseg), seg(:,:,emptyseg)=[]; end
 stats=as_stats(seg,Pixelsize);
 if isempty(seg)
-    seg=zeros(size(seg,1),size(seg,2));
+    seg=zeros(max(2,size(seg,1)),max(2,size(seg,2)));
 end
 sfields=as_stats_fields;
 
