@@ -15,8 +15,8 @@ Data.img = img; Data.img_zoom = img;
 
 figure(76);
 Data.reducefactor=max(1,floor(size(Data.img,1)/1000));   % Max 1000 pixels size set for imshow
-imagesc(img(1:Data.reducefactor:end,1:Data.reducefactor:end))
-colormap gray; axis image
+imagesc(img(1:Data.reducefactor:end,1:Data.reducefactor:end,:))
+axis image
 guidata(76,Data)
 uicontrol('Style','pushbutton','String','reset','Callback',@(src,event) resestimg)
 uicontrol('Style','pushbutton','String','zoom','Callback',@(src,event) displayimg,'Position',[90 20 60 20])
@@ -30,8 +30,8 @@ Data = guidata(76);
 Data.img_zoom=as_improc_cutFromRect(Data.img_zoom, Data.reducefactor);
 
 Data.reducefactor=max(1,floor(size(Data.img_zoom,1)/1000));   % Max 1000 pixels size set for imshow
-imagesc(Data.img_zoom(1:Data.reducefactor:end,1:Data.reducefactor:end));
-colormap gray; axis image
+imagesc(Data.img_zoom(1:Data.reducefactor:end,1:Data.reducefactor:end,:));
+axis image
 
 guidata(76,Data)
 end
@@ -40,8 +40,8 @@ function resestimg
 Data = guidata(76);
 Data.reducefactor=max(1,floor(size(Data.img,1)/1000));   % Max 1000 pixels size set for imshow
 
-imagesc(Data.img(1:Data.reducefactor:end,1:Data.reducefactor:end))
-colormap gray; axis image
+imagesc(Data.img(1:Data.reducefactor:end,1:Data.reducefactor:end,:))
+axis image
 
 Data.img_zoom = Data.img;
 guidata(76,Data)
