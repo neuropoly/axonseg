@@ -93,7 +93,24 @@ if ~isempty(writeimg)
     else
         maxval = 1; scale =1; unit = '_NoAxonsDetected';
     end
+    try
     reducefactor=max(1,ceil(max(size(writeimg))/25000));   
     RGB = ind2rgb8(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval));
+    if reducefactor>1 % if quality is reduced
+        warning('Image too big. Output image quality will is  reduced.')
+    end
+    
+    catch % ind2rgb8 not installed
+        try %  install ind2rgb8
+            ind2rgb8dir = fileparts(fileparts(mfilename('fullpath')));
+            mex([ind2rgb8dir filesep 'utils' filesep 'ind2rgb8.c'])
+        catch % reduce quality
+            reducefactor=max(1,ceil(max(size(writeimg))/5000));   
+            if reducefactor>1 % if quality is reduced
+                warning('ind2rgb8 not installed correctly for your OS. Output image quality will is  reduced.')
+            end
+            RGB = uint8(ind2rgb(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval)));
+        end
+    end
     imwrite(0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
 end
