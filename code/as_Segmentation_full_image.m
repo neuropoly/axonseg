@@ -28,7 +28,7 @@ end
 blocksize = blocksize + overlap;
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
-    output=[name '_Segmentation'];
+    output=[matlab.lang.makeValidName(name) '_Segmentation'];
 end
 
 if ~exist(output,'dir'), mkdir(output); end
