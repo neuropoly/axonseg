@@ -940,7 +940,7 @@ img = imresize(handles.data.Step1,0.5);  % return to original size.
 [axonlist,handles.data.seg,Step3_seg] = myelinInitialSegmention(img, AxSeg_noborder, backBW,0,get(handles.Regularize,'Value'),2/3,0,str2num(get(handles.PixelSize,'String')));
 
 axes(handles.plotseg);
-handles.display.seg1 = imresize(handles.data.seg,2);
+handles.display.seg1 = imresize(handles.data.seg,2,'nearest');
 handles.display.opt1 = cat(1,[0 0 0],jet(255));
 handles.display.seg2 = imresize(border_removed_mask,2);
 handles.display.opt2 = [0.5 0.4 0.4];

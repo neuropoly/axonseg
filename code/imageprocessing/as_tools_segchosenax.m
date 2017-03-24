@@ -5,7 +5,7 @@ imshow(imfuse(img,AxonSeg));
 
 chosenAxon=as_select_obj(AxonSeg);
 backBW=AxonSeg & ~chosenAxon;
-[MyelSeg] = myelinInitialSegmention(img, chosenAxon, backBW,1,1);
+[~,MyelSeg] = myelinInitialSegmention(img, chosenAxon, backBW,1,1,2/3,0,1);
 
 figure(92);
 imshow(imfuse(img,MyelSeg));

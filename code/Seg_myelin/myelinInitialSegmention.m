@@ -94,7 +94,7 @@ for currentAxonLabel = 1:numAxon
     end
     imRadialProfile(maskRadialProfile)=maxi;
     if verbose
-        anglestoshow=round(linspace(1,numAnglesRadialProfile,5)); anglestoshow=anglestoshow(1:end-1);
+        anglestoshow=round(linspace(1,numAnglesRadialProfile,10)); anglestoshow=anglestoshow(1:end-1);
         figure(43)
         imPlusbg=imfuse(im,axonBW);
         for i=logspace(3,1.5,10), imzoom(imPlusbg,currentAxonBoundary{1},i), pause(0.1), end
@@ -113,7 +113,9 @@ for currentAxonLabel = 1:numAxon
     %     end
     % compute gradient
     [imRadialProfileGrad, ~] = imgradientxy(imRadialProfile, 'Sobel');
-    if max(imRadialProfileGrad(:))==0, continue; end
+    if max(imRadialProfileGrad(:))==0, 
+        continue; 
+    end
     % Image normalisation Scale between 0 and 1
     imRadialProfileGrad = (imRadialProfileGrad - min(imRadialProfileGrad(:)))./(max(imRadialProfileGrad(:)) - min(imRadialProfileGrad(:)));
     if 0
@@ -223,7 +225,7 @@ end
 %     axonlist(currentAxonLabel).conflict = ConflictsRatio(currentAxonLabel) ;
 % end
 if nargout>1
-    MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'random');
+    MyelinMask = as_display_label(axonlist,size(im),'random' ,'myelin');
 end
 
 %% Compute conflicts
@@ -266,9 +268,17 @@ if nargin < 3
     numAngles = 36;
 end
 
+% interpolate if small axon
+if length(radialProfileStartpoint)<20
+    radialProfileStartpoint_interp(:,1) = interp1(linspace(0,pi,length(radialProfileStartpoint(:,1))),radialProfileStartpoint(:,1),linspace(0,pi,20));
+    radialProfileStartpoint_interp(:,2) = interp1(linspace(0,pi,length(radialProfileStartpoint(:,2))),radialProfileStartpoint(:,2),linspace(0,pi,20));
+else
+    radialProfileStartpoint_interp = radialProfileStartpoint;
+end
+
 % Repeate the profile 3 times to ensure continuity
-yy = [[radialProfileStartpoint(:, 1)' radialProfileStartpoint(:, 1)' radialProfileStartpoint(:, 1)']; [radialProfileStartpoint(:, 2)' radialProfileStartpoint(:, 2)' radialProfileStartpoint(:, 2)']];
-th = pi*(0:6/((3*length(radialProfileStartpoint)-1)):6);
+yy = [[radialProfileStartpoint_interp(:, 1)' radialProfileStartpoint_interp(:, 1)' radialProfileStartpoint_interp(:, 1)']; [radialProfileStartpoint_interp(:, 2)' radialProfileStartpoint_interp(:, 2)' radialProfileStartpoint_interp(:, 2)']];
+th = pi*(0:6/((3*length(radialProfileStartpoint_interp)-1)):6);
 
 pp = csaps(th,yy, 0.99);
 startPoint = ppval(pp, linspace(2*pi,4*pi,numAngles))'; % eval the middle 1/3 of the spline
