@@ -20,9 +20,6 @@ im1=imfill(im1,'holes'); %imshow(initialBW)
 
 im2 = axonInitialSegmentation(im_in, diffMaxMin);
 
-
-
-
 im3=im_in<prctile(im_in(:),100*threshold);
 
 

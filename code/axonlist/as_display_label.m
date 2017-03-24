@@ -4,7 +4,7 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 %
 % --------------------------------------------------------------------------------
 % INPUTS:   
-%   metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number'}
+%   metric {'gRatio' | 'axonEquivDiameter' | 'myelinThickness' | 'axon number' | 'random'}
 %   Units: gRatio in percents / axonEquivDiameter in  um x 10 /
 %   myelinThickness in um x 10
 %   displaytype {'axon' | 'myelin'} = 'myelin'
@@ -71,6 +71,9 @@ for i=Naxon:-1:1
                 case 'axon number'
                     scale = 1; unit = '';
                     im_out(ind)=i;
+                case 'random'
+                    scale = 1; unit = '';
+                    im_out(ind)=uint8(rand*254+1);
                 otherwise
                     scale = 1; unit = '';
                     im_out = double(im_out);

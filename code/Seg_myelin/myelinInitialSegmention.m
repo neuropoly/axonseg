@@ -12,12 +12,13 @@ maxi=max(max(max(im)));
 im=double(im);
 
 % Check inputs
-axonBW=im2bw(axonBW);
+if ~islogical(axonBW)
+    axonBW=im2bw(axonBW);
+end
 
-% [axonBW,border_removed_mask]=RemoveBorder(axonBW,pix_size);
-
-% axonBW=RemoveBorder(axonBW);
-backBW=im2bw(backBW);
+if ~islogical(backBW)
+    backBW=im2bw(backBW);
+end
 im=sum(im,3);
 
 [axonLabel, numAxon] = bwlabel(axonBW);
@@ -222,7 +223,7 @@ end
 %     axonlist(currentAxonLabel).conflict = ConflictsRatio(currentAxonLabel) ;
 % end
 if nargout>1
-    MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'myelin');
+    MyelinMask = as_display_label(axonlist,size(im),'axonEquivDiameter' ,'random');
 end
 
 %% Compute conflicts
