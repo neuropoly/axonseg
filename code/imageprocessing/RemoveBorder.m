@@ -2,9 +2,9 @@
 function [im_in,border_removed_mask]=RemoveBorder(im_in,pix_size)
 
 MaximalMyelinLength=25;
-MinimalMyelinLength=5;
+MinimalMyelinLength=2;
 
-nbr_pixels_remove=round(2*(1/pix_size));
+nbr_pixels_remove=round((.4/pix_size));
 
 if nbr_pixels_remove>MaximalMyelinLength
     nbr_pixels_remove=MaximalMyelinLength;
