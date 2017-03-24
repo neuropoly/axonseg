@@ -917,12 +917,9 @@ set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.MyelinSeg];
-% 
-set(handleArray,'Enable','off');
+set(findobj('Name','AxonSeg'),'pointer', 'watch');
 drawnow;
+
 
 
 %---
@@ -1001,7 +998,7 @@ copyfile(which('colorbarhot.png'),savedir);
 
 %--------------------------------------------------------------------------
 
-set(handleArray,'Enable','on');
+set(findobj('Name','AxonSeg'),'pointer', 'arrow');
 
 guidata(hObject, handles);
 
@@ -1026,7 +1023,7 @@ if FileName
     set(handleArray,'Enable','off');
     drawnow;
     
-    handles.segParam.PixelSize=PixelSize;
+    handles.segParam.PixelSize=str2num(get(handles.PixelSize,'String'));
     SegParameters=handles.segParam;
     
     save([PathName FileName], 'SegParameters');
@@ -1425,11 +1422,7 @@ function slider_ROC_plot_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.MyelinSeg];
-
-set(handleArray,'Enable','off');
+set(hObject,'pointer', 'watch');
 drawnow;
 
 % Make sure the slider value is an integer
@@ -1468,11 +1461,7 @@ handles.display.type=2;
 
 GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
 
-% -1-
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.DA_accepted,[0 0.75 0],handles.data.DA_accepted)...
-%     +get(handles.Transparency,'Value')*sc(Rejected_axons_img,[1 0.5 0],Rejected_axons_img)+sc(handles.data.Step1)));
-
-set(handleArray,'Enable','on');
+set(hObject,'pointer', 'arrow');
  
 guidata(hObject,handles);
 
