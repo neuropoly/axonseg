@@ -13,11 +13,16 @@ n_blockj=length(1:(blocksize-overlap):n);
 disp(['Loop over blocks of ' num2str(blocksize) ' pixels (' num2str(n_blocki*n_blockj) ' blocks in total) :'])
 im_array=cell(n_blockj,n_blocki);
 
-if isdeployed && license('checkout','Distrib_Computing_Toolbox') && n_blocki*n_blockj>10
-    parpool
+if license('checkout','Distrib_Computing_Toolbox')
+    if n_blocki*n_blockj==1 % if only one block
+        parforArg = 0;
+    else
+        parforArg = Inf;
+        parpool
+    end
 end
 
-for block=1:n_blocki*n_blockj
+parfor(block=1:n_blocki*n_blockj,parforArg)
     j=1+(blocksize-overlap)*(mod(block-1,n_blockj));
     i=1+(blocksize-overlap)*(block-mod(block-1,n_blockj)-1)/n_blockj;
     

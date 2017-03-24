@@ -106,6 +106,7 @@ if outputstats
     
     figure
     sc(stats_downsample(:,:,7))
+    drawnow;
     msgbox({'Use the slider to generate mask' 'Press any key when you are done..'})
     hsl = uicontrol('Style','slider','Min',0,'Max',1000,...
         'SliderStep',[1 1]./50,'Value',100,...

@@ -20,14 +20,15 @@ end
 load(SegParameters);
 
 if ~exist('blocksize','var') || isempty(blocksize)
-    blocksize=1000;
+    blocksize=4097;
 end
 if ~exist('overlap','var') || isempty(overlap)
-    overlap=200;
+    overlap=100;
 end
+blocksize = blocksize + overlap;
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
-    output=[name '_Segmentation'];
+    output=[matlab.lang.makeValidName(name) '_Segmentation'];
 end
 
 if ~exist(output,'dir'), mkdir(output); end
@@ -42,39 +43,32 @@ end
 %% SEGMENTATION
 
 disp('Starting segmentation..')
-Seg_results=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,1);
-if SegParameters.do_myelin
-    % clean conflicts
-    Seg_results=as_blockwise_fun(@(x,y) myelinCleanConflict(x,y,0.5),Seg_results, 1,0);
-end
+axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
 
-save([output, 'bwmyelin_seg_results'], 'Seg_results', 'blocksize', 'overlap', 'PixelSize', '-v7.3')
-[ axonlist ] = as_myelinseg_blocks_bw2list( Seg_results, PixelSize, blocksize, overlap, SegParameters.do_myelin);
-img=cell2mat(cellfun(@(x) x.img, Seg_results,'Uniformoutput',0));
-img=as_improc_rm_overlap(img,blocksize,overlap);
+[ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
+img = imadjust(handles.data.img);
+% img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
+% img=as_improc_rm_overlap(img,blocksize,overlap);
 
 
 %% SAVE
 % save axonlist
+PixelSize = SegParameters.PixelSize;
 save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
-delete([output, 'bwmyelin_seg_results.mat'])
 
 
 % save jpeg
 % save axon display
-axons_map=as_display_label(axonlist, size(img),'axonEquivDiameter','axon');
-maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
-RGB = ind2rgb8(axons_map,hot(maxdiam*10));
-img_diam=0.5*RGB+0.5*repmat(img,[1 1 3]); img_diam=img_diam(1:2:end,1:2:end,:); % divide resolution by two --> some bugs in large images: https://www.mathworks.com/matlabcentral/answers/299662-imwrite-generates-incorrect-files-by-mixing-up-colors
-imwrite(img_diam,[output 'axonEquivDiameter_(axons)_0µm_' num2str(maxdiam) 'µm.jpg'])
+currentdir = pwd;
+cd(output);
+as_display_label(axonlist, size(img),'axonEquivDiameter','axon',img);
 
 % save myelin display
-myelin_map=as_display_label(axonlist, size(img),'axonEquivDiameter','myelin');
-RGB = ind2rgb8(myelin_map,hot(maxdiam*10));
-imwrite(0.5*RGB+0.5*repmat(img,[1 1 3]),[output 'axonEquivDiameter_(myelins)_0µm_' num2str(maxdiam) 'µm.jpg']);
+as_display_label(axonlist, size(img),'axonEquivDiameter','myelin',img);
+cd(currentdir);
 copyfile(which('colorbarhot.png'),output)
 
-function [im_out,AxSeg]=fullimage(im_in,segParam)
+function [axonlist,AxSeg]=fullimage(im_in,segParam)
 
 % Apply initial parameters (invertion, histogram equalization, convolution)
 % to the full image
@@ -92,26 +86,24 @@ if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
 %     AxSeg=LevelSet_results.img;
 % 
 % else
-    
-AxSeg=step1_full(im_in,segParam);    
+
+AxSeg=step1_full(imresize(im_in,2),segParam);    
     
 % end
 
 
 % Step 2 - discrimination for axon segmentation
-
+% 
 if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
-    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,im_in);
+    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,imresize(im_in,2));
 else
     AxSeg=step2_full(AxSeg,segParam);
 end
 
+AxSeg = imresize(AxSeg,0.5);
 
-if segParam.do_myelin==0
-    im_out = AxSeg;
-else
-    %Myelin Segmentation
-    [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
-    backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-    [im_out] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,1);
-end
+
+%Myelin Segmentation
+[AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
+backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
+[axonlist] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,segParam.Regularize,2/3,0,segParam.PixelSize);

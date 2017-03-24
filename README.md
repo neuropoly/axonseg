@@ -11,15 +11,16 @@ Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 
 The main GUI is also available on Matlab File Exchange (https://www.mathworks.com/matlabcentral/fileexchange/53840-axonseg).
 
+## Help & Support
+
+For help or support related to AxonSeg (bugs, trouble with installation, feedback), please add an issue at https://github.com/neuropoly/axonseg/issues.
+
 ## Tutorials
 
 Link to video demo (SegmentationGUI.m): https://github.com/neuropoly/axonseg/releases/download/v2.1/Axon_Segmentation_GUI_Quick_Overview.mp4.
 
-After installation, run the ```code/tutorial/as_tutorial.m``` script line by line to get a better understanding of AxonSeg.
+After installation, run the ```as_tutorial.m``` script line by line to get a better understanding of AxonSeg.
 
-Old tutorials:
-  * **SegmentationGUI**: Segment using Graphical interface --> https://drive.google.com/open?id=0B2Xe6kvfjHHnLVE1N2lMYktWMGM
-  * **myelinInitialSegmention** : Segment myelin using axon segmentation as input -->  https://drive.google.com/open?id=0B2Xe6kvfjHHncWVRMG5mS3JZQUE
 
 ## Segment any type of histology
 ![alt tag](https://github.com/neuropoly/axon_segmentation/blob/master/doc/various_modalities.png)
