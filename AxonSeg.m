@@ -1422,7 +1422,7 @@ function slider_ROC_plot_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(hObject,'pointer', 'watch');
+set(findobj('Name','AxonSeg'),'pointer', 'watch');
 drawnow;
 
 % Make sure the slider value is an integer
@@ -1461,7 +1461,7 @@ handles.display.type=2;
 
 GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
 
-set(hObject,'pointer', 'arrow');
+set(findobj('Name','AxonSeg'),'pointer', 'arrow');
  
 guidata(hObject,handles);
 
