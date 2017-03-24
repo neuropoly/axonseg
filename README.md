@@ -7,9 +7,7 @@ Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 
 2 - Add the folder *code* to your Matlab path
 
-3 - Run the script SegmentationGUI
-
-The main GUI is also available on Matlab File Exchange (https://www.mathworks.com/matlabcentral/fileexchange/53840-axonseg).
+3 - Run the script AxonSeg.m
 
 ## Help & Support
 
@@ -31,6 +29,6 @@ After installation, run the ```as_tutorial.m``` script line by line to get a bet
 
 **Reference**: [Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037](http://journal.frontiersin.org/article/10.3389/fninf.2016.00037/abstract)
 
-Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
+Copyright (c) 2017 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
 
 
