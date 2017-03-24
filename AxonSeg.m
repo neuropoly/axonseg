@@ -970,7 +970,7 @@ axonlist=axonlist([axonlist.gRatio]~=0);
 axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
 
 PixelSize = str2num(get(handles.PixelSize,'String'));
-img=handles.data.img;
+
 save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
 
 % excel
@@ -979,11 +979,12 @@ handles.stats = struct2table(handles.stats);
 writetable(handles.stats,[savedir 'Stats.csv'])
 
 % AxonDiameter Labelled
-AxCaliberLabelled=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter');
-imwrite(sc(sc(handles.data.img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.tif']);
+img = imresize(handles.data.img,.5);
+AxCaliberLabelled=as_display_label(axonlist,size(img),'axonEquivDiameter');
+imwrite(sc(sc(img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.tif']);
 
-AxonsOnly=as_display_label(axonlist,size(handles.data.img),'axonEquivDiameter','axon');
-imwrite(sc(sc(handles.data.img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
+AxonsOnly=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+imwrite(sc(sc(img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
 
 bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
 img_BW_myelins=im2bw(bw_axonseg,0);
@@ -991,8 +992,8 @@ imwrite(img_BW_myelins,[savedir 'Seg_mask_myelin.tif']);
 
 %--------------------------------------------------------------------------
 
-imwrite(handles.data.Step1,[savedir 'Step_1_Pre_Processing.tif']);
-imwrite(handles.data.Step2_seg,[savedir 'Step_2_Initial_AxonSeg.tif']);
+imwrite(imresize(handles.data.Step1,.5),[savedir 'Step_1_Pre_Processing.tif']);
+imwrite(imresize(handles.data.Step2_seg,.5),[savedir 'Step_2_Initial_AxonSeg.tif']);
 imwrite(Step3_seg,[savedir 'Step_3_Final_AxonSeg.tif']);
 
 
