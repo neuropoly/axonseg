@@ -94,7 +94,7 @@ if length(varargin)>1,
     end
 else
     [path, filename, ext]=fileparts(varargin{1});
-    handles.axsegfname = fullfile(path, [filename '_ManualSeg'], ext);
+    handles.axsegfname = fullfile(path, [filename '_ManualSeg' ext]);
     handles.bw_axonseg = false(size(handles.img));
 end
 
@@ -397,7 +397,7 @@ if zoom_val>1
     set(handles.slider_y, 'SliderStep', [1/(size(handles.img,2)-length_x) , 20/(size(handles.img,2)-length_x) ]);
     set(handles.slider_y,'Value',0);
     
-    update_display(hObject, eventdata, handles);
+    handles = update_display(hObject, eventdata, handles);
     
 else
     
@@ -486,7 +486,7 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
-function update_display(hObject, eventdata, handles)
+function handles = update_display(hObject, eventdata, handles)
 
 length_y=handles.length_y;
 length_x=handles.length_x;
