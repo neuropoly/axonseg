@@ -18,9 +18,9 @@ if license('checkout','Distrib_Computing_Toolbox')
         parforArg = 0;
     else
         parforArg = Inf;
-        try
-            parpool
-        end
+        poolobj = gcp('nocreate');
+        delete(poolobj);
+        parpool
     end
 end
 
