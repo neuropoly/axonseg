@@ -5,6 +5,7 @@ if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end
+if ~exist('PixelSize','var'), PixelSize=1;  end % unit is pixel
 
 % initialize params
 axonlist = as_myelinseg2axonlist(false(size(axonBW)),1);
