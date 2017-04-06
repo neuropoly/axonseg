@@ -94,7 +94,7 @@ if length(varargin)>1,
     end
 else
     [path, filename, ext]=fileparts(varargin{1});
-    handles.axsegfname = fullfile(path, [filename '_ManualSeg'], ext);
+    handles.axsegfname = fullfile(path, [filename '_ManualSeg' ext]);
     handles.bw_axonseg = false(size(handles.img));
 end
 
