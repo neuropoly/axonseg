@@ -61,10 +61,10 @@ for i=Naxon:-1:1
                     scale = 100; unit = '';
                     im_out(ind)=uint8(AxStats(i).gRatio(1)*scale);
                 case 'axonEquivDiameter'
-                    scale = 10; unit = 'µm';
+                    scale = 10; unit = 'um';
                     im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*scale);
                 case 'myelinThickness'
-                    scale = 10; unit = 'µm';
+                    scale = 10; unit = 'um';
                     im_out(ind)=uint8(AxStats(i).myelinThickness(1)*scale);
                 case 'axon number'
                     scale = 1; unit = '';
@@ -106,6 +106,7 @@ if ~isempty(writeimg)
         try %  install ind2rgb8
             ind2rgb8dir = fileparts(fileparts(mfilename('fullpath')));
             mex([ind2rgb8dir filesep 'utils' filesep 'ind2rgb8.c'])
+            RGB = ind2rgb8(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval));
         catch % reduce quality
             reducefactor=max(1,ceil(max(size(writeimg))/5000));   
             if reducefactor>1 % if quality is reduced
