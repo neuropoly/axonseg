@@ -24,13 +24,6 @@ end
 
 load(SegParameters);
 
-if ~exist('blocksize','var') || isempty(blocksize)
-    blocksize=4097;
-end
-if ~exist('overlap','var') || isempty(overlap)
-    overlap=100;
-end
-blocksize = blocksize + overlap;
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
     output=[matlab.lang.makeValidName(name) '_Segmentation'];
@@ -44,6 +37,18 @@ handles.data.img=imread(im_fname);
 if length(size(handles.data.img))==3
     handles.data.img=rgb2gray(handles.data.img(:,:,1:3));
 end
+
+if ~exist('blocksize','var') || isempty(blocksize)
+    blocksize=2048;
+    % blocks of similar size
+    blocksize = ceil(min(size(handles.data.img))/ceil(min(size(handles.data.img))/blocksize));
+end
+if ~exist('overlap','var') || isempty(overlap)
+    % 20 microns overlap. >50px
+    overlap=max(50,min(round(blocksize/2),20/SegParameters.PixelSize));
+end
+blocksize = blocksize + overlap;
+
 % read axonseg if exists.
 if exist('axonbw_fname','var'), handles.data.img(:,:,2) = imread(axonbw_fname); end
 %% SEGMENTATION

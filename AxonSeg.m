@@ -1,10 +1,29 @@
 function varargout = AxonSeg(varargin)
 
 % AxonSeg: Axon Segmentation Toolbox
-%   AxonSeg() starts the Graphical User Interface
+%   AxonSeg() starts the Graphical User Interface (GUI)
 %
-% Reference: Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037
-% Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
+%   AxonSeg( fname ) starts the GUI and load image fname (e.g. image.tif)
+%   AxonSeg( fname, SegParameters ) load the parameters from SegParameters
+%   file (e.g. SegParameters.mat)
+%   AxonSeg( fname, SegParameters, '-nogui' ) starts the segmentation
+%   of the image (nogui)
+%   AxonSeg( {fname, axon_mask_fname}, SegParameters, '-nogui' ) starts the
+%   myelin segmentation
+% ----------------------------------------------------------------------------------------------------
+% Example:
+%   Segment and generate a SegParameters.mat file:
+%     AxonSeg test_image_OM_crop.tif
+%
+%   Segment a new image using the same SegParameters:
+%     AxonSeg test_image_2.tif SegParameters.mat -nogui
+%
+%   Segment myelin using a corrected axon mask:
+%     AxonSeg({'RawImage.tif','Seg_mask_axon_corr.tif'}, 'SegParameters.mat', '-nogui')
+% ----------------------------------------------------------------------------------------------------
+%
+% Reference: Zaimi A, Duval T, Gasecka A, Cote D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037
+% Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Universite Laval)
 %
 % See Also : as_Segmentation_full_image, myelinInitialSegmention
 
@@ -25,6 +44,12 @@ if ~nargin
     varargin{1}=FileName;
 end
 
+nogui = strcmp(varargin,'-nogui');
+if nargin>2 && max(nogui)
+    varargin(nogui) = [];
+    as_Segmentation_full_image(varargin{:})
+    return;
+end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
@@ -35,10 +60,14 @@ end
 
 % --- Executes just before AxonSeg is made visible.
 function AxonSeg_OpeningFcn(hObject, eventdata, handles, varargin)
+% read input
 handles.varargin=varargin{1};
 set(handles.go_full_image,'String', '<html>Segment full image <br>(uncropped)</html>');
 [handles.outputdir,handles.fname]=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
 handles.fname = matlab.lang.makeValidName(handles.fname);
+
+if length(varargin)>1, LoadSegParam_Callback(hObject, eventdata, handles, varargin{2}); end
+% read image
 if ~isfield(handles,'data') || ~isfield(handles.data,'raw')
     handles.data.raw=imresize(imread(handles.varargin),2);
 end
@@ -264,10 +293,13 @@ AxonSeg_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
 
 
-function LoadSegParam_Callback(hObject, eventdata, handles)
+function LoadSegParam_Callback(hObject, eventdata, handles, Param_fname)
 % Select segmentation parameters file to load
-
-[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+if ~exist('Param_fname','var') || ~exist(Param_fname,'file') 
+[FileName,PathName] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+else
+    [PathName,FileName] = fileparts(Param_fname);
+end
 segparam_filepath = [PathName FileName];
 load(segparam_filepath);
 
@@ -950,7 +982,9 @@ GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 %% SAVE
 
 % save SegParam
-handles.outputdir = uigetdir(handles.outputdir,'Save Results in this directory'); handles.outputdir = [handles.outputdir filesep];
+odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
+if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
+handles.outputdir = [handles.outputdir filesep];
 
 savedir=[handles.outputdir handles.fname '_AxonSeg_cropped' filesep];
 mkdir(savedir);
@@ -1018,14 +1052,12 @@ handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAna
 set(handleArray,'Enable','off');
 drawnow;
 
-%------------------
-
-blocksize=300/str2num(get(handles.PixelSize,'String'));
-overlap=30/str2num(get(handles.PixelSize,'String'));
 
 %------------------
 
-handles.outputdir = uigetdir(handles.outputdir,'Save Results in this directory'); handles.outputdir = [handles.outputdir filesep];
+odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
+if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
+handles.outputdir = [handles.outputdir filesep];
 savedir=[handles.outputdir handles.fname '_AxonSeg_full' filesep];
 mkdir(savedir);
 % save SegParameters
@@ -1034,7 +1066,7 @@ handles.segParam.PixelSize=PixelSize;
 SegParameters=handles.segParam;
 save([savedir 'SegParameters.mat'], 'SegParameters');
 % AxonSeg
-as_Segmentation_full_image(handles.varargin,[savedir 'SegParameters.mat'],blocksize,overlap,savedir);
+as_Segmentation_full_image(handles.varargin,[savedir 'SegParameters.mat'],[],[],savedir);
 
 set(handleArray,'Enable','on');
 set(findobj('Name','AxonSeg'),'pointer', 'arrow');
