@@ -36,7 +36,7 @@ sFields=as_stats_fields;
 stats_downsample=zeros([length(Xcoords) length(Ycoords) length(sFields)+5]);
 
 % create cell array with same size as downsample image
-if nargout>3, axonlistcell=cell(length(Xcoords),length(Ycoords)); end
+if nargout>2, axonlistcell=cell(length(Xcoords),length(Ycoords)); end
 
 % for each downsample cell, calculate mean stats from axonlist
 for x=1:length(Xcoords)
@@ -47,7 +47,7 @@ for x=1:length(Xcoords)
         inpixel=Centroids(:,1)>Xcoords(x) & Centroids(:,1)<Xcoords(min(x+1,end)) & Centroids(:,2)>Ycoords(y) & Centroids(:,2)<Ycoords(min(y+1,end));
         
         % copy identified centroids in related axonlist cell
-        if nargout>3, axonlistcell{x,y}=inpixel; end
+        if nargout>2, axonlistcell{x,y}=inpixel; end
         
         % if outputstats true
         if outputstats
