@@ -17,7 +17,7 @@ for nb=1:length(axonlistcell(:))
     listcell_seg{nb}.seg=as_axonlist_changeorigin(axonlistcell{nb},neworigin);
 end
 % remove empty 
-rm = ~cellfun(@length,axonlistcell);
+rm = ~cellfun(@length,axonlistcell(:));
 if min(rm) % no axons in any block
     axonlist = axonlistcell{1}; return
 else
@@ -25,7 +25,7 @@ else
 end
 
 % list of cell 2 one list only
-axonlist(length(axonlistcell(:)))=listcell_seg{end};
+axonlist(length(listcell_seg))=listcell_seg{end};
 [axonlist.seg]=deal(listcell_seg{:});
 axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(logical([axonlist.myelinAera])); % weird but works (fast).. keep everything
 
