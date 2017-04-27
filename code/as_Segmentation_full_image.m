@@ -13,19 +13,17 @@ if ~exist('im_fname','var') || isempty(im_fname)
           '*.*','All Files' });
 end
 
+if iscell(im_fname)
+    axonbw_fname=im_fname{2};
+    im_fname=im_fname{1};
+end
+
 if ~exist('SegParameters','var') || isempty(SegParameters)
     SegParameters=uigetfile({'*.mat'});
 end
 
 load(SegParameters);
 
-if ~exist('blocksize','var') || isempty(blocksize)
-    blocksize=4097;
-end
-if ~exist('overlap','var') || isempty(overlap)
-    overlap=100;
-end
-blocksize = blocksize + overlap;
 if ~exist('output','var') || isempty(output)
     [~,name]=fileparts(im_fname);
     output=[matlab.lang.makeValidName(name) '_Segmentation'];
@@ -40,11 +38,24 @@ if length(size(handles.data.img))==3
     handles.data.img=rgb2gray(handles.data.img(:,:,1:3));
 end
 
+if ~exist('blocksize','var') || isempty(blocksize)
+    blocksize=2048;
+    % blocks of similar size
+    blocksize = ceil(min(size(handles.data.img))/ceil(min(size(handles.data.img))/blocksize));
+end
+if ~exist('overlap','var') || isempty(overlap)
+    % 20 microns overlap. >50px
+    overlap=max(50,min(round(blocksize/2),20/SegParameters.PixelSize));
+end
+blocksize = blocksize + overlap;
+
+% read axonseg if exists.
+if exist('axonbw_fname','var'), handles.data.img(:,:,2) = imread(axonbw_fname); end
 %% SEGMENTATION
 
 disp('Starting segmentation..')
 axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
-
+handles.data.img = handles.data.img(:,:,1);
 [ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
 img = imadjust(handles.data.img);
 % img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
@@ -66,13 +77,12 @@ as_display_label(axonlist, size(img),'axonEquivDiameter','axon',img);
 % save myelin display
 as_display_label(axonlist, size(img),'axonEquivDiameter','myelin',img);
 cd(currentdir);
-copyfile(which('colorbarhot.png'),output)
 
 function [axonlist,AxSeg]=fullimage(im_in,segParam)
 
 % Apply initial parameters (invertion, histogram equalization, convolution)
 % to the full image
-
+if size(im_in,3)==2, AxSeg = logical(im_in(:,:,2)); im_in = im_in(:,:,1); end
 if segParam.invertColor, im_in=imcomplement(im_in); end
 if segParam.histEq, im_in=histeq(im_in,segParam.histEq); end;
 if segParam.Deconv,im_in=Deconv(im_in,segParam.Deconv); end;
@@ -80,28 +90,20 @@ if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
 
 % Step1 - initial axon segmentation using the 3 parameters given
 
-% if segParam.LevelSet
-%     
-%     LevelSet_results=as_LevelSet_method(im_in);
-%     AxSeg=LevelSet_results.img;
-% 
-% else
-
-AxSeg=step1_full(imresize(im_in,2),segParam);    
+if ~exist('AxSeg','var')
+    AxSeg=step1_full(imresize(im_in,2),segParam);
     
-% end
-
-
-% Step 2 - discrimination for axon segmentation
-% 
-if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
-    AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,imresize(im_in,2));
-else
-    AxSeg=step2_full(AxSeg,segParam);
+    
+    % Step 2 - discrimination for axon segmentation
+    %
+    if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
+        AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,imresize(im_in,2));
+    else
+        AxSeg=step2_full(AxSeg,segParam);
+    end
+    
+    AxSeg = imresize(AxSeg,0.5);
 end
-
-AxSeg = imresize(AxSeg,0.5);
-
 
 %Myelin Segmentation
 [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);

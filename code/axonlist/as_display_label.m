@@ -17,8 +17,6 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 %   as_display_LargeImage(RGB+repmat(img,[1 1 3])); % DISPLAY!
 
 
-dbstop error
-
 % If no displaytype specified in argument, 'myelin' by default
 if nargin<4; displaytype='myelin';end
 % If writeimg not specified in input, false
@@ -63,10 +61,10 @@ for i=Naxon:-1:1
                     scale = 100; unit = '';
                     im_out(ind)=uint8(AxStats(i).gRatio(1)*scale);
                 case 'axonEquivDiameter'
-                    scale = 10; unit = 'µm';
+                    scale = 10; unit = 'um';
                     im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*scale);
                 case 'myelinThickness'
-                    scale = 10; unit = 'µm';
+                    scale = 10; unit = 'um';
                     im_out(ind)=uint8(AxStats(i).myelinThickness(1)*scale);
                 case 'axon number'
                     scale = 1; unit = '';
@@ -108,6 +106,7 @@ if ~isempty(writeimg)
         try %  install ind2rgb8
             ind2rgb8dir = fileparts(fileparts(mfilename('fullpath')));
             mex([ind2rgb8dir filesep 'utils' filesep 'ind2rgb8.c'])
+            RGB = ind2rgb8(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval));
         catch % reduce quality
             reducefactor=max(1,ceil(max(size(writeimg))/5000));   
             if reducefactor>1 % if quality is reduced
@@ -116,5 +115,7 @@ if ~isempty(writeimg)
             RGB = uint8(ind2rgb(im_out(1:reducefactor:end,1:reducefactor:end,:),hot(maxval)));
         end
     end
-    imwrite(0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.jpg'])
+    I=0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]);
+    colorB = hot(size(I,1))*255; colorB = colorB(end:-1:1,:);
+    imwrite(cat(2,I,permute(repmat(colorB,[1 1 max(1,round(0.025*size(I,2)))]),[1 3 2])),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.png'])
 end

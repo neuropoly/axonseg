@@ -1,10 +1,29 @@
 function varargout = AxonSeg(varargin)
 
 % AxonSeg: Axon Segmentation Toolbox
-%   AxonSeg() starts the Graphical User Interface
+%   AxonSeg() starts the Graphical User Interface (GUI)
 %
-% Reference: Zaimi A, Duval T, Gasecka A, Côté D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037
-% Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Université Laval)
+%   AxonSeg( fname ) starts the GUI and load image fname (e.g. image.tif)
+%   AxonSeg( fname, SegParameters ) load the parameters from SegParameters
+%   file (e.g. SegParameters.mat)
+%   AxonSeg( fname, SegParameters, '-nogui' ) starts the segmentation
+%   of the image (nogui)
+%   AxonSeg( {fname, axon_mask_fname}, SegParameters, '-nogui' ) starts the
+%   myelin segmentation
+% ----------------------------------------------------------------------------------------------------
+% Example:
+%   Segment and generate a SegParameters.mat file:
+%     AxonSeg test_image_OM_crop.tif
+%
+%   Segment a new image using the same SegParameters:
+%     AxonSeg test_image_2.tif SegParameters.mat -nogui
+%
+%   Segment myelin using a corrected axon mask:
+%     AxonSeg({'RawImage.tif','Seg_mask_axon_corr.tif'}, 'SegParameters.mat', '-nogui')
+% ----------------------------------------------------------------------------------------------------
+%
+% Reference: Zaimi A, Duval T, Gasecka A, Cote D, Stikov N and Cohen-Adad J (2016). AxonSeg: open source software for axon and myelin segmentation and morphometric analysis. Front. Neuroinform. 10:37. doi: 10.3389/fninf.2016.00037
+% Copyright (c) 2016 NeuroPoly (Polytechnique Montreal) and DCClab (Universite Laval)
 %
 % See Also : as_Segmentation_full_image, myelinInitialSegmention
 
@@ -25,6 +44,12 @@ if ~nargin
     varargin{1}=FileName;
 end
 
+nogui = strcmp(varargin,'-nogui');
+if nargin>2 && max(nogui)
+    varargin(nogui) = [];
+    as_Segmentation_full_image(varargin{:})
+    return;
+end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
@@ -35,8 +60,14 @@ end
 
 % --- Executes just before AxonSeg is made visible.
 function AxonSeg_OpeningFcn(hObject, eventdata, handles, varargin)
+% read input
 handles.varargin=varargin{1};
-handles.outputdir=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
+set(handles.go_full_image,'String', '<html>Segment full image <br>(uncropped)</html>');
+[handles.outputdir,handles.fname]=fileparts(handles.varargin); if isempty(handles.outputdir), handles.outputdir=[pwd filesep]; else handles.outputdir = [handles.outputdir, filesep]; end
+handles.fname = matlab.lang.makeValidName(handles.fname);
+
+if length(varargin)>1, LoadSegParam_Callback(hObject, eventdata, handles, varargin{2}); end
+% read image
 if ~isfield(handles,'data') || ~isfield(handles.data,'raw')
     handles.data.raw=imresize(imread(handles.varargin),2);
 end
@@ -76,8 +107,8 @@ guidata(hObject, handles);
 
 
 function PixelSize_Callback(hObject, eventdata, handles)
-px_tmp=str2double(get(hObject,'String'));
-if isnan(px_tmp) %if text --> put default value
+px_tmp=str2num(get(hObject,'String'));
+if max(isempty(px_tmp)) || (length(px_tmp(:))>1) %if text --> put default value
     set(hObject,'String',num2str(get(hObject,'Value')));
 else
     set(hObject,'Value',px_tmp);
@@ -114,7 +145,7 @@ guidata(hObject, handles);
 % --- Executes on button press in cropImage.
 function cropImage_Callback(hObject, eventdata, handles)
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
                 handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.Deconv];
 
 set(handleArray,'Enable','off');
@@ -171,7 +202,7 @@ guidata(hObject,handles);
     
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
                 handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.cropImage];
 
 set(handleArray,'Enable','off');
@@ -262,10 +293,13 @@ AxonSeg_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
 
 
-function LoadSegParam_Callback(hObject, eventdata, handles)
+function LoadSegParam_Callback(hObject, eventdata, handles, Param_fname)
 % Select segmentation parameters file to load
-
-[FileName,PathName,FilterIndex] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+if ~exist('Param_fname','var') || ~exist(Param_fname,'file') 
+[FileName,PathName] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+else
+    [PathName,FileName] = fileparts(Param_fname);
+end
 segparam_filepath = [PathName FileName];
 load(segparam_filepath);
 
@@ -307,7 +341,7 @@ function initSeg_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam,  handles.PixelSize_button, handles.Transparency,...
                 handles.diffMaxMin, handles.Go_1_to_2, handles.resetStep1];
 
 set(handleArray,'Enable','off');
@@ -356,7 +390,7 @@ function diffMaxMin_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam,  handles.PixelSize_button, handles.Transparency,...
                 handles.initSeg, handles.Go_1_to_2, handles.resetStep1];
 
 set(handleArray,'Enable','off');
@@ -574,7 +608,7 @@ im_out = axonValidateCircularity(im_in, Circ);
 % --- Executes on slider movement.
 function Solidity_Callback(hObject, eventdata, handles)
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
                 handles.minSize, handles.Ellipticity, handles.Go_2_to_3, handles.resetStep2];
 
 set(handleArray,'Enable','off');
@@ -624,7 +658,7 @@ function minSize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
                 handles.Ellipticity, handles.Solidity, handles.Go_2_to_3, handles.resetStep2];
 
 set(handleArray,'Enable','off');
@@ -665,7 +699,7 @@ function Ellipticity_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handleArray = [handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.Transparency,...
+handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
                 handles.minSize, handles.Solidity, handles.Go_2_to_3, handles.resetStep2];
 
 set(handleArray,'Enable','off');
@@ -826,7 +860,7 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
                handles.Quadratic, handles.Linear];
 
 set(handleArray,'Enable','off');
@@ -948,53 +982,51 @@ GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 %% SAVE
 
 % save SegParam
-[FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
+odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
+if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
+handles.outputdir = [handles.outputdir filesep];
 
-if FileName
-    PixelSize=str2num(get(handles.PixelSize,'String'));
-    handles.segParam.PixelSize=PixelSize;
-    SegParameters=handles.segParam;
-    save([PathName FileName], 'SegParameters');
-end
-savedir=[handles.outputdir 'results_cropped' filesep];
+savedir=[handles.outputdir handles.fname '_AxonSeg_cropped' filesep];
 mkdir(savedir);
 
+currentdir=pwd;
+cd(savedir);
+% save SegParameters
+PixelSize=str2num(get(handles.PixelSize,'String'));
+handles.segParam.PixelSize=PixelSize;
+SegParameters=handles.segParam;
+save([pwd filesep 'SegParameters.mat'], 'SegParameters');
+
+
 % axonlist structure
-
-
 % clean axonlist (if 0 gRatio & 0 axon diameter)
 axonlist=axonlist([axonlist.gRatio]~=0);
 axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
 
 PixelSize = str2num(get(handles.PixelSize,'String'));
 
-save([savedir, 'axonlist.mat'], 'axonlist', 'img', 'PixelSize','-v7.3');
+save('axonlist.mat', 'axonlist', 'img', 'PixelSize','-v7.3');
 
 % excel
 handles.stats = as_stats(handles.data.seg,str2num(get(handles.PixelSize,'String')));
 handles.stats = struct2table(handles.stats);
-writetable(handles.stats,[savedir 'Stats.csv'])
+writetable(handles.stats,'Stats.csv')
 
 % AxonDiameter Labelled
 img = imresize(handles.data.img,.5);
-AxCaliberLabelled=as_display_label(axonlist,size(img),'axonEquivDiameter');
-imwrite(sc(sc(img)+sc(AxCaliberLabelled,'Hot')),[savedir 'Seg_labelled_myelin.tif']);
-
-AxonsOnly=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-imwrite(sc(sc(img)+sc(AxonsOnly,'Hot')),[savedir 'Seg_labelled_axon.tif']);
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
-img_BW_myelins=im2bw(bw_axonseg,0);
-imwrite(img_BW_myelins,[savedir 'Seg_mask_myelin.tif']);
+bw_axonseg_myelin=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin',img);
+imwrite(im2bw(bw_axonseg_myelin,0),'Seg_mask_myelin.tif');
+bw_axonseg_axon=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+imwrite(im2bw(bw_axonseg_axon,0),'Seg_mask_axon.tif');
 
 %--------------------------------------------------------------------------
+imwrite(imresize(handles.data.img,.5),'RawImage.tif');
+imwrite(imresize(handles.data.Step1,.5),'Step_1_Pre_Processing.tif');
+imwrite(imresize(handles.data.Step2_seg,.5),'Step_2_Initial_AxonSeg.tif');
+imwrite(Step3_seg,'Step_3_Final_AxonSeg.tif');
 
-imwrite(imresize(handles.data.Step1,.5),[savedir 'Step_1_Pre_Processing.tif']);
-imwrite(imresize(handles.data.Step2_seg,.5),[savedir 'Step_2_Initial_AxonSeg.tif']);
-imwrite(Step3_seg,[savedir 'Step_3_Final_AxonSeg.tif']);
+cd(currentdir);
 
-
-copyfile(which('colorbarhot.png'),savedir);
 
 %--------------------------------------------------------------------------
 
@@ -1004,44 +1036,41 @@ guidata(hObject, handles);
 
 % --- Executes on button press in go_full_image.
 function go_full_image_Callback(hObject, eventdata, handles)
-% hObject    handle to go_full_image (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-[FileName,PathName] = uiputfile('SegParameters.mat','Save Segmentation Parameters');
+set(findobj('Name','AxonSeg'),'pointer', 'watch');
+drawnow;
 
-if FileName
-    set(handles.ROC_Panel, 'Visible','off');
-    legend(handles.ROC_curve, 'hide');
-    cla(handles.ROC_curve);
-    
-    
-    handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
-        handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-        handles.Quadratic, handles.Linear, handles.Regularize];
-    
-    set(handleArray,'Enable','off');
-    drawnow;
-    
-    handles.segParam.PixelSize=str2num(get(handles.PixelSize,'String'));
-    SegParameters=handles.segParam;
-    
-    save([PathName FileName], 'SegParameters');
-    
-    %------------------
-    
-    blocksize=300/str2num(get(handles.PixelSize,'String'));
-    overlap=30/str2num(get(handles.PixelSize,'String'));
-    
-    %------------------
-    
-    
-    savedir=[handles.outputdir, 'results_full', filesep];
-    mkdir(savedir);
-    as_Segmentation_full_image(handles.varargin,[PathName FileName],blocksize,overlap,savedir);
-    
-    set(handleArray,'Enable','on');
-end
+set(handles.ROC_Panel, 'Visible','off');
+legend(handles.ROC_curve, 'hide');
+cla(handles.ROC_curve);
+
+
+handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
+    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+    handles.Quadratic, handles.Linear, handles.Regularize];
+
+set(handleArray,'Enable','off');
+drawnow;
+
+
+%------------------
+
+odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
+if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
+handles.outputdir = [handles.outputdir filesep];
+savedir=[handles.outputdir handles.fname '_AxonSeg_full' filesep];
+mkdir(savedir);
+% save SegParameters
+PixelSize=str2num(get(handles.PixelSize,'String'));
+handles.segParam.PixelSize=PixelSize;
+SegParameters=handles.segParam;
+save([savedir 'SegParameters.mat'], 'SegParameters');
+% AxonSeg
+as_Segmentation_full_image(handles.varargin,[savedir 'SegParameters.mat'],[],[],savedir);
+
+set(handleArray,'Enable','on');
+set(findobj('Name','AxonSeg'),'pointer', 'arrow');
+
 
 function text20_CreateFcn(hObject, eventdata, handles)
 function text20_ButtonDownFcn(hObject, eventdata, handles)
@@ -1076,7 +1105,7 @@ tic;
 fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
 
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
                handles.Quadratic, handles.Linear, handles.Regularize];
 
 set(handleArray,'Enable','off');
@@ -1155,6 +1184,8 @@ GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 set(handleArray,'Enable','on');
 
 else
+    set(handles.ROC_Panel, 'Visible','off');
+    set(handles.text_legend, 'Visible','on');
     handles.segParam=rmfield(handles.segParam,'parameters');
     handles.segParam=rmfield(handles.segParam,'DA_classifier');
     
@@ -1382,7 +1413,7 @@ end
 
 
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
                handles.Quadratic, handles.Linear, handles.MyelinSeg];
 
 set(handleArray,'Enable','off');

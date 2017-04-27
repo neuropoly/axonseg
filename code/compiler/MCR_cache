@@ -1,0 +1,5 @@
+# if MCR cache(CTF extraction path) gets corrupted --> change dir
+setenv MCR_CACHE_ROOT /folderofyourchoice/tmp;  
+
+# if MyAppInstaller_web.install fails extracting.. Might be because you are on remote server, and no space. change your home to a bigger space:
+setenv HOME /folderofyourchoic
