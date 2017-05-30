@@ -7,6 +7,8 @@ function im_array=as_improc_blockwising(fun,img,blocksize,overlap,sparsify)
 if ~exist('sparsify','var'), sparsify=1; end
 
 [m, n, p]=size(img);
+blocksize = round(blocksize);
+overlap = round(overlap);
 n_blocki=length(1:(blocksize-overlap):m);
 n_blockj=length(1:(blocksize-overlap):n);
 

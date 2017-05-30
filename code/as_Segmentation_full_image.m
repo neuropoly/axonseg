@@ -45,7 +45,7 @@ if ~exist('blocksize','var') || isempty(blocksize)
 end
 if ~exist('overlap','var') || isempty(overlap)
     % 20 microns overlap. >50px
-    overlap=max(50,min(round(blocksize/2),20/SegParameters.PixelSize));
+    overlap=round(max(50,min(round(blocksize/2),20/SegParameters.PixelSize)));
 end
 blocksize = blocksize + overlap;
 
