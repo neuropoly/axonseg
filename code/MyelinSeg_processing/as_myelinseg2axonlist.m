@@ -3,7 +3,6 @@ function axonlist=as_myelinseg2axonlist(seg,Pixelsize, myelin)
 
 if ~exist('myelin','var'), myelin=1; end
 
-disp(size(seg,3))
 emptyseg = find(~sum(sum(seg,1),2)); if ~isempty(emptyseg), seg(:,:,emptyseg)=[]; end
 if isempty(seg)
     seg=zeros(size(seg,1),size(seg,2));
