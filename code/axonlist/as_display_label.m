@@ -73,9 +73,14 @@ for i=Naxon:-1:1
                     scale = 1; unit = '';
                     im_out(ind)=uint8(rand*254+1);
                 otherwise
-                    scale = 1; unit = '';
-                    im_out = double(im_out);
-                    im_out(ind)=AxStats(i).(metric);
+                    if ~exist('scale','var')
+                        values = max([AxStats.(metric)]);
+                        scale = 10^floor(log10(255/values));
+                        unit = '';
+                    end
+                    
+                    if isempty(AxStats(i).(metric)), AxStats(i).(metric)=0; end
+                    im_out(ind)=AxStats(i).(metric)*scale;
             end
             
         end
@@ -117,5 +122,5 @@ if ~isempty(writeimg)
     end
     I=0.5*RGB+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]);
     colorB = hot(size(I,1))*255; colorB = colorB(end:-1:1,:);
-    imwrite(cat(2,I,permute(repmat(colorB,[1 1 max(1,round(0.025*size(I,2)))]),[1 3 2])),[metric '_(' displaytype ')_0_' num2str(maxval/scale) unit '.png'])
+    imwrite(cat(2,I,permute(repmat(colorB,[1 1 max(1,round(0.025*size(I,2)))]),[1 3 2])),[metric '_(' displaytype ')_0_' num2str(double(maxval)/scale) unit '.png'])
 end
