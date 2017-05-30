@@ -146,7 +146,7 @@ guidata(hObject, handles);
 function cropImage_Callback(hObject, eventdata, handles)
 
 handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
-                handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.Deconv];
+    handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.Deconv];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -178,7 +178,7 @@ if get(handles.histEq,'Value')==1
 end
 
 if get(handles.Smoothing,'Value')==1
-    im_pre=as_gaussian_smoothing(im_pre);   
+    im_pre=as_gaussian_smoothing(im_pre);
 end
 
 axes(handles.plotseg);
@@ -199,11 +199,11 @@ guidata(hObject, handles);
 function Smoothing_Callback(hObject, eventdata, handles)
 show_pre_process(handles);
 guidata(hObject,handles);
-    
+
 % --- Executes on slider movement.
 function Deconv_Callback(hObject, eventdata, handles)
 handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
-                handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.cropImage];
+    handles.histEq, handles.invertColor, handles.Smoothing, handles.Go_0_to_1, handles.resetStep0, handles.cropImage];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -295,8 +295,8 @@ AxonSeg_OpeningFcn(hObject, eventdata, handles, handles.varargin)
 
 function LoadSegParam_Callback(hObject, eventdata, handles, Param_fname)
 % Select segmentation parameters file to load
-if ~exist('Param_fname','var') || ~exist(Param_fname,'file') 
-[FileName,PathName] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
+if ~exist('Param_fname','var') || ~exist(Param_fname,'file')
+    [FileName,PathName] = uigetfile('*.mat*','Select the segmentation parameters you want to use');
 else
     [PathName,FileName] = fileparts(Param_fname);
 end
@@ -319,11 +319,11 @@ set(handles.Solidity,'Value',SegParameters.Solidity);
 set(handles.Ellipticity,'Value',SegParameters.Ellipticity);
 
 if isfield(SegParameters,'parameters')
-
-handles.parameters=SegParameters.parameters;
-if isfield(SegParameters,'DA_classifier')
-    handles.classifier_final=SegParameters.DA_classifier;
-end
+    
+    handles.parameters=SegParameters.parameters;
+    if isfield(SegParameters,'DA_classifier')
+        handles.classifier_final=SegParameters.DA_classifier;
+    end
 end
 
 % Update handles
@@ -342,7 +342,7 @@ function initSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 handleArray = [handles.LoadSegParam,  handles.PixelSize_button, handles.Transparency,...
-                handles.diffMaxMin, handles.Go_1_to_2, handles.resetStep1];
+    handles.diffMaxMin, handles.Go_1_to_2, handles.resetStep1];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -391,7 +391,7 @@ function diffMaxMin_Callback(hObject, eventdata, handles)
 
 
 handleArray = [handles.LoadSegParam,  handles.PixelSize_button, handles.Transparency,...
-                handles.initSeg, handles.Go_1_to_2, handles.resetStep1];
+    handles.initSeg, handles.Go_1_to_2, handles.resetStep1];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -700,7 +700,7 @@ function Ellipticity_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 handleArray = [handles.LoadSegParam, handles.PixelSize_button, handles.Transparency,...
-                handles.minSize, handles.Solidity, handles.Go_2_to_3, handles.resetStep2];
+    handles.minSize, handles.Solidity, handles.Go_2_to_3, handles.resetStep2];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -831,7 +831,7 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 
 
 
-% 
+%
 % imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % % imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
 
@@ -860,14 +860,14 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear];
+    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+    handles.Quadratic, handles.Linear];
 
 set(handleArray,'Enable','off');
 
 [c,r,err] = impixel; err = max(isnan(err),[],2);
 c = c(~err); r=r(~err);
-rm=diag(Label(r,c));
+rm=diag(Label(r*handles.reducefactor,c*handles.reducefactor));
 
 rejected=im2bw(handles.data.Step3_seg-(~ismember(Label,[0;rm])));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
@@ -911,7 +911,8 @@ function resetStep3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if isfield(handles.segParam,'DA_classifier')
-handles.segParam=rmfield(handles.segParam,{'parameters', 'DA_classifier'});
+    handles.segParam=rmfield(handles.segParam,{'parameters', 'DA_classifier'});
+    set(handles.DiscriminantAnalysis,'Value',0)
 end
 
 set(handles.slider_ROC_plot, 'Visible','off');
@@ -958,7 +959,7 @@ drawnow;
 
 %---
 
-if isfield(handles.data,'DA_accepted')
+if isfield(handles.segParam,'DA_classifier')
     AxSeg = handles.data.DA_accepted;
 else
     AxSeg = handles.data.Step3_seg;
@@ -982,54 +983,55 @@ GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 %% SAVE
 
 % save SegParam
-odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
-if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
-handles.outputdir = [handles.outputdir filesep];
-
-savedir=[handles.outputdir handles.fname '_AxonSeg_cropped' filesep];
-mkdir(savedir);
-
-currentdir=pwd;
-cd(savedir);
-% save SegParameters
-PixelSize=str2num(get(handles.PixelSize,'String'));
-handles.segParam.PixelSize=PixelSize;
-SegParameters=handles.segParam;
-save([pwd filesep 'SegParameters.mat'], 'SegParameters');
-
-
-% axonlist structure
-% clean axonlist (if 0 gRatio & 0 axon diameter)
-axonlist=axonlist([axonlist.gRatio]~=0);
-axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
-
-PixelSize = str2num(get(handles.PixelSize,'String'));
-
-save('axonlist.mat', 'axonlist', 'img', 'PixelSize','-v7.3');
-
-% excel
-handles.stats = as_stats(handles.data.seg,str2num(get(handles.PixelSize,'String')));
-handles.stats = struct2table(handles.stats);
-writetable(handles.stats,'Stats.csv')
-
-% AxonDiameter Labelled
-img = imresize(handles.data.img,.5);
-bw_axonseg_myelin=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin',img);
-imwrite(im2bw(bw_axonseg_myelin,0),'Seg_mask_myelin.tif');
-bw_axonseg_axon=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-imwrite(im2bw(bw_axonseg_axon,0),'Seg_mask_axon.tif');
-
-%--------------------------------------------------------------------------
-imwrite(imresize(handles.data.img,.5),'RawImage.tif');
-imwrite(imresize(handles.data.Step1,.5),'Step_1_Pre_Processing.tif');
-imwrite(imresize(handles.data.Step2_seg,.5),'Step_2_Initial_AxonSeg.tif');
-imwrite(Step3_seg,'Step_3_Final_AxonSeg.tif');
-
-cd(currentdir);
-
-
-%--------------------------------------------------------------------------
-
+odir = uigetdir(handles.outputdir,'Save Results in this directory');
+if odir
+    handles.outputdir = odir;
+    handles.outputdir = [handles.outputdir filesep];
+    
+    savedir=[handles.outputdir handles.fname '_AxonSeg_cropped' filesep];
+    mkdir(savedir);
+    
+    currentdir=pwd;
+    cd(savedir);
+    % save SegParameters
+    PixelSize=str2num(get(handles.PixelSize,'String'));
+    handles.segParam.PixelSize=PixelSize;
+    SegParameters=handles.segParam;
+    save([pwd filesep 'SegParameters.mat'], 'SegParameters');
+    
+    
+    % axonlist structure
+    % clean axonlist (if 0 gRatio & 0 axon diameter)
+    axonlist=axonlist([axonlist.gRatio]~=0);
+    axonlist=axonlist([axonlist.axonEquivDiameter]~=0);
+    
+    PixelSize = str2num(get(handles.PixelSize,'String'));
+    
+    save('axonlist.mat', 'axonlist', 'img', 'PixelSize','-v7.3');
+    
+    % excel
+    handles.stats = as_stats(handles.data.seg,str2num(get(handles.PixelSize,'String')));
+    handles.stats = struct2table(handles.stats);
+    writetable(handles.stats,'Stats.csv')
+    
+    % AxonDiameter Labelled
+    img = imresize(handles.data.img,.5);
+    bw_axonseg_myelin=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin',img);
+    imwrite(im2bw(bw_axonseg_myelin,0),'Seg_mask_myelin.tif');
+    bw_axonseg_axon=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+    imwrite(im2bw(bw_axonseg_axon,0),'Seg_mask_axon.tif');
+    
+    %--------------------------------------------------------------------------
+    imwrite(imresize(handles.data.img,.5),'RawImage.tif');
+    imwrite(imresize(handles.data.Step1,.5),'Step_1_Pre_Processing.tif');
+    imwrite(imresize(handles.data.Step2_seg,.5),'Step_2_Initial_AxonSeg.tif');
+    imwrite(Step3_seg,'Step_3_Final_AxonSeg.tif');
+    
+    cd(currentdir);
+    
+    
+    %--------------------------------------------------------------------------
+end
 set(findobj('Name','AxonSeg'),'pointer', 'arrow');
 
 guidata(hObject, handles);
@@ -1055,7 +1057,7 @@ drawnow;
 
 %------------------
 
-odir = uigetdir(handles.outputdir,'Save Results in this directory'); 
+odir = uigetdir(handles.outputdir,'Save Results in this directory');
 if odir, handles.outputdir = odir; else set(findobj('Name','AxonSeg'),'pointer', 'arrow'); return; end
 handles.outputdir = [handles.outputdir filesep];
 savedir=[handles.outputdir handles.fname '_AxonSeg_full' filesep];
@@ -1092,97 +1094,97 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 
 if get(handles.DiscriminantAnalysis,'Value')==1
-
-
-% Get discriminant analysis type chosen by user
-if get(handles.Linear,'Value')
-    type = 'linear';
-else
-    type = 'pseudoQuadratic';
-end
-
-tic;
-fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
-
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.Regularize];
-
-set(handleArray,'Enable','off');
-drawnow;
-
-% Create a set of classifiers for the given data for each possible
-% sensivity value
-[classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-    {'EquivDiameter','Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
-
-% [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
-%     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
-
-% Set slider_ROC_plot parameters depending on the DA analysis
-set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
-
-if size(ROC_values,1)~=1
-    set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);   
-end
-
-set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
-
-% Select classifier depending on sensitivity defined by the ROC slider
-handles.classifier_final=classifier{get(handles.slider_ROC_plot,'Value')};
-handles.classifiers=classifier;
-
-% Apply selected classifier to the given data
-[Accepted_axons_img,Rejected_axons_img,Classification,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
-
-% Plot ROC curve
-handles.ROC_values = ROC_values;
-% axes(handles.ROC_curve);
-% as_plot_ROC_curve_DA(handles.ROC_values,get(handles.slider_ROC_plot,'Value'));
-
-% Set dafault ROC metric for DA (case 8 -> min euclidian distance)
-set(handles.popupmenu_ROC,'Value',8);
-popupmenu_ROC_Callback(hObject, eventdata, handles);
-
-
-% Select accepted axons given by classifier
-handles.data.DA_accepted = Accepted_axons_img;
-
-% Add classifier chosen & parameters to the segmentation parameters struct
-
+    
+    
+    % Get discriminant analysis type chosen by user
+    if get(handles.Linear,'Value')
+        type = 'linear';
+    else
+        type = 'pseudoQuadratic';
+    end
+    
+    tic;
+    fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
+    
+    handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
+        handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+        handles.Quadratic, handles.Linear, handles.Regularize];
+    
+    set(handleArray,'Enable','off');
+    drawnow;
+    
+    % Create a set of classifiers for the given data for each possible
+    % sensivity value
+    [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+        {'EquivDiameter','Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+    
+    % [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+    %     {'Area', 'Perimeter', 'EquivDiameter', 'Solidity','Circularity','MajorAxisLength','MinorMajorRatio', 'MinorAxisLength','Eccentricity','ConvexArea','Perimeter_ConvexHull','PPchRatio','AAchRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
+    
+    % Set slider_ROC_plot parameters depending on the DA analysis
+    set(handles.slider_ROC_plot,'Max',size(ROC_values,1));
+    
+    if size(ROC_values,1)~=1
+        set(handles.slider_ROC_plot, 'SliderStep', [1/(size(ROC_values,1)-1) , 1/(size(ROC_values,1)-1)]);
+    end
+    
+    set(handles.slider_ROC_plot,'Value',size(ROC_values,1));
+    
+    % Select classifier depending on sensitivity defined by the ROC slider
+    handles.classifier_final=classifier{get(handles.slider_ROC_plot,'Value')};
+    handles.classifiers=classifier;
+    
+    % Apply selected classifier to the given data
+    [Accepted_axons_img,Rejected_axons_img,Classification,~,~]=as_axonSeg_apply_DA_classifier(handles.data.Step2_seg,handles.data.Step1,handles.classifier_final,handles.parameters);
+    
+    % Plot ROC curve
+    handles.ROC_values = ROC_values;
+    % axes(handles.ROC_curve);
+    % as_plot_ROC_curve_DA(handles.ROC_values,get(handles.slider_ROC_plot,'Value'));
+    
+    % Set dafault ROC metric for DA (case 8 -> min euclidian distance)
+    set(handles.popupmenu_ROC,'Value',8);
+    popupmenu_ROC_Callback(hObject, eventdata, handles);
+    
+    
+    % Select accepted axons given by classifier
+    handles.data.DA_accepted = Accepted_axons_img;
+    
+    % Add classifier chosen & parameters to the segmentation parameters struct
+    
     handles.segParam.parameters=handles.parameters;
     handles.segParam.DA_classifier=handles.classifier_final;
-
-
-
-
-% Update visibility of widgets
-set(handles.ROC_Panel, 'Visible','on');
-set(handles.text_legend, 'Visible','off');
-
-if size(ROC_values,1)~=1
-set(handles.slider_ROC_plot, 'Visible','on');
-set(handles.text_slider_ROC_plot, 'Visible','on');
-end
-
-toc;
-fprintf('Discriminant analysis done. \n');
-
-% Display axon discrimination result
-axes(handles.plotseg);
-
-handles.display.opt1=[0 0.75 0];
-handles.display.seg1=handles.data.DA_accepted;
-
-handles.display.opt2=[1 0.5 0];
-handles.display.seg2=Rejected_axons_img;
-handles.display.type=2;
-
-GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
-
-
-set(handleArray,'Enable','on');
-
+    
+    
+    
+    
+    % Update visibility of widgets
+    set(handles.ROC_Panel, 'Visible','on');
+    set(handles.text_legend, 'Visible','off');
+    
+    if size(ROC_values,1)~=1
+        set(handles.slider_ROC_plot, 'Visible','on');
+        set(handles.text_slider_ROC_plot, 'Visible','on');
+    end
+    
+    toc;
+    fprintf('Discriminant analysis done. \n');
+    
+    % Display axon discrimination result
+    axes(handles.plotseg);
+    
+    handles.display.opt1=[0 0.75 0];
+    handles.display.seg1=handles.data.DA_accepted;
+    
+    handles.display.opt2=[1 0.5 0];
+    handles.display.seg2=Rejected_axons_img;
+    handles.display.type=2;
+    
+    GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
+    
+    
+    set(handleArray,'Enable','on');
+    
 else
     set(handles.ROC_Panel, 'Visible','off');
     set(handles.text_legend, 'Visible','on');
@@ -1206,13 +1208,13 @@ function LevelSet_step1_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of LevelSet_step1
 
 % if get(handles.LevelSet_step1,'Value')
-% 
+%
 % tmp=as_LevelSet_method(handles.data.Step1);
-% 
+%
 % axes(handles.plotseg);
-% 
+%
 % imshow(sc(get(handles.Transparency,'Value')*sc(tmp,'y',tmp)+sc(handles.data.Step1)));
-% 
+%
 % end
 % imshow(imfuse(handles.data.Step1,handles.data.Step2_seg));
 
@@ -1241,7 +1243,7 @@ CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
 [Label, ~]  = bwlabel(CH_total);
 [c,r,~] = impixel;
 
-rm=diag(Label(r,c));
+rm=diag(Label(r*handles.reducefactor,c*handles.reducefactor));
 CH_others=~ismember(Label,[0;rm]);
 
 CH_object=im2bw(CH_total-CH_others);
@@ -1265,7 +1267,7 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 % -1-
 % imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
 %     +sc(handles.data.Step1)));
-% 
+%
 % imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
 % % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
 
@@ -1302,8 +1304,8 @@ sens_value=str2double(get(hObject,'String'));
 
 if ~isnan(sens_value)&&(sens_value<=1)&&(sens_value>=0) % if text --> put default value
     set(hObject,'Value',sens_value);
-else   
-    set(hObject,'String',num2str(get(hObject,'Value')));  
+else
+    set(hObject,'String',num2str(get(hObject,'Value')));
 end
 
 guidata(hObject,handles);
@@ -1332,10 +1334,10 @@ function Show_LevelSet_Callback(hObject, eventdata, handles)
 
 if get(hObject,'Value')
     
-[LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(handles.LevelSet_slider,'Value')); 
-axes(handles.plotseg);
-sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
-
+    [LevelSet_results]=as_LevelSet_method(handles.data.Step1,get(handles.LevelSet_slider,'Value'));
+    axes(handles.plotseg);
+    sc(get(handles.Transparency,'Value')*sc(LevelSet_results.img,'y',LevelSet_results.img)+sc(handles.data.Step1));
+    
 end
 
 guidata(hObject,handles);
@@ -1391,20 +1393,20 @@ function popupmenu_ROC_Callback(hObject, eventdata, handles)
 
 % Update ROC slider value depending on the user's choice
 switch get(handles.popupmenu_ROC,'Value')
-    case 2 % max sensitivity    
+    case 2 % max sensitivity
         set(handles.slider_ROC_plot,'Value',size(handles.ROC_values,1));
-    case 3 % max specificity    
+    case 3 % max specificity
         set(handles.slider_ROC_plot,'Value',1);
-    case 4 % max precision           
+    case 4 % max precision
         set(handles.slider_ROC_plot,'Value',best_indexes(1));
-    case 5 % max accuracy    
+    case 5 % max accuracy
         set(handles.slider_ROC_plot,'Value',best_indexes(2));
-    case 6 % max bal accuracy    
+    case 6 % max bal accuracy
         set(handles.slider_ROC_plot,'Value',best_indexes(3));
-    case 7 % max youden    
+    case 7 % max youden
         set(handles.slider_ROC_plot,'Value',best_indexes(4));
-    case 8 % min distance        
-        set(handles.slider_ROC_plot,'Value',best_indexes(5));      
+    case 8 % min distance
+        set(handles.slider_ROC_plot,'Value',best_indexes(5));
 end
 
 
@@ -1413,8 +1415,8 @@ end
 
 
 handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-               handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-               handles.Quadratic, handles.Linear, handles.MyelinSeg];
+    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
+    handles.Quadratic, handles.Linear, handles.MyelinSeg];
 
 set(handleArray,'Enable','off');
 drawnow;
@@ -1493,7 +1495,7 @@ handles.display.type=2;
 GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
 
 set(findobj('Name','AxonSeg'),'pointer', 'arrow');
- 
+
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
