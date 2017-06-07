@@ -5,7 +5,7 @@ if strcmp(type,'free')
     object=imfreehand;
 elseif strcmp(type,'ellipse')
     object=imellipse;
+    wait(object);
 end
-wait(object);
 manualBW = createMask(object);
 object.delete;

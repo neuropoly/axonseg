@@ -451,6 +451,8 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 function Go_1_to_2_Callback(hObject, eventdata, handles)
     
 handles.data.Step2_seg=step1(handles);    
+[handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
+
 %--------------------------------------------------------------------------
 
 axes(handles.plotseg);
@@ -469,9 +471,6 @@ fprintf('Step 1 Done \n');
 set(handles.uipanel2, 'Visible', 'on');
 set(handles.uipanel1, 'Visible', 'off');
 set(handles.text_legend, 'Visible','on');
-
-
-[handles.stats_step2, handles.stats_cc]=axon_stats_step2(handles.data.Step2_seg);
 
 
 guidata(hObject, handles);
@@ -504,10 +503,6 @@ function Go_2_to_3_Callback(hObject, eventdata, handles)
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
 handles.data.Step3_seg=step2(handles);
-
-% DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
-
-handles.data.DA_final = handles.data.Step3_seg;
 
 % DO SAVE HERE FOR INITIAL SEG IMAGE---------------------------------------
 
@@ -799,6 +794,7 @@ function Add_Callback(hObject, eventdata, handles)
 
 
 axes(handles.plotseg);
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'off')
 
 handles.display.opt1=[0 0.75 0];
 handles.display.seg1=handles.data.Step3_seg;
@@ -807,15 +803,11 @@ handles.display.type=1;
 GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
 
 manualBW=as_axonSeg_manual;
-handles.data.Step3_seg = manualBW | handles.data.Step3_seg;
+handles.data.Step3_seg = imresize(manualBW,size(handles.data.Step3_seg)) | handles.data.Step3_seg;
 
-% IMAGE FOR DA ------------------------------------------------------------
-
-handles.data.DA_final = handles.data.Step3_seg;
 
 %--------------------------------------------------------------------------
 
-guidata(hObject, handles);
 
 axes(handles.plotseg);
 
@@ -825,15 +817,7 @@ handles.display.type=1;
 
 GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
 
-% -1-
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
-%     +sc(handles.data.Step1)));
-
-
-
-%
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% % imshow(imfuse(handles.data.Step1, handles.data.Step3_seg));
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'on')
 
 guidata(hObject, handles);
 
@@ -859,11 +843,7 @@ GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 %     +sc(handles.data.Step1)));
 
 [Label, ~]  = bwlabel(handles.data.Step3_seg);
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-    handles.Quadratic, handles.Linear];
-
-set(handleArray,'Enable','off');
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'off')
 
 [c,r,err] = impixel; err = max(isnan(err),[],2);
 c = c(~err); r=r(~err);
@@ -871,11 +851,6 @@ rm=diag(Label(r*handles.reducefactor,c*handles.reducefactor));
 
 rejected=im2bw(handles.data.Step3_seg-(~ismember(Label,[0;rm])));
 handles.data.Step3_seg=~ismember(Label,[0;rm]);
-
-
-% IMAGE FOR DA ------------------------------------------------------------
-
-handles.data.DA_final = handles.data.Step3_seg;
 
 %--------------------------------------------------------------------------
 
@@ -900,7 +875,7 @@ GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.da
 % imshow(sc(get(handles.Transparency,'Value')*sc(rejected,[1 0.5 0],rejected)...
 %     +get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)+sc(handles.data.Step1)));
 
-set(handleArray,'Enable','on')
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'on')
 guidata(hObject, handles);
 
 
@@ -1046,12 +1021,9 @@ set(handles.ROC_Panel, 'Visible','off');
 legend(handles.ROC_curve, 'hide');
 cla(handles.ROC_curve);
 
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'off')
 
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg...
-    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-    handles.Quadratic, handles.Linear, handles.Regularize];
 
-set(handleArray,'Enable','off');
 drawnow;
 
 
@@ -1070,7 +1042,7 @@ save([savedir 'SegParameters.mat'], 'SegParameters');
 % AxonSeg
 as_Segmentation_full_image(handles.varargin,[savedir 'SegParameters.mat'],[],[],savedir);
 
-set(handleArray,'Enable','on');
+set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'on')
 set(findobj('Name','AxonSeg'),'pointer', 'arrow');
 
 
@@ -1106,16 +1078,13 @@ if get(handles.DiscriminantAnalysis,'Value')==1
     tic;
     fprintf('*** COMPUTING DISCRIMINANT ANALYSIS *** PLEASE WAIT *** \n');
     
-    handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.MyelinSeg, handles.go_full_image...
-        handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-        handles.Quadratic, handles.Linear, handles.Regularize];
-    
-    set(handleArray,'Enable','off');
+    set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'off')
+
     drawnow;
     
     % Create a set of classifiers for the given data for each possible
     % sensivity value
-    [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
+    [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.Step3_seg,handles.data.Step1,...
         {'EquivDiameter','Solidity','Circularity','MinorMajorRatio','Intensity_std', 'Intensity_mean','Neighbourhood_mean','Neighbourhood_std','Contrast','Skewness'},type,1);
     
     % [classifier, handles.parameters,ROC_values] = as_axonSeg_make_DA_classifier(handles.data.Step2_seg,handles.data.DA_final,handles.data.Step1,...
@@ -1183,7 +1152,7 @@ if get(handles.DiscriminantAnalysis,'Value')==1
     GUI_display(2,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1, handles.display.seg2, handles.display.opt2);
     
     
-    set(handleArray,'Enable','on');
+    set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'on')
     
 else
     set(handles.ROC_Panel, 'Visible','off');
@@ -1223,82 +1192,15 @@ guidata(hObject,handles);
 
 
 
-% --- Executes on button press in remove_concavity.
-function remove_concavity_Callback(hObject, eventdata, handles)
-% hObject    handle to remove_concavity (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-axes(handles.plotseg);
-
-handles.display.opt1=[0 0.75 0];
-handles.display.seg1=handles.data.Step3_seg;
-handles.display.type=1;
-
-GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
-
-CH_total = bwconvhull(handles.data.Step3_seg, 'objects', 8);
-
-[Label, ~]  = bwlabel(CH_total);
-[c,r,~] = impixel;
-
-rm=diag(Label(r*handles.reducefactor,c*handles.reducefactor));
-CH_others=~ismember(Label,[0;rm]);
-
-CH_object=im2bw(CH_total-CH_others);
-handles.data.Step3_seg=im2bw(handles.data.Step3_seg+CH_object);
-
-% IMAGE FOR DA-
-handles.data.DA_final = handles.data.Step3_seg;
-
-%-UPDATE STEP2 WITH CONVEX FORMS (FOR DA)-
-handles.data.Step2_seg = im2bw(handles.data.Step2_seg+CH_object);
-guidata(hObject, handles);
-
-axes(handles.plotseg);
-
-handles.display.opt1=[0 0.75 0];
-handles.display.seg1=handles.data.Step3_seg;
-handles.display.type=1;
-
-GUI_display(1,handles.reducefactor,get(handles.Transparency,'Value'), handles.data.Step1, handles.display.seg1, handles.display.opt1);
-
-% -1-
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,[0 0.75 0],handles.data.Step3_seg)...
-%     +sc(handles.data.Step1)));
-%
-% imshow(sc(get(handles.Transparency,'Value')*sc(handles.data.Step3_seg,'y',handles.data.Step3_seg)+sc(handles.data.Step1)));
-% % imshow(imfuse(handles.data.Step1,handles.data.Step3_seg));
-
-guidata(hObject,handles);
-
-
 % --- Executes on button press in Precision.
 function Precision_Callback(hObject, eventdata, handles)
-% hObject    handle to Precision (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of Precision
 guidata(hObject,handles);
 
 % --- Executes on button press in Distance.
 function Distance_Callback(hObject, eventdata, handles)
-% hObject    handle to Distance (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of Distance
 guidata(hObject,handles);
 
 function Enter_sensitivity_Callback(hObject, eventdata, handles)
-% hObject    handle to Enter_sensitivity (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of Enter_sensitivity as text
-%        str2double(get(hObject,'String')) returns contents of Enter_sensitivity as a double
 
 sens_value=str2double(get(hObject,'String'));
 
@@ -1414,17 +1316,14 @@ end
 % & axon discrimination display
 
 
-handleArray = [handles.remove, handles.remove_concavity, handles.DiscriminantAnalysis, handles.resetStep3, handles.go_full_image...
-    handles.LoadSegParam, handles.PixelSize_button, handles.popupmenu_ROC, handles.Transparency, handles.slider_ROC_plot...
-    handles.Quadratic, handles.Linear, handles.MyelinSeg];
+set(findobj('Name','AxonSeg'),'pointer', 'watch');
 
-set(handleArray,'Enable','off');
 drawnow;
 
 
 slider_ROC_plot_Callback(hObject, eventdata, handles);
 
-set(handleArray,'Enable','on');
+set(findobj('Name','AxonSeg'),'pointer', 'arrow');
 
 
 guidata(hObject,handles);
