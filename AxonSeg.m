@@ -922,11 +922,6 @@ function MyelinSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %% Launch Seg
 
-set(handles.Panel_manual_modifs, 'Visible','off');
-set(handles.ROC_Panel, 'Visible','off');
-legend(handles.ROC_curve, 'hide');
-cla(handles.ROC_curve);
-
 set(findobj('Name','AxonSeg'),'pointer', 'watch');
 drawnow;
 
@@ -934,7 +929,7 @@ drawnow;
 
 %---
 
-if isfield(handles.segParam,'DA_classifier')
+if get(handles.DiscriminantAnalysis,'value')
     AxSeg = handles.data.DA_accepted;
 else
     AxSeg = handles.data.Step3_seg;
@@ -1067,7 +1062,8 @@ function DiscriminantAnalysis_Callback(hObject, eventdata, handles)
 
 if get(handles.DiscriminantAnalysis,'Value')==1
     
-    
+    [~,N]=bwlabel(handles.data.Step3_seg);
+    if N<3, errordlg('not enough axons. Go back to step 1 or 2'); return; end
     % Get discriminant analysis type chosen by user
     if get(handles.Linear,'Value')
         type = 'linear';
@@ -1153,10 +1149,12 @@ if get(handles.DiscriminantAnalysis,'Value')==1
     
     
     set(findall(handles.uipanel3, '-property', 'enable'), 'enable', 'on')
+    set(handles.remove, 'Visible', 'off')
     
 else
     set(handles.ROC_Panel, 'Visible','off');
     set(handles.text_legend, 'Visible','on');
+    set(handles.remove, 'Visible', 'on')
     handles.segParam=rmfield(handles.segParam,'parameters');
     handles.segParam=rmfield(handles.segParam,'DA_classifier');
     
