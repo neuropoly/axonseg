@@ -13,7 +13,7 @@ Msize = size(imread(fname{1}));
 RowPos = round(RowPos-min(RowPos));
 ColPos = round(ColPos-min(ColPos));
 
-Panorama = uint8(zeros(round(max(RowPos)+Msize(1)+1),round(max(ColPos)+Msize(2)+1)));
+Panorama = zeros(round(max(RowPos)+Msize(1)+1),round(max(ColPos)+Msize(2)+1),'uint8');
 for ff = 1:length(fname)
     tmp = imread(fname{ff}); if size(tmp,3)==3, tmp = rgb2gray(tmp); end
     Panorama((RowPos(ff)+1):(RowPos(ff)+Msize(1)),(ColPos(ff)+1):(ColPos(ff)+Msize(2)))=tmp;
