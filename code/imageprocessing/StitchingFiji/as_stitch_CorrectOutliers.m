@@ -1,6 +1,6 @@
-function CorrectStitching(configFileName,Dim_mosaic)
-% CorrectStitching(configFileName,Dim_mosaic)
-% EXAMPLE: CorrectStitching('TileConfiguration.registered.txt',[14 19])
+function as_stitch_CorrectOutliers(configFileName,Dim_mosaic)
+% as_stitch_CorrectOutliers(configFileName,Dim_mosaic)
+% EXAMPLE: as_stitch_CorrectOutliers('TileConfiguration.registered.txt',[14 19])
 [fname,ColPos,RowPos] = as_stitch_LoadTileConfiguration(configFileName);
 N=Dim_mosaic;
 
