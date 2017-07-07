@@ -19,9 +19,9 @@ if ~license('checkout','Distrib_Computing_Toolbox') || n_blocki*n_blockj==1 % if
     parforArg = 0;
 else
     parforArg = Inf;
-    poolobj = gcp('nocreate');
-    delete(poolobj);
-    parpool
+    if ~isempty(gcp('nocreate'))
+        parpool
+    end
 end
 
 parfor(block=1:n_blocki*n_blockj,parforArg)
