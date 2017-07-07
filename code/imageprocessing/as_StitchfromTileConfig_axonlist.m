@@ -13,7 +13,12 @@ Msize = size(imread(fname{1}));
 RowPos = round(RowPos-min(RowPos));
 ColPos = round(ColPos-min(ColPos));
 
-fname = cellfun(@(ff) strrep(ff,'.png','_Segmentation'),fname,'UniformOutput',false);
+
+if exist('x1_Segmentation','dir')
+fname = cellfun(@(ff) ['x' strrep(ff,'.png','_Segmentation')],fname,'UniformOutput',false);
+else
+    fname = cellfun(@(ff) [strrep(ff,'.png','_Segmentation')],fname,'UniformOutput',false);
+end
 
 rm = cell2mat(cellfun(@(ff) ~exist([ff filesep 'axonlist_full_image.mat'],'file'),fname,'UniformOutput',false));
 fname(rm)=[]; ColPos(rm)=[]; RowPos(rm)=[];
@@ -23,8 +28,10 @@ axonlist = cell(length(fname),1);
 for iff = 1:length(fname)
     tmp = load([fname{iff} filesep 'axonlist_full_image.mat'],'axonlist');
     axonlist{iff} = tmp.axonlist;
-    axonlist{iff}([axonlist{iff}.conflict]>0.5)=[];
-    axonlist{iff}([axonlist{iff}.axonEquivDiameter]>12)=[];
+    if length(axonlist{iff})
+        axonlist{iff}([axonlist{iff}.conflict]>0.5)=[];
+        axonlist{iff}([axonlist{iff}.axonEquivDiameter]>12)=[];
+    end
 
 end
 
