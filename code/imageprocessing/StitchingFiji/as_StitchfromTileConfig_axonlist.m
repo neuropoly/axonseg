@@ -6,7 +6,7 @@ function [axonlist, RowPos, ColPos, matrixsize, PixelSize] = as_StitchfromTileCo
 % display Panorama using:
 % AS_DISPLAY_LARGEIMAGE(Panorama);
 
-if exist('fname','var'), fname='TileConfiguration.registered.txt'; end
+if ~exist('fname','var'), fname='TileConfiguration.registered.txt'; end
 [fname,ColPos,RowPos] = ImportTileConfiguration(fname);
 
 Msize = size(imread(fname{1}));
