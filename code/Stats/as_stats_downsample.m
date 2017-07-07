@@ -1,4 +1,4 @@
-function [stats_downsample, sFields, axonlistcell]=as_stats_downsample(axonlist,matrixsize,PixelSize,resolution, outputstats)
+function [stats_downsample, sFields, axonlistcell]=as_stats_downsample(axonlist,matrixsize,PixelSize,resolution, createmask)
 %[stats_downsample, statsname]=as_stats_downsample(axonlist,matrixsize(�m),PixelSize(�m),resolution)
 %
 % IN:   -axonlist (output structure from AxonSeg, containing axon & myelin
@@ -16,7 +16,7 @@ function [stats_downsample, sFields, axonlistcell]=as_stats_downsample(axonlist,
 %--------------------------------------------------------------------------
 
 % outputstats is true by default
-if ~exist('outputstats','var'), outputstats=1; end
+if ~exist('createmask','var'), createmask=1; end
 
 % Calculate nbr of pixels for each sub-region in the downsampled image
 dsx=resolution(1)/(PixelSize);
@@ -50,7 +50,7 @@ for x=1:length(Xcoords)
         if nargout>2, axonlistcell{x,y}=inpixel; end
         
         % if outputstats true
-        if outputstats
+        if createmask
             
             % for each stat field, take the mean of the stat for axons in
             % current downsample cell
@@ -89,6 +89,8 @@ for x=1:length(Xcoords)
         end
     end
 end
+% set all existing NAN to 0
+stats_downsample(isnan(stats_downsample))=0;
 
 % specify fields for added stats (not in original axonlist)
 sFields{end+1}='Number_axons';
@@ -98,9 +100,8 @@ sFields{end+1}='MVF';
 sFields{end+1}='fr';
 
 % if outputstats true
-if outputstats
-    % set all existing NAN to 0
-    stats_downsample(isnan(stats_downsample))=0;
+if createmask
+   
     
     % create mask
     

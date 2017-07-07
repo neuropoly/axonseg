@@ -34,7 +34,7 @@ Panorama = zeros(round(maxRowPos+MsizeRow+1),round(maxColPos+MsizeColPos+1),'uin
 
 for ff = 1:length(fname)
     tmp = imread(fname{ff}); dim=size(tmp); if size(tmp,3)==3, tmp = rgb2gray(tmp); end
-    Panorama((RowPos(ff)+1):(RowPos(ff)+dim(1)),(ColPos(ff)+1):(ColPos(ff)+dim(2)))=tmp;
+    Panorama((RowPos(ff)+1):(RowPos(ff)+dim(1)),(ColPos(ff)+1):(ColPos(ff)+dim(2)))=im2uint8(tmp);
 end
 
 as_display_LargeImage(Panorama);
