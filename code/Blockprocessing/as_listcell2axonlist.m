@@ -32,7 +32,7 @@ axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(lo
 % remove axons that have been segmented twice
 centroids=cat(1,axonlist.Centroid);
 if ~isempty(centroids)
-    [~,~,axonlistcell]=as_stats_downsample(axonlist,[max(centroids(:,1)) max(centroids(:,2))],1,1000, 0);
+    [~,~,axonlistcell]=as_stats_downsample(axonlist,[max(centroids(:,1)) max(centroids(:,2))],1,1000, 0,0);
     rm=false(length(axonlist),1);
     for x=1:size(axonlistcell,1)
         for y=1:size(axonlistcell,2)

@@ -18,7 +18,7 @@ function [stats_downsample, statsname]=as_stats_downsample_2nii(axonlist,matrixs
 
 % EXAMPLE: as_stats_downsample_2nii(axonlist,size(img),PixelSize,150)
 
-[stats_downsample, statsname]=as_stats_downsample(axonlist,matrixsize,PixelSize,resolution);
+[stats_downsample, statsname]=as_stats_downsample(axonlist,matrixsize,PixelSize,resolution,1,0);
 imagesc(stats_downsample(:,:,end))
 mkdir('stats')
 save_nii(make_nii(permute(stats_downsample,[1 2 4 3]),[resolution/1000 resolution/1000 1]),'stats/stats_downsample4D.nii');
