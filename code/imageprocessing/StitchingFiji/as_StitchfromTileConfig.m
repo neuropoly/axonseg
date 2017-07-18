@@ -9,7 +9,7 @@ function [Panorama, fname,ColPos,RowPos ]= as_StitchfromTileConfig(fname,index,r
 % display Panorama using:
 % AS_DISPLAY_LARGEIMAGE(Panorama);
 
-if ~exist('fname','var'), fname='TileConfiguration.registered.txt'; end
+if ~exist('fname','var') || isempty(fname), fname='TileConfiguration.registered.txt'; end
 if ~exist('reducefactor','var') || isempty(reducefactor), reducefactor=1; end
 
 [fname,ColPos,RowPos] = as_stitch_LoadTileConfiguration(fname);
