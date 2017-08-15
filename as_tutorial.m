@@ -15,18 +15,15 @@
 test=imread('test_image_OM.tif');
 figure; imshow(test);
 
-% Use SegmentationGUI to perform axon and myelin on test image
+% Use AxonSeg to perform axon and myelin on test image
 
-SegmentationGUI test_image_OM.tif;
+AxonSeg test_image_OM.tif;
 
-% After segmentation of a region of the image sample, you can launch the
-% full segmentation 
+% After segmentation, the segmentation parameters is saved (SegParameters.mat) you can segment new images using:
 
-as_Segmentation_full_image('test_image_OM.tif','SegParameters.mat');
-
+AxonSeg('test_image_OM.tif','SegParameters.mat','-nogui');
 
 %% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
-
 
 load('axonlist.mat');
 
@@ -133,19 +130,9 @@ axonlist([axonlist.gRatio]>0.9)=[];
 % If the axon segmentation is not good enough, you can manually correct it
 % on another image processing software (for instance GIMP) by adding,
 % removing or modifying the axon shapes. Then, you can resegment the myelin
-% by using the new axonal mask.
+% by using the new axonal mask (axon_mask.tif).
 
-% First, read the grayscale image that you want to segment
-img = imread('image.tif');
-
-% if the myelin is black, inverse the contraste:
-% img = imcomplement(img);
-
-% Then, read the axonal mask
-axonmask = imread('mask_axons.tif');
-
-% Launch the myelin segmentation on the new axonal mask
-[axonlist, MyelinMask] = myelinInitialSegmention(img,axonmask);
+AxonSeg({'test_image_OM.tif','axon_mask.tif'},'SegParameters.mat','-nogui');
 
 % convert axonlist into excel file
 axontable = struct2table(axonlist);
