@@ -53,17 +53,17 @@ for i=Naxon:-1:1
         ind=sub2ind(matrixsize,min(matrixsize(1),max(1,index(:,1))),min(matrixsize(2),max(1,index(:,2))));
         
         
-        if ~isempty(AxStats(i))
+        if ~isempty(axonlist(i))
             switch metric
                 case 'gRatio'
                     scale = 100; unit = '';
-                    im_out(ind)=uint8(AxStats(i).gRatio(1)*scale);
+                    im_out(ind)=uint8(axonlist(i).gRatio(1)*scale);
                 case 'axonEquivDiameter'
                     scale = 10; unit = 'um';
-                    im_out(ind)=uint8(AxStats(i).axonEquivDiameter(1)*scale);
+                    im_out(ind)=uint8(axonlist(i).axonEquivDiameter(1)*scale);
                 case 'myelinThickness'
                     scale = 10; unit = 'um';
-                    im_out(ind)=uint8(AxStats(i).myelinThickness(1)*scale);
+                    im_out(ind)=uint8(axonlist(i).myelinThickness(1)*scale);
                 case 'axon number'
                     scale = 1; unit = '';
                     im_out(ind)=i;
@@ -72,13 +72,13 @@ for i=Naxon:-1:1
                     im_out(ind)=uint8(rand*254+1);
                 otherwise
                     if ~exist('scale','var')
-                        values = max([AxStats.(metric)]);
+                        values = max([axonlist.(metric)]);
                         scale = 10^floor(log10(255/values));
                         unit = '';
                     end
                     
-                    if isempty(AxStats(i).(metric)), AxStats(i).(metric)=0; end
-                    im_out(ind)=AxStats(i).(metric)*scale;
+                    if isempty(axonlist(i).(metric)), axonlist(i).(metric)=0; end
+                    im_out(ind)=axonlist(i).(metric)*scale;
             end
             
         end
