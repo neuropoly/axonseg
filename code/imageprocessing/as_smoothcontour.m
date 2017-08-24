@@ -1,5 +1,5 @@
 function ObjBW_smooth=as_smoothcontour(ObjBW)
-dbstop if error
+
  [ObjBoundary,~] = bwboundaries(ObjBW,'noholes');
     ObjBoundary = ObjBoundary{1}';    
     ObjBoundary(:, end) = [];

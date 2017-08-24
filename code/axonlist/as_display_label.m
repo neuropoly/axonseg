@@ -1,4 +1,4 @@
-function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg, verbose)
+function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displaytype, writeimg, maxval)
 %[im_out,AxStats]=AS_DISPLAY_LABEL(axonlist, matrixsize, metric);
 %[im_out,AxStats]=AS_DISPLAY_LABEL(axonlist, matrixsize, metric, displaytype, writeimg?);
 %
@@ -21,7 +21,6 @@ function [im_out,AxStats]=as_display_label( axonlist,matrixsize,metric,displayty
 if nargin<4; displaytype='myelin';end
 % If writeimg not specified in input, false
 if ~exist('writeimg','var') || max(writeimg(:))==0, writeimg=[]; end
-if ~exist('verbose','var'), verbose=1; end
 
 % Init. output image
 im_out=zeros(matrixsize,'uint8');
@@ -32,10 +31,9 @@ Naxon=length(axonlist);
 % Copy axonlist
 AxStats=axonlist;
 
-if verbose
-    tic
-    disp('Loop over axons...')
-end
+tic
+disp('Loop over axons...')
+
 for i=Naxon:-1:1
     if ~mod(i,1000), disp(i); end
     if size(axonlist(i).data,1)>5
@@ -87,16 +85,17 @@ for i=Naxon:-1:1
     end
 end
 
-if verbose
-    disp('done')
-    toc
-end
+disp('done')
+toc
+
 
 if ~isempty(writeimg)
     writeimg = imadjust(uint8(writeimg));
     im_out_NZ = im_out(im_out>0);
     if ~isempty(im_out_NZ)
-        maxval=ceil(prctile(im_out(im_out>0),99));
+        if ~exist('maxval','var'), 
+             maxval=ceil(prctile(im_out(im_out>0),99));
+        end
     else
         maxval = 1; scale =1; unit = '_NoAxonsDetected';
     end

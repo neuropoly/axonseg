@@ -1,5 +1,4 @@
 function [x1, x2]=as_myelinFindBoundary2(im1,im2,EquivDiameter,verbose,khomo_off)
-if ~isdeployed, dbstop if error; end
 Nangles=size(im1,1);
 [~,Problematiclength]=find(im1==0); Problematiclength=min(min(Problematiclength));
 

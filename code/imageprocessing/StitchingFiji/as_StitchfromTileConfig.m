@@ -38,7 +38,7 @@ for ff = 1:length(fname)
     Panorama((RowPosmod(ff)+1):(RowPosmod(ff)+dim(1)),(ColPosmod(ff)+1):(ColPosmod(ff)+dim(2)))=im2uint8(tmp);
 end
 
-as_display_LargeImage(Panorama);
+%as_display_LargeImage(Panorama);
 
 function [fname,ColPos,RowPos] = ImportTileConfiguration(filename, startRow, endRow)
 %IMPORTFILE Import numeric data from a text file as column vectors.

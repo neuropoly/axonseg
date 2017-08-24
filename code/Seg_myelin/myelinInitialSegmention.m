@@ -1,7 +1,6 @@
 function [axonlist, MyelinMask, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake,radialProfileMaxLength,khomo_off,PixelSize)
 % [axonlist, axonBW] = myelinInitialSegmention(im, axonBW, backBW, verbose,snake)
 % exemple: [axonlist] = myelinInitialSegmention(img, chosenAxon, allotheraxons,1,0);
-if ~isdeployed, dbstop if error; end
 if nargin<4, verbose = false; end;
 if nargin<5, snake = true; end;
 if ~exist('backBW','var'), backBW=0; end

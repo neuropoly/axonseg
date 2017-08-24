@@ -1,6 +1,6 @@
 function  img_array=as_blockwise_fun(fun,img_array,im_input, verbose)
 % st=as_blockwise_fun(fun,img_array,im_input,verbose?)
-dbstop if error
+
 sparcity=issparse(img_array{1,1}.seg); % for sparse 3D blocks
 disp('Loop over blocks.')
 nb=size(img_array,1)*size(img_array,2);
