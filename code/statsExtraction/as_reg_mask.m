@@ -48,7 +48,7 @@ end
 % mask_reg_labeled=mask_reg_labeled(1:size(img,1),1:size(img,2),:);
 imwrite(uint8(mask_reg_labeled),'Mask_labeled.tif');
 
-imshow(mask_reg_labeled);
+imagesc(mask_reg_labeled); axis image;
 
 end
 
