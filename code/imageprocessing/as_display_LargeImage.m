@@ -11,13 +11,14 @@ function img_zoom = as_display_LargeImage(img)
 %   Double step zoom: zoom twice in an image
 %
 %       AS_DISPLAY_LARGEIMAGE(AS_DISPLAY_LARGEIMAGE(img))
-Data.img = img; Data.img_zoom = img;
 
 figure(76);
-Data.reducefactor=max(1,floor(size(Data.img,1)/1000));   % Max 1000 pixels size set for imshow
+Data.reducefactor=max(1,floor(size(img,1)/1000));   % Max 1000 pixels size set for imshow
 imagesc(img(1:Data.reducefactor:end,1:Data.reducefactor:end,:))
 axis image
-guidata(76,Data)
+setappdata(76,'Data',Data)
+setappdata(76,'img',img)
+
 uicontrol('Style','pushbutton','String','reset','Callback',@(src,event) resestimg)
 uicontrol('Style','pushbutton','String','zoom','Callback',@(src,event) displayimg,'Position',[90 20 60 20])
 set(gcf,'toolbar','figure');
@@ -25,24 +26,32 @@ set(gcf,'toolbar','figure');
 end
 
 function displayimg
-Data = guidata(76);
+Data = getappdata(76,'Data');
+img_zoom = getappdata(76,'img_zoom');
+h=getPosition(imrect)*Data.reducefactor; h = round(h);
+if ~isempty(img_zoom) 
+    img_zoom=img_zoom(max(h(2),1):min(h(2)+h(4),end),max(h(1),1):min(h(1)+h(3),end),:);
+else
+    img = getappdata(76,'img');
+    img_zoom=img(max(h(2),1):min(h(2)+h(4),end),max(h(1),1):min(h(1)+h(3),end),:);
+end
 
-Data.img_zoom=as_improc_cutFromRect(Data.img_zoom, Data.reducefactor);
-
-Data.reducefactor=max(1,floor(size(Data.img_zoom,1)/1000));   % Max 1000 pixels size set for imshow
-imagesc(Data.img_zoom(1:Data.reducefactor:end,1:Data.reducefactor:end,:));
+Data.reducefactor=max(1,floor(size(img_zoom,1)/1000));   % Max 1000 pixels size set for imshow
+imagesc(img_zoom(1:Data.reducefactor:end,1:Data.reducefactor:end,:));
 axis image
 
-guidata(76,Data)
+setappdata(76,'Data',Data)
+setappdata(76,'img_zoom',img_zoom)
 end
 
 function resestimg
-Data = guidata(76);
-Data.reducefactor=max(1,floor(size(Data.img,1)/1000));   % Max 1000 pixels size set for imshow
+Data = getappdata(76,'Data');
+img = getappdata(76,'img');
+Data.reducefactor=max(1,floor(size(img,1)/1000));   % Max 1000 pixels size set for imshow
 
-imagesc(Data.img(1:Data.reducefactor:end,1:Data.reducefactor:end,:))
+imagesc(img(1:Data.reducefactor:end,1:Data.reducefactor:end,:))
 axis image
 
-Data.img_zoom = Data.img;
-guidata(76,Data)
+setappdata(76,'Data',Data)
+setappdata(76,'img_zoom','')
 end

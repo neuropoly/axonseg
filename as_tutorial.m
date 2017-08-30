@@ -8,25 +8,23 @@
 %-------------------------------------------------------------------------%
 
 
-%% PART 1 - LOAD TEST IMAGE AND SEGMENT AXONS AND MYELIN BY USING THE SEGMENTATION GUI
+%% PART 1 - SEGMENT AXONS AND MYELIN USING AxonSeg GUI
 
 % load and display test image
 
 test=imread('test_image_OM.tif');
 figure; imshow(test);
 
-% Use SegmentationGUI to perform axon and myelin on test image
+% Use AxonSeg to perform axon and myelin on test image
 
-SegmentationGUI test_image_OM.tif;
+AxonSeg test_image_OM.tif;
 
-% After segmentation of a region of the image sample, you can launch the
-% full segmentation 
+% After segmentation, the segmentation parameters is saved (SegParameters.mat) you can segment new images using:
 
-as_Segmentation_full_image('test_image_OM.tif','SegParameters.mat');
+AxonSeg('test_image_OM.tif','SegParameters.mat','-nogui');
 
 
 %% PART 2 - EXPLORE AXONLIST STRUCTURE FOR MORPHOMETRY ANALYSIS OF THE DATA
-
 
 load('axonlist.mat');
 
@@ -47,105 +45,64 @@ diam_std=std(Axon_diameters);
 diam_max=max(Axon_diameters);
 diam_min=min(Axon_diameters);
 
-
-%% PART 3 - EXPLORE AXON AND MYELIN DISPLAY OPTIONS AVAILABLE
-
-% Produce an axon display colorcoded for axon diameter on initial gray
-% image
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon'); 
-display_1=sc(sc(bw_axonseg,'hot')+sc(img));
-imshow(display_1);
-
-% display axon colorcoded for axon number
-
-bw_axonseg=as_display_label(axonlist,size(img),'axon number','axon'); 
-display_2=sc(sc(bw_axonseg,'hot')+sc(img));
-imshow(display_2);
-
-% display myelin colorcoded for myelin thickness
-
-bw_axonseg=as_display_label(axonlist,size(img),'myelinThickness','axon'); 
-display_3=sc(sc(bw_axonseg,'hot')+sc(img));
-imshow(display_3);
-
-% display myelin colorcoded for g-ratio
-
-bw_axonseg=as_display_label(axonlist,size(img),'gRatio','myelin'); 
-display_4=sc(sc(bw_axonseg,'hot')+sc(img));
-imshow(display_4);
-
-% change colormap for same display
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon'); 
-display_5=sc(sc(bw_axonseg,'thermal')+sc(img));
-imshow(display_5);
-
-% Save last display to current folder
-
-imwrite(display_1,'Axon_display.tif');
-
-% Get the binary image of axon objects
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-img_BW_axons=im2bw(bw_axonseg,0);
-imshow(img_BW_axons);
-
-imwrite(img_BW_axons,'AxonMask_AxonSeg.tif');
-
-% Get the binary image of myelin objects
-
-bw_axonseg=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
-img_BW_myelins=im2bw(bw_axonseg,0);
-imshow(img_BW_myelins);
-
-imwrite(img_BW_myelins,'MyelinMask_AxonSeg.tif');
-
-% Get the binary image of entire fibers (axon + myelin)
-
-bw_axonseg_axons=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
-bw_axonseg_myelins=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
-
-img_BW_fibers=im2bw(bw_axonseg_axons+bw_axonseg_myelins,0);
-imshow(img_BW_fibers);
-
-% Use fiber binary image as mask to select fibers in gray image
-
-fibers_extract=uint8(img_BW_fibers).*img;
-imshow(fibers_extract);
-imwrite(fibers_extract,'fibers_masked.tif');
-
-
-%% PART 4 - Filter final axonlist results depending on a parameter/feature
+%% PART 3 - Filter final axonlist results depending on a parameter/feature
 
 % Remove axons larger than a certain size (for example 10 um here) from the axonlist
 axonlist([axonlist.axonEquivDiameter]>10)=[];
 
-% You can do a similar operation in order to remove the smallest axons
-axonlist([axonlist.axonEquivDiameter]<0.5)=[];
+% Remove axons that have >50% of their myelin in conflict with their
+% other axons
+axonlist([axonlist.conflict]>0.5)=[];
 
 % You can apply the same method in order to filter the axonlist based on a
 % specific metric, for instance the gRatio here
 axonlist([axonlist.gRatio]>0.9)=[];
 
+% Remove false positive axons detected in the background
+% --> Manually draw a Polygon on your image and get the index of the axons found in this region:
+[Index, Stats] = as_stats_Roi(axonlist, img);
+% --> Remove these axons
+axonlist(Index)=[];
+
+%% PART 4 - EXPLORE AXON AND MYELIN DISPLAY OPTIONS AVAILABLE
+% Note: If your image is very big (>20 megapixels), go to the end of this
+% section, otherwise you will experience memory saturation
+
+% Produce an axon display colorcoded for axon diameter on initial gray
+% image
+axonseg_ind=as_display_label(axonlist,size(img),'axonEquivDiameter','axon'); 
+rgb=sc(sc(axonseg_ind,'hot')+sc(img));
+imshow(rgb);
+
+% display myelin colorcoded for g-ratio
+myelinseg_ind=as_display_label(axonlist,size(img),'gRatio','myelin'); 
+rgb=sc(sc(myelinseg_ind,'hicontrast')+sc(img));
+imshow(rgb);
+
+% Save last display to current folder
+imwrite(rgb,'gratio_rgb.png');
+
+% Get the binary image of entire fibers (axon + myelin)
+bw_axonseg_axons=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
+bw_axonseg_myelins=as_display_label(axonlist,size(img),'axonEquivDiameter','myelin');
+img_BW_fibers=im2bw(bw_axonseg_axons+bw_axonseg_myelins,0);
+imshow(img_BW_fibers);
+
+% FOR LARGE IMAGES: to prevent memory saturation:
+[~, RGB_hot]=as_display_label(axonlist,size(img),'gRatio','myelin');
+% enhance img contrast, convert to RGB and display
+img =imadjust(img);
+img = repmat(img,[1 1 3]);
+as_display_LargeImage(.5*RGB_hot+.5*img) % zoom by drawing a square
+
 %% PART 5 - Correct the axonal mask and redo the myelin segmentation with the modified mask
 
 % If the axon segmentation is not good enough, you can manually correct it
 % on another image processing software (for instance GIMP) by adding,
-% removing or modifying the axon shapes. Then, you can resegment the myelin
-% by using the new axonal mask.
+% removing or modifying the axon shapes. Then, you can segment the myelin
+% again using the new axonal mask (axon_mask.tif).
 
-% First, read the grayscale image that you want to segment
-img = imread('image.tif');
-
-% if the myelin is black, inverse the contraste:
-% img = imcomplement(img);
-
-% Then, read the axonal mask
-axonmask = imread('mask_axons.tif');
-
-% Launch the myelin segmentation on the new axonal mask
-[axonlist, MyelinMask] = myelinInitialSegmention(img,axonmask);
+AxonSeg({'test_image_OM.tif','axon_mask.tif'},'SegParameters.mat','-nogui');
 
 % convert axonlist into excel file
 axontable = struct2table(axonlist);
@@ -155,28 +112,26 @@ writetable(axontable);
 
 %% PART 6 - ROI STATS EXTRACTION
 
-% create and load a RGB mask with different ROIs
+% SOLUTION 1: MANUALLY DRAW A POLYGON ON YOUR IMAGE
+[Index, Stats] = as_stats_Roi(axonlist, img);
 
-mask=imread('mask_2.png');
+
+% SOLUTION 2: CREATE A LOW RESOLUTION COLOR-CODED ATLAS OF THE DIFFERENT REGIONS (E.G. USING POWERPOINT) AND
+% REGISTER THE MASK
+
+% create and load a RGB mask with different ROIs
+mask=imread('mask.png');
 imshow(mask);
 
 % Register the mask on the image
-
 [mask_reg_labeled, P_color]=as_reg_mask(mask,img);
 
 % Get indexes of axons belonging to each ROI of the mask in order to
 % compute statistics
-
-[indexes,mask_stats]=as_stats_mask_labeled_2(axonlist, mask_reg_labeled,0.1);
+[indexes,mask_stats]=as_stats_mask_labeled_2(axonlist, mask_reg_labeled,PixelSize);
 
 % Compute statistics for each ROI and plot results
 as_stats_barplot_2(mask_stats,P_color);
-
-
-as_stats_barplot(axonlist,indexes,P_color);
-
-[mean_gap_axon]=gap_axons(axonlist,PixelSize,3);
-
 
 %% PART 7 - MISC
 
