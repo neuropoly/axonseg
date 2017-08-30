@@ -521,31 +521,16 @@ guidata(hObject, handles);
 
 % --- Executes on button press in region_growing.
 function region_growing_Callback(hObject, eventdata, handles)
-% hObject    handle to region_growing (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 I = im2double(handles.current_img);
 
 [y,x]=getpts;
 y=round(y);
 x=round(x);
 
-if size(x)==1
-    J = as_regiongrowing(I,x,y);
-else
-    J = as_regiongrowing(I,x(1),y(1));
-    
-    for i=2:size(x,1)
-        
-        J_i = as_regiongrowing(I,x(i),y(i));
-        
-        J = J|J_i;
-    end
-    
-    
-    
-    
+J = false(size(I));
+for ii=1:size(x,1)
+    J_i = as_regiongrowing(I,x(ii),y(ii),.2,5);
+    J = J|J_i;
 end
 
 handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
