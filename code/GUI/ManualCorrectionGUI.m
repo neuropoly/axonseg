@@ -187,53 +187,22 @@ try
         roi_free=impoly;
         %         elseif get(handles.ellipse,'Value')==1
         %         roi_free=imellipse;
+    elseif get(handles.smallcircle,'Value')==1
+        roi_free = imellipse;
     end
     
-    coords=roi_free.getPosition;
     
-    %%
+    bw_added=roi_free.createMask;
     
-    %         if isfield(handles, 'current_mask')
-    
-    % binary mask of the new axon in zoomed image
-    bw_added=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
-    
-    %         else
-    %
-    %         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-    %
-    %         end
-    
-    %%
+
     roi_free.delete
 
 end
 
 
-% bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-
-% if handles.zoom_value==1
-%     bw=bw_zoom;
-% else
-
-% if isfield(handles, 'current_mask')
-% bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
-% end
-
-% end
-
-%
-% bw_zoom=bw_zoom|bw_added;
-
-% handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
-
 handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
     handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
 
-% handles.bw_axonseg=handles.bw_axonseg | bw;
-
-
-% alpha_Callback(hObject, eventdata, handles)
 
 guidata(hObject, handles);
 
