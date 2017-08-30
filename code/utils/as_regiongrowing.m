@@ -1,4 +1,4 @@
-function J=as_regiongrowing(I,x,y,reg_maxdist)
+function J=as_regiongrowing(I,x,y,reg_maxdist,reg_maxsize)
 % This function performs "region growing" in an image from a specified
 % seedpoint (x,y)
 %
@@ -26,12 +26,14 @@ function J=as_regiongrowing(I,x,y,reg_maxdist)
 % Author: D. Kroon, University of Twente
 
 if(exist('reg_maxdist','var')==0), reg_maxdist=0.2; end
+if(exist('reg_maxsize','var')==0), reg_maxsize=inf; end
 if(exist('y','var')==0), figure, imshow(I,[]); [y,x]=getpts; y=round(y(1)); x=round(x(1)); end
 
 J = zeros(size(I)); % Output 
 Isizes = size(I); % Dimensions of input image
 
 reg_mean = I(x,y); % The mean of the segmented region
+reg_centroid = [x y]; % Centroid of the segmented region
 reg_size = 1; % Number of pixels in region
 
 % Free memory to store neighbours of the (segmented) region
@@ -45,7 +47,7 @@ neigb=[-1 0; 1 0; 0 -1;0 1];
 
 % Start regiogrowing until distance between regio and posible new pixels become
 % higher than a certain treshold
-while(pixdist<reg_maxdist&&reg_size<numel(I))
+while(pixdist<reg_maxdist&&reg_size<numel(I) && reg_size<reg_maxsize)
 
     % Add new neighbors pixels
     for j=1:4,
@@ -65,14 +67,17 @@ while(pixdist<reg_maxdist&&reg_size<numel(I))
     % Add a new block of free memory
     if(neg_pos+10>neg_free), neg_free=neg_free+10000; neg_list((neg_pos+1):neg_free,:)=0; end
     
-    % Add pixel with intensity nearest to the mean of the region, to the region
+    % Add pixel with intensity nearest (1) to the mean intensity of the region and (2) distance to centroid, to the region
     dist = abs(neg_list(1:neg_pos,3)-reg_mean);
-    [pixdist, index] = min(dist);
+    distcentroid = neg_list(1:neg_pos,[1 2]) - repmat(reg_centroid,[neg_pos 1]);
+    distcentroid = sqrt(sum(distcentroid.^2,2));
+    [~, index] = min(dist/median(dist)*.2+distcentroid/median(distcentroid)*.8);
+    pixdist = dist(index);
     J(x,y)=2; reg_size=reg_size+1;
     
     % Calculate the new mean of the region
     reg_mean= (reg_mean*reg_size + neg_list(index,3))/(reg_size+1);
-    
+    reg_centroid = reg_centroid+1/reg_size*(neg_list(index,[1 2]) - reg_centroid);
     % Save the x and y coordinates of the pixel (for the neighbour add proccess)
     x = neg_list(index,1); y = neg_list(index,2);
     
