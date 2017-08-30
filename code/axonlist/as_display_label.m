@@ -20,7 +20,7 @@ function [im_out,RGB]=as_display_label( axonlist,matrixsize,metric,displaytype, 
 % If no displaytype specified in argument, 'myelin' by default
 if nargin<4; displaytype='myelin';end
 % If writeimg not specified in input, false
-if ~exist('writeimg','var') || max(writeimg(:))==0, writeimg=[]; end
+if ~exist('writeimg','var') || max(size(writeimg))==0, writeimg=[]; end
 
 % Init. output image
 im_out=zeros(matrixsize(1:2),'uint8');
@@ -87,7 +87,7 @@ disp('done')
 toc
 
 
-if nargout>1
+if nargout>1 ||  ~isempty(writeimg)
     im_out_NZ = im_out(im_out>0);
     if ~isempty(im_out_NZ)
         if ~exist('maxval','var'),
@@ -121,7 +121,7 @@ if ~isempty(writeimg)
         warning('Image too big. Output image quality will is  reduced.')
     end
     
-    writeimg = imadjust(uint8(writeimg*(255/intmax(class(img)))));
+    writeimg = imadjust(uint8(writeimg*(255/intmax(class(writeimg)))));
     I=0.5*RGB(1:reducefactor:end,1:reducefactor:end,:)+0.5*repmat(writeimg(1:reducefactor:end,1:reducefactor:end),[1 1 3]);
     colorB = hot(size(I,1))*255; colorB = colorB(end:-1:1,:);
     imwrite(cat(2,I,permute(repmat(colorB,[1 1 max(1,round(0.025*size(I,2)))]),[1 3 2])),[metric '_(' displaytype ')_0_' num2str(double(maxval)/scale) unit '.png'])
