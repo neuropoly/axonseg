@@ -90,7 +90,7 @@ if length(varargin)>1,
     if strfind(handles.axsegfname,'.nii')
         handles.bw_axonseg = load_nii_data(handles.axsegfname);
     else
-        handles.bw_axonseg = imread(handles.axsegfname);
+        handles.bw_axonseg = imread(handles.axsegfname)>0;
     end
 else
     [path, filename, ext]=fileparts(varargin{1});
