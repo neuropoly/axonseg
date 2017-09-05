@@ -35,7 +35,7 @@ function varargout = ManualCorrectionGUI(varargin)
 
 % Edit the above text to modify the response to help ManualCorrectionGUI
 
-% Last Modified by GUIDE v2.5 30-Aug-2017 14:23:06
+% Last Modified by GUIDE v2.5 05-Sep-2017 10:42:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,11 +60,6 @@ end
 
 % --- Executes just before ManualCorrectionGUI is made visible.
 function ManualCorrectionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to ManualCorrectionGUI (see VARARGIN)
 
 % Choose default command line output for ManualCorrectionGUI
 handles.output = hObject;
@@ -97,7 +92,7 @@ else
     handles.axsegfname = fullfile(path, [filename '_ManualSeg' ext]);
     handles.bw_axonseg = false(size(handles.img));
 end
-
+handles.before_add = handles.bw_axonseg;
 % Initialize variables:
 handles.length_y = size(handles.img,1);
 handles.length_x = size(handles.img,2);
@@ -108,8 +103,6 @@ handles.mask_position = [1 handles.length_y 1 handles.length_x];
 % Display image and initial mask on GUI
 axes(handles.axes1);
 sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'y',handles.bw_axonseg)+sc(handles.img));
-
-% zoom(handles.axes1,2);
 
 % Make a copy of image for other operations in GUI
 handles.img2=handles.img;
@@ -172,94 +165,50 @@ end
 
 % --- Executes on button press in add.
 function add_Callback(hObject, eventdata, handles)
-% hObject    handle to add (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 uiresume
-
-%while(sum(sum(bw))>2 && get(handles.add,'Value') && ~get(handles.remove,'Value'))
 try
-    
     if get(handles.freehand,'Value')==1
         roi_free=imfreehand;
     elseif get(handles.polygon,'Value')==1
         roi_free=impoly;
-        %         elseif get(handles.ellipse,'Value')==1
-        %         roi_free=imellipse;
+    elseif get(handles.regiongrowing,'Value')
+        I = im2double(handles.current_img);
+        maxNpix = str2double(get(handles.maxregiongrowsize,'string'));
+        Idiff = str2double(get(handles.Idiff,'string'));
+        bw_added = region_growing_Callback(I,maxNpix,Idiff);
     end
     
-    coords=roi_free.getPosition;
+    if exist('roi_free','var')
+        coords=roi_free.getPosition;
+        % binary mask of the new axon in zoomed image
+        bw_added=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
+        roi_free.delete
+    end
     
-    %%
+    handles.before_add = handles.bw_axonseg;
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
+            handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
     
-    %         if isfield(handles, 'current_mask')
+    if isfield(handles, 'current_mask')
+        
+        length_y=handles.length_y;
+        length_x=handles.length_x;
+        yval = get(handles.slider_y,'Value');
+        xval = get(handles.slider_x,'Max') - get(handles.slider_x,'Value');
+        display_img=handles.img(xval+1:xval+length_y,yval+1:yval+length_x);
+        display_mask=handles.bw_axonseg(xval+1:xval+length_y,yval+1:yval+length_x);
+        sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+        
+    else
+        
+        display_img=handles.img;
+        display_mask=handles.bw_axonseg;
+        sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
+        
+    end
     
-    % binary mask of the new axon in zoomed image
-    bw_added=poly2mask(coords(:,1),coords(:,2),size(handles.current_mask,1),size(handles.current_mask,2));
-    
-    %         else
-    %
-    %         bw=poly2mask(coords(:,1),coords(:,2),size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-    %
-    %         end
-    
-    %%
-    roi_free.delete
-
+    set(handles.add,'Value',0)
 end
-
-
-% bw_empty=zeros(size(handles.bw_axonseg,1),size(handles.bw_axonseg,2));
-
-% if handles.zoom_value==1
-%     bw=bw_zoom;
-% else
-
-% if isfield(handles, 'current_mask')
-% bw(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=bw_zoom;
-% end
-
-% end
-
-%
-% bw_zoom=bw_zoom|bw_added;
-
-% handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
-
-handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
-    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|bw_added;
-
-% handles.bw_axonseg=handles.bw_axonseg | bw;
-
-
-% alpha_Callback(hObject, eventdata, handles)
-
-guidata(hObject, handles);
-
-if isfield(handles, 'current_mask')
-    
-    length_y=handles.length_y;
-    length_x=handles.length_x;
-    yval = get(handles.slider_y,'Value');
-    xval = get(handles.slider_x,'Max') - get(handles.slider_x,'Value');
-    display_img=handles.img(xval+1:xval+length_y,yval+1:yval+length_x);
-    display_mask=handles.bw_axonseg(xval+1:xval+length_y,yval+1:yval+length_x);
-    sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
-    
-else
-    
-    display_img=handles.img;
-    display_mask=handles.bw_axonseg;
-    sc(get(handles.alpha,'Value')*sc(display_mask,'y',display_mask)+sc(display_img));
-    
-end
-
-
-
-%end
-set(handles.add,'Value',0)
-
 guidata(hObject, handles);
 
 
@@ -317,23 +266,6 @@ if get(handles.show_grid,'Value')==1
     sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'copper')+sc(handles.img2))
 end
 guidata(hObject, handles);
-
-
-%
-% if handles.Grid ==1
-%     grid_size = 3;
-%     grid_row = round(length(handles.img2(:,1))/grid_size);
-%     grid_col = round(length(handles.img2(1,:))/grid_size);
-%     handles.img2(grid_row:grid_row:end,:,:) = 255;       %# creat 3x3 grid over image to facilitate segmentation process
-%     handles.img2(:,grid_col:grid_col:end,:) = 255;
-%     sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'copper')+sc(handles.img2))
-% else
-%     grid_size = 1;
-%     sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'copper')+sc(handles.img))
-% end
-
-
-% Hint: get(hObject,'Value') returns toggle state of show_grid
 
 
 % --- Executes on button press in split.
@@ -520,8 +452,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in region_growing.
-function region_growing_Callback(hObject, eventdata, handles)
-I = im2double(handles.current_img);
+function J = region_growing_Callback(I,maxsize,Idiff)
 
 [y,x]=getpts;
 y=round(y);
@@ -529,31 +460,15 @@ x=round(x);
 
 J = false(size(I));
 for ii=1:size(x,1)
-    J_i = as_regiongrowing(I,x(ii),y(ii),.2,str2double(get(handles.maxregiongrowsize,'string')));
+    J_i = as_regiongrowing(I,x(ii),y(ii),Idiff,maxsize);
     J = J|J_i;
 end
-
-handles.before_add=handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
-
-handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=...
-    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))|J;
-
-update_display(hObject, eventdata, handles);
-
-
-
-% Hint: get(hObject,'Value') returns toggle state of region_growing
-
-guidata(hObject, handles);
 
 
 % --- Executes on button press in undo.
 function undo_Callback(hObject, eventdata, handles)
-% hObject    handle to undo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=handles.before_add;
+handles.bw_axonseg=handles.before_add;
 
 update_display(hObject, eventdata, handles);
 
@@ -578,6 +493,38 @@ function maxregiongrowsize_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function maxregiongrowsize_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to maxregiongrowsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in regiongrowing.
+function regiongrowing_Callback(hObject, eventdata, handles)
+% hObject    handle to regiongrowing (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of regiongrowing
+
+
+
+function Idiff_Callback(hObject, eventdata, handles)
+% hObject    handle to Idiff (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Idiff as text
+%        str2double(get(hObject,'String')) returns contents of Idiff as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Idiff_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Idiff (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
