@@ -48,7 +48,7 @@ diam_min=min(Axon_diameters);
 %% PART 3 - Filter final axonlist results depending on a parameter/feature
 
 % Remove axons larger than a certain size (for example 10 um here) from the axonlist
-axonlist([axonlist.axonEquivDiameter]>10)=[];
+axonlist([axonlist.axonEquivDiameter]>15)=[];
 
 % Remove axons that have >50% of their myelin in conflict with their
 % other axons

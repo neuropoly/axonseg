@@ -11,9 +11,11 @@ if ~isempty(axonlist)
         [axonlist.Centroid]=deal(centroidscell{:});
         
         % change data
-        data=cat(1,axonlist.data);
-        data(:,1)=data(:,1)+neworigin(1); data(:,2)=data(:,2)+neworigin(2);
-        datacell=mat2cell(data,cat(1,axonlist.myelinAera));
-        [axonlist.data]=deal(datacell{:});
+        if isfield(axonlist,'data')
+            data=cat(1,axonlist.data);
+            data(:,1)=data(:,1)+neworigin(1); data(:,2)=data(:,2)+neworigin(2);
+            datacell=mat2cell(data,cat(1,axonlist.myelinAera));
+            [axonlist.data]=deal(datacell{:});
+        end
     end
 end
