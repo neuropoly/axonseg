@@ -65,7 +65,12 @@ img = imadjust(handles.data.img);
 %% SAVE
 % save axonlist
 PixelSize = SegParameters.PixelSize;
+w=whos('axonlist','img','PixelSize');
+if sum([w.bytes])<2e9 
+save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7')
+else
 save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+end
 
 
 % save jpeg
