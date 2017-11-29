@@ -15,7 +15,7 @@ For help or support related to AxonSeg (bugs, trouble with installation, feedbac
 
 ## Tutorials
 
-Link to video demo (SegmentationGUI.m): https://github.com/neuropoly/axonseg/releases/download/v2.1/Axon_Segmentation_GUI_Quick_Overview.mp4.
+Link to video demo (note: SegmentationGUI.m was renamed AxonSeg.m): https://github.com/neuropoly/axonseg/releases/download/v2.1/Axon_Segmentation_GUI_Quick_Overview.mp4.
 
 After installation, run the ```as_tutorial.m``` script line by line to get a better understanding of AxonSeg.
 
