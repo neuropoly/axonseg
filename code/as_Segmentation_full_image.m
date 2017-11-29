@@ -1,4 +1,4 @@
-function as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output)
+function as_Segmentation_full_image(im_fname,SegParameters,blocksize,overlap,output,skipmyelin)
 % as_Segmentation_full_image(im_fname,SegParameters,blocksize (# of pixels),overlap,output)
 % as_Segmentation_full_image('Control_2.tif', 'SegParameters.mat',2000,100,'Control_2_results')
 %
@@ -49,41 +49,52 @@ if ~exist('overlap','var') || isempty(overlap)
 end
 blocksize = blocksize + overlap;
 
+if ~exist('skipmyelin','var') || isempty(skipmyelin)
+    skipmyelin = false;
+end
+SegParameters.skipmyelin=skipmyelin;
+
 % read axonseg if exists.
 if exist('axonbw_fname','var'), handles.data.img(:,:,2) = imread(axonbw_fname); end
 %% SEGMENTATION
 
 disp('Starting segmentation..')
-axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
-handles.data.img = handles.data.img(:,:,1);
-[ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
-img = imadjust(handles.data.img);
-% img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
-% img=as_improc_rm_overlap(img,blocksize,overlap);
-
-
-%% SAVE
-% save axonlist
-PixelSize = SegParameters.PixelSize;
-w=whos('axonlist','img','PixelSize');
-if sum([w.bytes])<2e9 
-save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7')
+if skipmyelin
+    AxSeg = blockproc(handles.data.img,[blocksize blocksize],@(x) fullimage(x.data,SegParameters),'BorderSize',[overlap overlap]);
+    imwrite(AxSeg,[output 'axonmask.png']);
 else
-save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+    axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
+    
+    handles.data.img = handles.data.img(:,:,1);
+    [ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
+    img = imadjust(handles.data.img);
+    % img=cell2mat(cellfun(@(x) x.img, myelin_seg_results,'Uniformoutput',0));
+    % img=as_improc_rm_overlap(img,blocksize,overlap);
+    
+    
+    %% SAVE
+    % save axonlist
+    PixelSize = SegParameters.PixelSize;
+    w=whos('axonlist','img','PixelSize');
+    if sum([w.bytes])<2e9
+        save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7')
+    else
+        save([output 'axonlist_full_image.mat'], 'axonlist', 'img', 'PixelSize','-v7.3')
+    end
+    
+    
+    % save jpeg
+    % save axon display
+    currentdir = pwd;
+    cd(output);
+    as_display_label(axonlist, size(img),'axonEquivDiameter','axon',img);
+    
+    % save myelin display
+    as_display_label(axonlist, size(img),'axonEquivDiameter','myelin',img);
+    cd(currentdir);
 end
 
-
-% save jpeg
-% save axon display
-currentdir = pwd;
-cd(output);
-as_display_label(axonlist, size(img),'axonEquivDiameter','axon',img);
-
-% save myelin display
-as_display_label(axonlist, size(img),'axonEquivDiameter','myelin',img);
-cd(currentdir);
-
-function [axonlist,AxSeg]=fullimage(im_in,segParam)
+function out=fullimage(im_in,segParam)
 
 % Apply initial parameters (invertion, histogram equalization, convolution)
 % to the full image
@@ -113,4 +124,8 @@ end
 %Myelin Segmentation
 [AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
 backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-[axonlist] = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,segParam.Regularize,2/3,0,segParam.PixelSize);
+if segParam.skipmyelin
+    out = AxSeg;
+else
+    out = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,segParam.Regularize,2/3,0,segParam.PixelSize);
+end
