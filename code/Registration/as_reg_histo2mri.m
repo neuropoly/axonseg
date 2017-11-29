@@ -1,5 +1,5 @@
 function [tform,MRIref,moving_out,fixed_out]=as_reg_histo2mri(histo,MRI)
-% [tform,MRIref]=as_reg_img2nii(histo,MRI)
+% [tform,MRIref]=as_reg_histo2mri(histo,MRI)
 % Then: img_reg=imwarp(img,tform,'outputview',MRIref);
 
 
