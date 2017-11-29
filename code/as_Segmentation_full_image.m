@@ -60,10 +60,10 @@ if exist('axonbw_fname','var'), handles.data.img(:,:,2) = imread(axonbw_fname); 
 
 disp('Starting segmentation..')
 if skipmyelin
-    AxSeg = blockproc(handles.data.img,[blocksize blocksize],@(x) fullimage(x.data,SegParameters),'BorderSize',[overlap overlap]);
+    AxSeg = blockproc(handles.data.img,[blocksize blocksize],@(x) as_Segmentation(x.data,SegParameters),'BorderSize',[overlap overlap]);
     imwrite(AxSeg,[output 'axonmask.png']);
 else
-    axonlist_cell=as_improc_blockwising(@(x) fullimage(x,SegParameters),handles.data.img,blocksize,overlap,0);
+    axonlist_cell=as_improc_blockwising(@(x) as_Segmentation(x,SegParameters),handles.data.img,blocksize,overlap,0);
     
     handles.data.img = handles.data.img(:,:,1);
     [ axonlist ] = as_listcell2axonlist( axonlist_cell, blocksize, overlap,SegParameters.PixelSize);
@@ -94,38 +94,3 @@ else
     cd(currentdir);
 end
 
-function out=fullimage(im_in,segParam)
-
-% Apply initial parameters (invertion, histogram equalization, convolution)
-% to the full image
-if size(im_in,3)==2, AxSeg = logical(im_in(:,:,2)); im_in = im_in(:,:,1); end
-if segParam.invertColor, im_in=imcomplement(im_in); end
-if segParam.histEq, im_in=histeq(im_in,segParam.histEq); end;
-if segParam.Deconv,im_in=Deconv(im_in,segParam.Deconv); end;
-if segParam.Smoothing, im_in=as_gaussian_smoothing(im_in); end;
-
-% Step1 - initial axon segmentation using the 3 parameters given
-
-if ~exist('AxSeg','var')
-    AxSeg=step1_full(imresize(im_in,2),segParam);
-    
-    
-    % Step 2 - discrimination for axon segmentation
-    %
-    if isfield(segParam,'parameters') && isfield(segParam,'DA_classifier')
-        AxSeg = as_AxonSeg_predict(AxSeg,segParam.DA_classifier, segParam.parameters,imresize(im_in,2));
-    else
-        AxSeg=step2_full(AxSeg,segParam);
-    end
-    
-    AxSeg = imresize(AxSeg,0.5);
-end
-
-%Myelin Segmentation
-[AxSeg_rb,~]=RemoveBorder(AxSeg,segParam.PixelSize);
-backBW=AxSeg & ~AxSeg_rb; % backBW = axons that have been removed by RemoveBorder
-if segParam.skipmyelin
-    out = AxSeg;
-else
-    out = myelinInitialSegmention(im_in, AxSeg_rb, backBW,0,segParam.Regularize,2/3,0,segParam.PixelSize);
-end
