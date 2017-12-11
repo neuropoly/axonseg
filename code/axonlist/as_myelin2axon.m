@@ -19,7 +19,7 @@ if isempty([xa,ya])
     xa=1;
     ya=1;
 end
-
+ind = zeros(length(xa+indminx),2);
 ind(:,1)=xa+indminx;
 ind(:,2)=ya+indminy;
 

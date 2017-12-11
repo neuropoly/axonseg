@@ -35,12 +35,8 @@ disp('Loop over axons...')
 for i=Naxon:-1:1
     if ~mod(i,1000), disp(i); end
     if size(axonlist(i).data,1)>5
-        index=round(axonlist(i).data);
-        %     tmp=index(1)<matrixsize(:,1) | index(:,1)>matrixsize(1);
-        %     index(find(tmp))=[];
-        %     tmp=index(2)<matrixsize(:,2) | index(:,2)>matrixsize(2);
-        %     index(find(tmp))=[];
-        
+        index=round(double(axonlist(i).data)+repmat(axonlist(i).Centroid,[size(axonlist(i).data,1),1]));
+
         %   If 'axon' display type is specified, find axon index instead of
         %   myelin index
         if strcmp(displaytype,'axon')

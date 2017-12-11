@@ -7,7 +7,9 @@ function varargout = AxonSeg(varargin)
 %   AxonSeg( fname, SegParameters ) load the parameters from SegParameters
 %   file (e.g. SegParameters.mat)
 %   AxonSeg( fname, SegParameters, '-nogui' ) starts the segmentation
-%   of the image (nogui)
+%   of the myelin (nogui)
+%   AxonSeg( fname, SegParameters, '-nogui', '-skipmyelin' ) starts the segmentation
+%   of the axons only (nogui)
 %   AxonSeg( {fname, axon_mask_fname}, SegParameters, '-nogui' ) starts the
 %   myelin segmentation
 % ----------------------------------------------------------------------------------------------------
@@ -47,7 +49,13 @@ end
 nogui = strcmp(varargin,'-nogui');
 if nargin>2 && max(nogui)
     varargin(nogui) = [];
-    as_Segmentation_full_image(varargin{:})
+    skipmyelin = strcmp(varargin,'-skipmyelin');
+    if max(skipmyelin)
+        varargin(skipmyelin) = [];
+        as_Segmentation_full_image(varargin{1},varargin{2},[],[],[],true)
+    else
+        as_Segmentation_full_image(varargin{:})
+    end
     return;
 end
 if nargout

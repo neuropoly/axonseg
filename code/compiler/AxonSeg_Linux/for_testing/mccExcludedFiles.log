@@ -1,8 +1,0 @@
-The List of Excluded Files
-Excluded files	 Exclusion Message ID	 Reason For Exclusion	 Exclusion Rule
-/autofs/cluster/matlab/9.0/toolbox/ident/nlident/@idnlarx/pem_.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	
-/autofs/cluster/matlab/9.0/toolbox/ident/nlident/@idnlgrey/pem_.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	
-/autofs/cluster/matlab/9.0/toolbox/local/+matlab/+internal/+toolboxes/addInstalledToolboxesToPath.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	/autofs/cluster/matlab/9\.0/toolbox/local/[+]matlab/[+]internal/[+]toolboxes/addInstalledToolboxesToPath[.]m
-/autofs/cluster/matlab/9.0/toolbox/local/+matlab/+internal/+zipAddOns/addInstalledZipAddOnsToPath.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	/autofs/cluster/matlab/9\.0/toolbox/local/[+]matlab/[+]internal/[+]zipAddOns/addInstalledZipAddOnsToPath[.]m
-/autofs/cluster/matlab/9.0/toolbox/matlab/codetools/@mtree/mtree.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	/autofs/cluster/matlab/9\.0/toolbox/matlab/codetools
-/autofs/cluster/matlab/9.0/toolbox/matlab/codetools/initdesktoputils.m	MATLAB:Completion:ExcludedBy	Cannot be packaged for use in the target environment MCR. Removed from the parts list by license Compiler.	/autofs/cluster/matlab/9\.0/toolbox/matlab/codetools

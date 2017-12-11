@@ -19,7 +19,7 @@ if ~license('checkout','Distrib_Computing_Toolbox') || n_blocki*n_blockj==1 % if
     parforArg = 0;
 else
     parforArg = Inf;
-    if ~isempty(gcp('nocreate'))
+    if isempty(gcp('nocreate'))
         parpool
     end
 end

@@ -10,10 +10,17 @@ if ~isempty(axonlist)
         centroidscell=mat2cell(centroids,ones(size(centroids,1),1));
         [axonlist.Centroid]=deal(centroidscell{:});
         
+        % N pixels
+        Npx = zeros(length(axonlist),1);
+        for ial=1:length(axonlist)
+            Npx(ial) = length(axonlist(ial).data);
+        end
         % change data
-        data=cat(1,axonlist.data);
-        data(:,1)=data(:,1)+neworigin(1); data(:,2)=data(:,2)+neworigin(2);
-        datacell=mat2cell(data,cat(1,axonlist.myelinAera));
-        [axonlist.data]=deal(datacell{:});
+        if isfield(axonlist,'data')
+            data=cat(1,axonlist.data);
+            data(:,1)=data(:,1)+neworigin(1); data(:,2)=data(:,2)+neworigin(2);
+            datacell=mat2cell(data,Npx);
+            [axonlist.data]=deal(datacell{:});
+        end
     end
 end

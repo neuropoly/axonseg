@@ -24,9 +24,6 @@ im=sum(im,3);
 [axonLabel, numAxon] = bwlabel(axonBW);
 axonProp = regionprops(axonLabel, 'EquivDiameter');
 
-% numAxon = 10;
-throwIdx = false(numAxon, 1);
-
 %% Parameters
 
 numAnglesRadialProfile = 2*36;
@@ -204,21 +201,10 @@ for currentAxonLabel = 1:numAxon
     currentMyelinBW = xor(currentMyelinBWFilled, currentAxonBW);
     
     if verbose, figure(67), imagesc(imfuse(currentMyelinBW,im(minyyppext(2):(minyyppext(2)+masksize(2)),minyyppext(1):(minyyppext(1)+masksize(1))))); end
-    %% Clean Up
-    cc = bwconncomp(currentMyelinBW, 4);
-    nObjToKeep = 1;
-    %            Broken Obj                      Myelin has no holes
-    if cc.NumObjects > nObjToKeep || sum(sum(currentAxonBW & currentMyelinBW)) > 0
-        throwIdx(currentAxonLabel) = true;
-    end
-    
+    %% add to axonlist    
     axonlist(currentAxonLabel) = as_myelinseg2axonlist(currentMyelinBW,PixelSize);
     axonlist(currentAxonLabel) = as_axonlist_changeorigin(axonlist(currentAxonLabel),round(minyyppext(1,[2 1])));
-    
-    %     %% Compute conflicts
-    %     Conflicts = MyelinMask & currentMyelinBW;
-    %     ConflictsRatio(currentAxonLabel) = sum(Conflicts(:))/sum(currentMyelinBW(:));
-    
+        
 end
 
 % for currentAxonLabel = 1:length(axonlist)
@@ -251,7 +237,6 @@ end
 
 
 j_progress('elapsed')
-%initialArray(:, :, throwIdx) = [];
 axonBW = logical(axonLabel);
 end
 

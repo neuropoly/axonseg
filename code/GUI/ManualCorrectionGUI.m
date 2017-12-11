@@ -85,7 +85,7 @@ if length(varargin)>1,
     if strfind(handles.axsegfname,'.nii')
         handles.bw_axonseg = load_nii_data(handles.axsegfname);
     else
-        handles.bw_axonseg = imread(handles.axsegfname);
+        handles.bw_axonseg = imread(handles.axsegfname)>0;
     end
 else
     [path, filename, ext]=fileparts(varargin{1});
@@ -97,7 +97,7 @@ handles.before_add = handles.bw_axonseg;
 handles.length_y = size(handles.img,1);
 handles.length_x = size(handles.img,2);
 handles.current_mask = handles.bw_axonseg;
-handles.current_img = handles.img;
+handles.current_img = double(handles.img);
 handles.mask_position = [1 handles.length_y 1 handles.length_x];
 
 % Display image and initial mask on GUI
@@ -106,6 +106,12 @@ sc(get(handles.alpha,'Value')*sc(handles.bw_axonseg,'y',handles.bw_axonseg)+sc(h
 
 % Make a copy of image for other operations in GUI
 handles.img2=handles.img;
+
+% RegionGrowing param
+set(handles.Idiff,'Value',std(handles.current_img(:)))
+set(handles.Idiff,'Max',5*std(handles.current_img(:)))
+set(handles.Idiff,'Min',.1*std(handles.current_img(:)))
+
 
 % Update handles structure
 guidata(hObject, handles);
@@ -218,15 +224,26 @@ function remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume
+moveptr(handles.axes1,'move',5,5);  % so easy
+
 BW2=bwmorph(handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)),'shrink',3);
 yval = get(handles.slider_y,'Value');
 xval = get(handles.slider_x,'Max') - get(handles.slider_x,'Value');
 sc(handles.img(xval+1:xval+handles.length_y,yval+1:yval+handles.length_x),'r',BW2);
 try
-    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4))=as_obj_remove(handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)));
+    mask = handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4));
+    if get(handles.rmFreehand,'Value')
+        roi_free=imfreehand;
+        mask = mask & ~roi_free.createMask;
+    else
+        mask = as_obj_remove(mask);
+    end
+    handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)) = mask;
 end
 alpha_Callback(hObject, eventdata, handles)
 guidata(hObject, handles);
+
+
 
 
 % --- Executes on button press in save.
