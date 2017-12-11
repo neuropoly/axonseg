@@ -32,7 +32,7 @@ ColPosmod = round(ColPos-min(ColPos));
 
 [maxRowPos,MRind]=max(RowPosmod); MsizeRow = size(imread(fname{MRind}),1);
 [maxColPos,MRind]=max(ColPosmod); MsizeColPos = size(imread(fname{MRind}),2);
-img = zeros(floor(round(maxRowPos+MsizeRow+1)/reducefactor),floor(round(maxColPos+MsizeColPos+1)/reducefactor),'uint8');
+img = zeros(ceil(round(maxRowPos+MsizeRow+1)/reducefactor),ceil(round(maxColPos+MsizeColPos+1)/reducefactor),'uint8');
 
 rest_row = mod(RowPosmod,reducefactor);
 rest_col = mod(ColPosmod,reducefactor);
@@ -42,6 +42,6 @@ for ff = 1:length(fname)
     img(ceil((RowPosmod(ff)+1)/reducefactor):(ceil((RowPosmod(ff)+1)/reducefactor)+size(tmp,1)-1),ceil((ColPosmod(ff)+1)/reducefactor):(ceil((ColPosmod(ff)+1)/reducefactor)+size(tmp,2)-1))=im2uint8(tmp);
 end
 
-%as_display_LargeImage(Panorama);
+%as_display_LargeImage(img);
 end
 
