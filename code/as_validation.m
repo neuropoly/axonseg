@@ -1,21 +1,21 @@
 function [Validation_results] = as_validation(img_BW_control,img_BW_test)
 % as_validation computes specificity, sensitivity, true prositive, true
 % negatives ...
-
+%
 % img_path_1 = uigetimagefile;
 % img_BW_test = imread(img_path_1);
 % 
 % img_path_2 = uigetimagefile;
 % img_BW_control = imread(img_path_2);
-
+%
 % img_BW_control=im2bw(img_BW_control,0);
 % 
 % img_BW_control=as_display_label(axonlist_control,size(img),'axonEquivDiameter','axon');
 % 
 % img_BW_test=as_display_label(axonlist,size(img),'axonEquivDiameter','axon');
 % img_BW_test=im2bw(img_BW_test,0);
-
-
+%
+%
 % imshow(imfuse(img_BW_test,img_BW_control));
 
 if nargin<2
