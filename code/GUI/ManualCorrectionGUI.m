@@ -224,7 +224,7 @@ function remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume
-moveptr(handles.axes1,'move',5,5);  % so easy
+%moveptr(handles.axes1,'move',5,5);  % so easy
 
 BW2=bwmorph(handles.bw_axonseg(handles.mask_position(1):handles.mask_position(2),handles.mask_position(3):handles.mask_position(4)),'shrink',3);
 yval = get(handles.slider_y,'Value');
