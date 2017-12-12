@@ -110,7 +110,21 @@ axontable.axonID=[];
 axontable.data=[];
 writetable(axontable);
 
-%% PART 6 - ROI STATS EXTRACTION
+
+%% PART 6 - SEGMENT ONLY AXONS
+
+% In your SegParameters.mat structure, specify option to skip myelin segmentation
+segParam.skipmyelin = true;
+
+% Compute the axon segmentation mask
+axon_mask=as_Segmentation(im_in,segParam);
+
+% If needed, you can then launch the myelin segmentation on the axon segmentation mask obtained previously.
+% Before, make sure you save the modified SegParameters.mat structure and the axonal mask as an image file.
+AxonSeg({'img.png','axon_mask.png'}, 'SegParameters.mat', '-nogui');
+
+
+%% PART 7 - ROI STATS EXTRACTION
 
 % SOLUTION 1: MANUALLY DRAW A POLYGON ON YOUR IMAGE
 [Index, Stats] = as_stats_Roi(axonlist, img);
@@ -133,7 +147,7 @@ imshow(mask);
 % Compute statistics for each ROI and plot results
 as_stats_barplot_2(mask_stats,P_color);
 
-%% PART 7 - MISC
+%% PART 8 - MISC
 
 % calculate myelin volume fraction (MVF) in an image
 
