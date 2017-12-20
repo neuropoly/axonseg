@@ -7,7 +7,7 @@ Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 
 2 - Add the folder *code* to your Matlab path
 
-3 - Run the script AxonSeg.m
+3 - Run the script AxonSeg
 
 ## Help & Support
 
