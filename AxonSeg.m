@@ -15,10 +15,10 @@ function varargout = AxonSeg(varargin)
 % ----------------------------------------------------------------------------------------------------
 % Example:
 %   Segment and generate a SegParameters.mat file:
-%     AxonSeg test_image_OM_crop.tif
+%     AxonSeg test_image_OM_2.tif
 %
 %   Segment a new image using the same SegParameters:
-%     AxonSeg test_image_2.tif SegParameters.mat -nogui
+%     AxonSeg test_image_OM_2.tif SegParameters.mat -nogui
 %
 %   Segment myelin using a corrected axon mask:
 %     AxonSeg({'RawImage.tif','Seg_mask_axon_corr.tif'}, 'SegParameters.mat', '-nogui')

@@ -10,16 +10,13 @@ sfields=as_stats_fields;
 for iaxon=size(seg,3):-1:1
     [axonlist(iaxon).data(:,1), axonlist(iaxon).data(:,2)]=find(seg(:,:,iaxon));
     axonlist(iaxon).data = single(axonlist(iaxon).data);
-    axonlist(iaxon).myelinAera=size(axonlist(iaxon).data,1);
-    axonlist(iaxon).axonID=repmat(iaxon,[axonlist(iaxon).myelinAera,1]);
     tmp=regionprops(seg(:,:,iaxon),'Centroid');
     if isempty(tmp), axonlist(iaxon).Centroid=[];
     else
-            axonlist(iaxon).Centroid=tmp(1).Centroid([2 1]);
+        axonlist(iaxon).Centroid=tmp(1).Centroid([2 1]);
     end
     for istat=1:length(sfields)
         tmp=stats.(sfields{istat});
         axonlist(iaxon).(sfields{istat})=tmp(iaxon);
     end
 end
-    

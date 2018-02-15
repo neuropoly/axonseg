@@ -24,7 +24,7 @@ else
     end
 end
 
-parfor(block=1:n_blocki*n_blockj,parforArg)
+for (block=1:n_blocki*n_blockj)
     j=1+(blocksize-overlap)*(mod(block-1,n_blockj));
     i=1+(blocksize-overlap)*(block-mod(block-1,n_blockj)-1)/n_blockj;
     

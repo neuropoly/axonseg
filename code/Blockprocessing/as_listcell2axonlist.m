@@ -27,7 +27,7 @@ end
 % list of cell 2 one list only
 axonlist(length(listcell_seg))=listcell_seg{end};
 [axonlist.seg]=deal(listcell_seg{:});
-axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(logical([axonlist.myelinAera])); % weird but works (fast).. keep everything
+axonlist=cat(2,axonlist.seg); axonlist=cat(2,axonlist.seg); axonlist=axonlist(logical([axonlist.gRatio])); % weird but works (fast).. keep everything
 
 % remove axons that have been segmented twice
 centroids=cat(1,axonlist.Centroid);

@@ -44,14 +44,14 @@ display_1=sc(sc(bw_axonseg,'hot')+sc(img));
 % imshow(display_1);
 
 maxdiam=ceil(prctile(cat(1,axonlist.axonEquivDiameter),99));
-imwrite(display_1,[output 'axonEquivDiameter_(axons)_0µm_' num2str(maxdiam) 'µm.jpg'])
+imwrite(display_1,[output 'axonEquivDiameter_(axons)_0um_' num2str(maxdiam) 'um.jpg'])
 
 
 %%
 
 % reduce size of axonlist - eliminate all unecessary fields
 
-fields_to_remove = {'data','axonID'}; % erasing these 2 fields reduces axonlist size by 90% 1 MB -> 113 KB for example
+fields_to_remove = {'data'}; % erasing these 2 fields reduces axonlist size by 90% 1 MB -> 113 KB for example
 axonlist_reduced=rmfield(axonlist,fields_to_remove);
 % save('axonlist_reduced.mat','axonlist_reduced','-v7.3');
 
