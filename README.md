@@ -4,6 +4,7 @@ Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 ## Installation
 ### Application
 MAC: https://github.com/neuropoly/axonseg/releases/download/v3.0/AxonSeg_Mac.zip  
+*Please refer to [issue #51](https://github.com/neuropoly/axonseg/issues/51) to solve installation error on MAC OS Sierra and later*  
 Windows: https://github.com/neuropoly/axonseg/releases/download/v3.0/AxonSeg_win.exe  
 Linux: https://github.com/neuropoly/axonseg/releases/download/v3.0/AxonSeg_Linux64.install
 
