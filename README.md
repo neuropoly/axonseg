@@ -1,6 +1,8 @@
 # AxonSeg: Axon Segmentation Toolbox
 Segment axon and myelin from microscopy data. Written in Matlab (R2014a).
 
+**ANNOUNCEMENT: AxonSeg software now has a little brother: [AxonDeepSeg](https://axondeepseg.readthedocs.io), which is based on deep-learning and provides better performance. We encourage you to switch to AxonDeepSeg**
+
 ## Installation
 ### Application
 MAC: https://github.com/neuropoly/axonseg/releases/download/v3.0/AxonSeg_Mac.zip  
